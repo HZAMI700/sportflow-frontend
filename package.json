@@ -1,8 +1,5 @@
 {
   "name": "sportflow-frontend",
   "version": "1.0.0",
-  "description": "SportFlow Live & Scheduled Sports Streaming Frontend",
-  "scripts": {
-    "build": "echo 'Build successful'"
-  }
+  "description": "SportFlow Live & Scheduled Sports Streaming Frontend"
 }
