@@ -2,105 +2,141 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SportFlow — Prime Vision Sports Streaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>STREAM NARO — Premium Live Sports Streaming</title>
+  
+  <!-- SEO & Social Meta -->
+  <meta name="description" content="STREAM NARO delivers live sports streaming, real-time match coverage, and 24/7 sports networks with intelligent multi-server auto-recovery.">
+  <meta name="theme-color" content="#050608">
+  <meta property="og:title" content="STREAM NARO — Premium Live Sports Streaming">
+  <meta property="og:description" content="Watch live football, basketball, tennis, F1, combat sports, and 24/7 sports channels with intelligent stream auto-recovery.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="STREAM NARO">
+
+  <!-- Stream Naro SVG Favicon (Dual-beam Cyan Signal Beacon) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='naroG' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300f0ff'/%3E%3Cstop offset='100%25' stop-color='%230ea5e9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%23090b10'/%3E%3Cpath d='M8 24V8l6 8v8l-6-8z' fill='url(%23naroG)'/%3E%3Cpath d='M18 24V16l6 8V8l-6 8z' fill='%2300f0ff' opacity='0.85'/%3E%3Ccircle cx='24' cy='8' r='2' fill='%2300f0ff'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23090b10'/%3E%3Cpath d='M45 135V45l35 45v45l-35-45z' fill='%2300f0ff'/%3E%3Cpath d='M100 135V90l35 45V45l-35 45z' fill='%230ea5e9'/%3E%3Ccircle cx='135' cy='45' r='10' fill='%2300f0ff'/%3E%3C/svg%3E">
+
+  <!-- Styles & Fonts -->
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <!-- Load Hls.js for stream decoding -->
+  
+  <!-- HLS.js for direct video streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
-  <!-- Load ArtPlayer for pro streaming controls -->
+  <!-- ArtPlayer Pro for streaming controls -->
   <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
 </head>
 <body class="theme-dark">
   <div class="app-viewport">
-    <!-- Main Dashboard Curved Window Frame -->
+    <!-- Stream Naro Main Dashboard Shell -->
     <div class="app-dashboard-frame">
       
-      <!-- Top Navigation Header -->
-      <header class="top-nav-bar">
+      <!-- Top Sticky Navigation Bar -->
+      <header class="top-nav-bar" id="main-header">
+        <!-- Mobile Brand & Menu Toggle -->
+        <div class="mobile-brand-row">
+          <div class="brand-logo-mark">
+            <svg class="brand-icon-svg" viewBox="0 0 32 32" width="28" height="28">
+              <defs>
+                <linearGradient id="naroLogoG" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00f0ff"/>
+                  <stop offset="100%" stop-color="#0ea5e9"/>
+                </linearGradient>
+              </defs>
+              <rect width="32" height="32" rx="7" fill="#0d111a"/>
+              <path d="M8 23V9l6 7v7l-6-7z" fill="url(#naroLogoG)"/>
+              <path d="M18 23v-7l6 7V9l-6 7z" fill="#00f0ff" opacity="0.9"/>
+              <circle cx="24" cy="9" r="2.2" fill="#00f0ff"/>
+            </svg>
+            <div class="brand-text-wrap">
+              <span class="brand-title">STREAM <span class="brand-cyan">NARO</span></span>
+            </div>
+          </div>
+        </div>
+
         <!-- Search Capsule -->
-        <div class="search-capsule">
+        <div class="search-capsule" role="search">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="search-input" placeholder="Search matches, teams, leagues... (Press '/')" autocomplete="off">
-          <span class="search-key-hint">/</span>
-          <button id="clear-search-btn" class="clear-btn hidden">&times;</button>
+          <input type="text" id="search-input" placeholder="Search matches, clubs, leagues... (Press '/')" autocomplete="off" aria-label="Search live sports">
+          <span class="search-key-hint" aria-hidden="true">/</span>
+          <button id="clear-search-btn" class="clear-btn hidden" aria-label="Clear search">&times;</button>
         </div>
 
-        <!-- Horizontal Category Pills -->
-        <nav class="top-category-scroll" id="top-category-pills">
+        <!-- Top Category Scroll Pills -->
+        <nav class="top-category-scroll" id="top-category-pills" aria-label="Sport categories">
           <button class="top-cat-pill active" data-category="all">All Sports</button>
           <button class="top-cat-pill" data-category="football">Football</button>
           <button class="top-cat-pill" data-category="basketball">Basketball</button>
           <button class="top-cat-pill" data-category="tennis">Tennis</button>
           <button class="top-cat-pill" data-category="cricket">Cricket</button>
-          <button class="top-cat-pill" data-category="motorsport">F1 & Motor</button>
-          <button class="top-cat-pill" data-category="mma">MMA</button>
+          <button class="top-cat-pill" data-category="motorsport">F1 &amp; Motor</button>
+          <button class="top-cat-pill" data-category="mma">Combat / MMA</button>
           <button class="top-cat-pill" data-category="hockey">Hockey</button>
           <button class="top-cat-pill" data-category="networks">24/7 TV</button>
         </nav>
 
-        <!-- Top Right Actions -->
+        <!-- Top Actions Bar -->
         <div class="top-actions">
-          <!-- Notification Pill -->
-          <button class="icon-circle-btn" id="notifications-btn" title="Live Notifications">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span class="notif-dot"></span>
-          </button>
-
-          <!-- Theme Toggle Button (Dark / Light) -->
-          <button class="icon-circle-btn theme-toggle" id="theme-toggle-btn" title="Toggle Dark / Light Mode">
-            <span class="theme-icon" id="theme-icon">☀️</span>
-          </button>
-
-          <!-- Live Sync Status Indicator -->
-          <div class="live-sync-pill" id="live-sync-pill" title="Live stream sync status">
+          <!-- Live Radar Sync Indicator -->
+          <div class="live-sync-pill" id="live-sync-pill" title="Live stream catalog sync status">
             <span class="radar-dot"></span>
-            <span id="sync-text">Live (Synced)</span>
+            <span id="sync-text">Live Sync</span>
           </div>
 
-          <!-- API Source Switcher Dropdown -->
-          <div class="user-profile-pill" id="api-source-pill" onclick="promptChangeApi()" title="Click to change or switch API source">
-            <div class="avatar-circle">⚡</div>
-            <span class="profile-name" id="api-endpoint-label">Cloud API</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="6 9 12 15 18 9"></polyline>
+          <!-- Theme Toggle (Dark / Light) -->
+          <button class="icon-circle-btn theme-toggle" id="theme-toggle-btn" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+            <svg id="theme-icon-sun" class="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
-          </div>
+            <svg id="theme-icon-moon" class="theme-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
         </div>
       </header>
 
-      <!-- Dashboard Body Grid (Sidebar + Main Content) -->
+      <!-- Dashboard Layout Body (Sidebar + Content Stream) -->
       <div class="dashboard-body">
         
-        <!-- Left Sidebar -->
-        <aside class="app-sidebar">
-          <!-- Brand Logo -->
+        <!-- Left Navigation Sidebar -->
+        <aside class="app-sidebar" aria-label="Primary navigation">
+          <!-- Stream Naro Brand Identity -->
           <div class="sidebar-brand">
             <div class="brand-badge-icon">
-              <span class="brand-spark">⚡</span>
+              <svg viewBox="0 0 32 32" width="28" height="28">
+                <rect width="32" height="32" rx="7" fill="#0d111a"/>
+                <path d="M8 23V9l6 7v7l-6-7z" fill="url(#naroLogoG)"/>
+                <path d="M18 23v-7l6 7V9l-6 7z" fill="#00f0ff" opacity="0.9"/>
+                <circle cx="24" cy="9" r="2.2" fill="#00f0ff"/>
+              </svg>
             </div>
             <div class="brand-titles">
-              <h1 class="brand-name">SPORTFLOW</h1>
-              <span class="brand-sub">PRIME VISION</span>
+              <h1 class="brand-name">STREAM <span class="brand-cyan">NARO</span></h1>
+              <span class="brand-sub">SPORTS PLATFORM</span>
             </div>
           </div>
 
-          <!-- Primary Navigation -->
+          <!-- Primary Navigation Links -->
           <nav class="sidebar-nav">
             <a href="#home" class="nav-item active" data-tab="all">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
-              <span>Home</span>
+              <span>Explore</span>
             </a>
             <a href="#live" class="nav-item" data-tab="live">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -130,49 +166,38 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
-              <span>Schedule</span>
+              <span>Upcoming</span>
             </a>
           </nav>
 
-          <!-- Settings & API link -->
-          <div class="sidebar-secondary-nav">
-            <button class="nav-item" onclick="promptChangeApi()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-              <span>Settings / API</span>
-            </button>
-          </div>
-
-          <!-- Quick Streams / Continue Watching Section -->
+          <!-- Quick Streams / On-Air Drawer -->
           <div class="sidebar-quick-streams">
             <div class="quick-streams-header">
               <h3>Quick Streams</h3>
               <span class="quick-count" id="quick-count-pill">Live</span>
             </div>
             <div class="quick-streams-list" id="quick-streams-list">
-              <!-- Rendered dynamically with mini cards -->
+              <!-- Rendered dynamically -->
             </div>
           </div>
         </aside>
 
-        <!-- Main Content Area -->
-        <main class="dashboard-main">
+        <!-- Main Stream Content Area -->
+        <main class="dashboard-main" id="main-content">
           
           <!-- Cinema Pro Video Player Section -->
-          <section id="player-section" class="cinema-player-card hidden">
+          <section id="player-section" class="cinema-player-card hidden" aria-label="Video Player">
             <div class="cinema-header">
               <div class="cinema-meta">
                 <div class="cinema-pill-group">
-                  <span id="player-status-tag" class="badge-live-dot">● LIVE NOW</span>
-                  <span id="player-league-tag" class="badge-glass">SPORTS</span>
-                  <span id="player-source-count" class="badge-glass">Servers Available</span>
+                  <span id="player-status-tag" class="badge-live-dot">● CONNECTING</span>
+                  <span id="player-league-tag" class="badge-cyan">SPORTS</span>
+                  <span id="player-engine-tag" class="badge-subtle">Auto Server</span>
                 </div>
-                <h2 id="playing-title" class="cinema-title">Match Title</h2>
+                <h2 id="playing-title" class="cinema-title">Match Stream</h2>
               </div>
               <div class="cinema-actions">
-                <button id="theater-btn" class="cinema-btn" title="Toggle Theater Mode">
+                <button id="theater-btn" class="cinema-btn" title="Toggle Theater View" aria-label="Toggle Theater View">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 3 21 3 21 9"></polyline>
                     <polyline points="9 21 3 21 3 15"></polyline>
@@ -181,86 +206,76 @@
                   </svg>
                   <span>Theater</span>
                 </button>
-                <button id="close-player-btn" class="cinema-btn cinema-close" title="Close Player">&times;</button>
+                <button id="close-player-btn" class="cinema-btn cinema-close" title="Close Player" aria-label="Close Player">&times;</button>
               </div>
             </div>
 
             <!-- Video Player Display Container -->
             <div class="cinema-viewport" id="cinema-viewport">
-              <!-- ArtPlayer App Container -->
+              <!-- ArtPlayer Pro Container -->
               <div id="artplayer-container" class="artplayer-app"></div>
               
               <!-- Web Embed Iframe for external web streams -->
-              <iframe id="embed-frame" class="embed-frame hidden" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+              <iframe id="embed-frame" class="embed-frame hidden" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
 
-              <!-- Player Loading & Error Overlay -->
+              <!-- Player Loading, Server Recovery & Status Overlay -->
               <div id="player-overlay" class="player-overlay hidden">
-                <div class="spinner-pulse"></div>
-                <p id="overlay-message">Connecting to pro streaming server...</p>
+                <div class="spinner-naro"></div>
+                <p id="overlay-message">Intelligent stream engine resolving servers...</p>
+                <button id="overlay-retry-btn" class="overlay-action-btn hidden">Retry Streams</button>
               </div>
             </div>
 
-            <!-- In-Player Quick Server Selector Bar -->
+            <!-- In-Player Stream Candidates / Server Bar -->
             <div class="cinema-servers-bar">
               <div class="servers-label">
-                <span class="server-icon">⚡</span>
-                <span>Select Stream Server:</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="cyan-icon">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Stream Sources:</span>
               </div>
               <div class="server-pill-buttons" id="server-pill-buttons">
                 <!-- Dynamically populated server pills -->
               </div>
-              <div class="proxy-switch-pill">
-                <label class="switch-capsule">
-                  <input type="checkbox" id="proxy-checkbox" checked>
-                  <span class="switch-slider"></span>
-                </label>
-                <span class="switch-label">Reverse Proxy</span>
-              </div>
             </div>
           </section>
 
-          <!-- Hero Spotlight Banner (Avatar style from screenshot) -->
-          <section id="hero-spotlight" class="hero-spotlight">
+          <!-- Hero Spotlight Banner -->
+          <section id="hero-spotlight" class="hero-spotlight" aria-label="Featured Match">
             <div class="hero-backdrop" id="hero-bg"></div>
             <div class="hero-gradient-overlay"></div>
             
             <div class="hero-content">
-              <!-- Top Badge -->
+              <!-- Top Badge Row -->
               <div class="hero-tag-row">
                 <span class="hero-trending-badge">
-                  <span class="fire-icon">🔥</span> Trending Now
+                  <span class="cyan-pulse"></span> FEATURED MATCH
                 </span>
                 <span id="hero-status-pill" class="hero-live-pill">● LIVE BROADCAST</span>
               </div>
 
               <!-- Main Titles & Match Info -->
-              <h2 class="hero-match-title" id="hero-title">Discovering Live Matches...</h2>
+              <h2 class="hero-match-title" id="hero-title">Syncing Top Fixtures...</h2>
               <div class="hero-meta-row" id="hero-meta">
-                <span id="hero-league-tag">Champions League</span>
+                <span id="hero-league-tag">Sports League</span>
                 <span class="meta-dot">&bull;</span>
-                <span id="hero-time-tag">Live Broadcast</span>
+                <span id="hero-time-tag">Live Stream</span>
                 <span class="meta-dot">&bull;</span>
-                <span id="hero-quality-tag">1080p 60fps</span>
+                <span id="hero-quality-tag">HD Stream</span>
               </div>
               <p class="hero-description" id="hero-desc">
-                High-speed multi-provider sports streaming. Instant HLS direct and reverse proxy relay available across all servers.
+                High-performance sports stream. Intelligent multi-server auto-failover with instant live playback.
               </p>
 
               <!-- Hero Call to Actions -->
               <div class="hero-action-buttons">
-                <button id="hero-watch-btn" class="btn-hero-watch">
+                <button id="hero-watch-btn" class="btn-hero-watch" aria-label="Watch Stream">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
                   <span>Watch Stream</span>
                 </button>
-                <button id="hero-servers-btn" class="btn-hero-glass">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                  </svg>
-                  <span>Stream Servers</span>
-                </button>
-                <button id="hero-favorite-btn" class="btn-hero-circle" title="Save to Favorites">
+                <button id="hero-favorite-btn" class="btn-hero-circle" title="Save to Favorites" aria-label="Save to Favorites">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
@@ -268,14 +283,14 @@
               </div>
             </div>
 
-            <!-- Hero Carousel Up / Down Match Switcher Arrows -->
+            <!-- Hero Carousel Up / Down Match Switcher -->
             <div class="hero-carousel-controls">
-              <button class="hero-arrow-btn" id="hero-prev-btn" title="Previous Featured Match">
+              <button class="hero-arrow-btn" id="hero-prev-btn" title="Previous Match" aria-label="Previous Match">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
               </button>
-              <button class="hero-arrow-btn" id="hero-next-btn" title="Next Featured Match">
+              <button class="hero-arrow-btn" id="hero-next-btn" title="Next Match" aria-label="Next Match">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
@@ -283,31 +298,37 @@
             </div>
           </section>
 
-          <!-- Section 1: "Trending Live Streams" ("You Might Like" style from screenshot) -->
+          <!-- Section 1: "LIVE NOW" (Visual Priority) -->
           <section class="content-row-section" id="live-section">
             <div class="row-header">
               <div class="row-title-box">
-                <h3 class="row-heading">You Might Like — Live Now</h3>
-                <span class="row-live-indicator"></span>
+                <span class="live-pulse-beacon"></span>
+                <h3 class="row-heading">Live Now</h3>
+                <span class="row-live-counter" id="live-count-badge">On Air</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-live">See all &rarr;</a>
+              <a href="#catalog-section" class="row-see-all" id="see-all-live">View all &rarr;</a>
             </div>
             <div class="stream-cards-carousel" id="live-streams-grid">
-              <!-- Populated dynamically with wide 16:9 cards with red circular play buttons -->
+              <!-- Rendered dynamically -->
             </div>
           </section>
 
-          <!-- Section 2: "Upcoming Scheduled Matches" -->
+          <!-- Section 2: "Upcoming Fixtures Today" -->
           <section class="content-row-section" id="upcoming-section">
             <div class="row-header">
               <div class="row-title-box">
-                <h3 class="row-heading">Upcoming Fixtures Today</h3>
-                <span class="row-badge-pill" id="upcoming-count-badge">Scheduled</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="subtle-icon">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                </svg>
+                <h3 class="row-heading">Upcoming Fixtures</h3>
+                <span class="row-badge-pill" id="upcoming-count-badge">Today</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">See all &rarr;</a>
+              <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">View all &rarr;</a>
             </div>
             <div class="stream-cards-carousel" id="upcoming-streams-grid">
-              <!-- Populated dynamically -->
+              <!-- Rendered dynamically -->
             </div>
           </section>
 
@@ -315,13 +336,17 @@
           <section class="content-row-section" id="networks-section">
             <div class="row-header">
               <div class="row-title-box">
-                <h3 class="row-heading">24/7 Sports TV Networks</h3>
-                <span class="row-badge-pill">Non-stop TV</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="subtle-icon">
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                  <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <h3 class="row-heading">24/7 Sports Channels</h3>
+                <span class="row-badge-pill">Non-Stop</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-networks">See all &rarr;</a>
+              <a href="#catalog-section" class="row-see-all" id="see-all-networks">View all &rarr;</a>
             </div>
             <div class="stream-cards-carousel" id="networks-streams-grid">
-              <!-- Populated dynamically -->
+              <!-- Rendered dynamically -->
             </div>
           </section>
 
@@ -330,9 +355,9 @@
             <div class="row-header">
               <div class="row-title-box">
                 <h3 class="row-heading" id="catalog-heading">All Sports Fixtures</h3>
-                <span class="row-badge-pill" id="catalog-count-pill">Synced</span>
+                <span class="row-badge-pill" id="catalog-count-pill">Catalog</span>
               </div>
-              <!-- Sort Select -->
+              <!-- Sort Selector -->
               <div class="sort-selector-capsule">
                 <label for="sort-select">Sort:</label>
                 <select id="sort-select">
@@ -360,46 +385,46 @@
 
     </div>
 
-    <!-- Floating Bottom Dock Navigation Bar (from screenshot) -->
-    <nav class="floating-bottom-dock">
-      <button class="dock-btn active" id="dock-home" data-tab="all" title="Home">
+    <!-- Floating Mobile Bottom Dock Navigation -->
+    <nav class="floating-bottom-dock" aria-label="Mobile quick dock">
+      <button class="dock-btn active" id="dock-home" data-tab="all" title="Explore" aria-label="Explore">
         <span class="dock-icon-circle">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
           </svg>
         </span>
       </button>
-      <button class="dock-btn" id="dock-live" data-tab="live" title="Live Now">
+      <button class="dock-btn" id="dock-live" data-tab="live" title="Live Now" aria-label="Live Now">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
         </svg>
       </button>
-      <button class="dock-btn" id="dock-favorites" data-tab="favorites" title="Favorites">
+      <button class="dock-btn" id="dock-favorites" data-tab="favorites" title="Favorites" aria-label="Favorites">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
         </svg>
       </button>
-      <button class="dock-btn" id="dock-refresh" title="Sync Live Streams">
+      <button class="dock-btn" id="dock-refresh" title="Sync Streams" aria-label="Sync Streams">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
         </svg>
       </button>
-      <button class="dock-btn" id="dock-networks" data-tab="networks" title="24/7 Channels">
+      <button class="dock-btn" id="dock-networks" data-tab="networks" title="24/7 Channels" aria-label="24/7 Channels">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
           <polyline points="17 2 12 7 7 2"></polyline>
         </svg>
       </button>
-      <button class="dock-btn" id="dock-theme" title="Switch Theme">
-        <span id="dock-theme-icon">🌙</span>
+      <button class="dock-btn" id="dock-theme" title="Switch Theme" aria-label="Switch Theme">
+        <span id="dock-theme-icon">☀️</span>
       </button>
     </nav>
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="toast-container"></div>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
   </div>
 
   <script src="app.js"></script>

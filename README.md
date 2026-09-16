@@ -1,97 +1,40 @@
-# ⚡ SportFlow — Live & Scheduled Sports Streaming Frontend
+# ⚡ STREAM NARO — Premium Live Sports Streaming Platform
 
-A sleek, responsive dark-themed web interface for browsing and streaming all live and scheduled sports fixtures via the local [Live Sport Plugin](https://github.com/rajhodedara/live-sport-plugin). It connects directly to the local addon API running on `http://localhost:7000`, scrapes 600+ events across multiple providers (StreamFree, Streamed.pk, TimStreams, WatchFooty, and more), and provides instant HLS playback with automatic CORS proxy relay and web player embeds.
+**STREAM NARO** is a production-grade sports streaming web application designed with an ultra-dark fantasy-black aesthetic, precision cyan/teal accents, responsive multi-sport filtering, and an intelligent auto-recovery stream playback engine.
 
 ---
 
-## 🚀 Quick Start Guide
+## 🌟 Key Architecture & Features
 
-### 1. Start the Live Sport Plugin (Backend)
+### 1. Intelligent Stream Auto-Recovery Engine
+- **Automated Server Candidate Discovery**: Analyzes available server endpoints (`/stream/sports/{id}.json`) without forcing users to manually guess server numbers.
+- **Provider Health & Playback Validation**: Distinguishes between HTTP reachability and actual video stream decodeability. Evaluates Hls.js fatal errors, stalled states, and iframe embed watchdogs.
+- **Seamless Auto-Failover**: If a stream server encounters a network block or decode error, the engine automatically displays a subtle status indicator (*"Switching to backup source..."*) and recovers to the next eligible candidate.
+- **CORS Relay Fallback**: Automatically falls back from direct HLS to reverse-proxied manifest relay if cross-origin playback restrictions occur.
 
-Ensure you have **Node.js 22+** installed (`node --version`).
+### 2. STREAM NARO Design System
+- **Fantasy-Black Palette**: Near-black canvas (`#050608`), layered black surfaces (`#090b10`, `#0f121a`), and crisp borders (`rgba(255, 255, 255, 0.07)`).
+- **Cyan/Teal Signature Accent**: Precision accents (`#00f0ff` / `#06b6d4`) for live beacons, focus states, and primary actions.
+- **Micro-Interactions**: Hardware-accelerated CSS `transform` and `opacity` transitions with full support for `prefers-reduced-motion`.
+- **Zero-Distraction UI**: Removed excessive glassmorphism, heavy glows, and oversized rounded cards.
 
-In your terminal:
+### 3. API Privacy & Production Security
+- **No Client-Side Endpoint Exposure**: All public API switchers, debug menus, tokens, and developer prompts have been purged from the client interface.
+- **Secure Reverse Proxy**: Production deployments route through `/api/backend` via `vercel.json` rewrites, keeping origin endpoints and tokens private.
+
+### 4. 0ms Cold Start Caching
+- **Stale-While-Revalidate (SWR)**: Instantly loads recent match catalogs from `localStorage` (`streamnaro_cached_matches_v1`), completely eliminating cold-boot loading delays.
+- **Silent Background Sync**: Silently queries the backend for updated fixtures and server availability, maintaining a non-intrusive live sync indicator (`● Live (Synced)`).
+
+---
+
+## 🚀 Local Development & Deployment
+
+### Run Locally:
 ```bash
-# 1. Navigate to the plugin directory
-cd live-sport-plugin
-
-# 2. Install dependencies (first time only)
-npm install
-
-# 3. Build the project
-npm run build
-
-# 4. Start the plugin server
-npm start
+# Serve the frontend directory
+npx serve . -l 3000
 ```
 
-The plugin will start listening on **`http://localhost:7000`**.
-
-Verify it is running by opening:
-[http://localhost:7000/manifest.json](http://localhost:7000/manifest.json)
-
----
-
-### 2. Serve and Open the Test Frontend
-
-Open a new terminal window in the root directory:
-
-```bash
-# Option A: Using npx serve (recommended)
-npx serve frontend -l 3000
-
-# Option B: Using Python HTTP server
-python -m http.server 3000 --directory frontend
-```
-
-Once running, navigate to:
-👉 **`http://localhost:3000`**
-
----
-
-## 📡 API Endpoints Used
-
-| Endpoint | Method | Description |
-| :--- | :---: | :--- |
-| `http://localhost:7000/manifest.json` | `GET` | Health check & addon capabilities |
-| `http://localhost:7000/catalog/sports/all.json` | `GET` | **All fixtures** (Live + Scheduled, 620+ matches) |
-| `http://localhost:7000/catalog/sports/live.json` | `GET` | Currently live matches & 24/7 channels |
-| `http://localhost:7000/catalog/sports/upcoming.json` | `GET` | All scheduled upcoming fixtures |
-| `http://localhost:7000/catalog/sports/{category}.json` | `GET` | Filter by sport (football, basketball, etc.) |
-| `http://localhost:7000/stream/sports/{MATCH_ID}.json` | `GET` | All stream sources for live or scheduled events |
-| `http://localhost:7000/api/manifest?url={ENCODED_URL}` | `GET` | Local HLS reverse proxy to bypass CORS / IP locks |
-
----
-
-## 🎯 Enhanced UI/UX Features
-
-- **All Fixtures & Scheduled Matches Scraped**: Browse over 600+ live and scheduled sports matches.
-- **Dynamic Hero Spotlight**: Highlights top live matches or anticipated upcoming showdowns with team logos and one-click streaming.
-- **View Tabs**:
-  - 🔥 **All Fixtures** (complete catalog)
-  - 🔴 **Live Now** (pulsing red indicator)
-  - ⏱️ **Scheduled** (with live countdowns e.g. `In 1h 45m`)
-  - 📺 **24/7 Channels** (continuous sports networks)
-- **Rich Match Cards**:
-  - Team 1 vs Team 2 presentation with team logos.
-  - Competition / League pills (*La Liga*, *Coppa Italia*, *Premier League*, *UFC*, etc.).
-  - Kickoff times in user's local timezone.
-  - Available streams counter (`⚡ 13 Sources`).
-- **Hybrid Video Player (HLS + Web Embed)**:
-  - Supports standard `.m3u8` streams using `hls.js`.
-  - Supports embedded web players (`externalUrl`) via built-in iframe.
-  - Server dropdown with provider names, resolutions (`1080p`, `720p`, `HD`), and view counts.
-  - **Auto-Proxy Fallback**: Direct `.m3u8` streams automatically fail over to `http://localhost:7000/api/manifest` if CORS is detected.
-  - Theater mode, Picture-in-Picture, and Reconnect button.
-- **Keyboard Shortcuts**:
-  - `/` : Focus quick search
-  - `Space` : Play / Pause video
-  - `Esc` : Close video player
-
----
-
-## 🛠️ Troubleshooting
-
-1. **Plugin Offline**: Check that `PORT=7000` is free and Node.js v22+ is running.
-2. **CORS Video Errors**: The frontend automatically routes blocked streams through the local HLS proxy. Ensure the "Local HLS Proxy" toggle is checked.
-3. **Scheduled Streams**: For upcoming matches, stream providers generally activate their live feeds 15–30 minutes prior to kickoff.
+### Deploy to Vercel:
+The project is configured for Vercel with clean URLs and API rewrites in `vercel.json`. Push to the repository's `main` branch to trigger automated CI/CD deployment.
