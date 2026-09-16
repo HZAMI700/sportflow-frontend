@@ -69,15 +69,15 @@
 
         <!-- Top Category Scroll Pills -->
         <nav class="top-category-scroll" id="top-category-pills" aria-label="Sport categories">
-          <button class="top-cat-pill active" data-category="all">All Sports</button>
-          <button class="top-cat-pill" data-category="football">Football</button>
-          <button class="top-cat-pill" data-category="basketball">Basketball</button>
-          <button class="top-cat-pill" data-category="tennis">Tennis</button>
-          <button class="top-cat-pill" data-category="cricket">Cricket</button>
-          <button class="top-cat-pill" data-category="motorsport">F1 &amp; Motor</button>
-          <button class="top-cat-pill" data-category="mma">Combat / MMA</button>
-          <button class="top-cat-pill" data-category="hockey">Hockey</button>
-          <button class="top-cat-pill" data-category="networks">24/7 TV</button>
+          <button class="top-cat-pill active" data-category="all" data-slug="">All Sports</button>
+          <button class="top-cat-pill" data-category="football" data-slug="football">Football</button>
+          <button class="top-cat-pill" data-category="basketball" data-slug="basketball">Basketball</button>
+          <button class="top-cat-pill" data-category="tennis" data-slug="tennis">Tennis</button>
+          <button class="top-cat-pill" data-category="cricket" data-slug="cricket">Cricket</button>
+          <button class="top-cat-pill" data-category="motorsport" data-slug="motorsport">F1 &amp; Motor</button>
+          <button class="top-cat-pill" data-category="mma" data-slug="ufc-streams">Combat / MMA</button>
+          <button class="top-cat-pill" data-category="hockey" data-slug="hockey">Hockey</button>
+          <button class="top-cat-pill" data-category="networks" data-slug="247-tv">24/7 TV</button>
         </nav>
 
         <!-- Top Actions Bar -->
@@ -306,7 +306,17 @@
                 <h3 class="row-heading">Live Now</h3>
                 <span class="row-live-counter" id="live-count-badge">On Air</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-live">View all &rarr;</a>
+              <div class="row-header-actions">
+                <div class="carousel-nav-arrows">
+                  <button class="carousel-nav-btn prev-btn" data-target="live-streams-grid" title="Previous streams" aria-label="Previous streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <button class="carousel-nav-btn next-btn" data-target="live-streams-grid" title="Next streams" aria-label="Next streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-live">View all &rarr;</a>
+              </div>
             </div>
             <div class="stream-cards-carousel" id="live-streams-grid">
               <!-- Rendered dynamically -->
@@ -325,7 +335,17 @@
                 <h3 class="row-heading">Upcoming Fixtures</h3>
                 <span class="row-badge-pill" id="upcoming-count-badge">Today</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">View all &rarr;</a>
+              <div class="row-header-actions">
+                <div class="carousel-nav-arrows">
+                  <button class="carousel-nav-btn prev-btn" data-target="upcoming-streams-grid" title="Previous streams" aria-label="Previous streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <button class="carousel-nav-btn next-btn" data-target="upcoming-streams-grid" title="Next streams" aria-label="Next streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">View all &rarr;</a>
+              </div>
             </div>
             <div class="stream-cards-carousel" id="upcoming-streams-grid">
               <!-- Rendered dynamically -->
@@ -343,7 +363,17 @@
                 <h3 class="row-heading">24/7 Sports Channels</h3>
                 <span class="row-badge-pill">Non-Stop</span>
               </div>
-              <a href="#catalog-section" class="row-see-all" id="see-all-networks">View all &rarr;</a>
+              <div class="row-header-actions">
+                <div class="carousel-nav-arrows">
+                  <button class="carousel-nav-btn prev-btn" data-target="networks-streams-grid" title="Previous streams" aria-label="Previous streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <button class="carousel-nav-btn next-btn" data-target="networks-streams-grid" title="Next streams" aria-label="Next streams">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-networks">View all &rarr;</a>
+              </div>
             </div>
             <div class="stream-cards-carousel" id="networks-streams-grid">
               <!-- Rendered dynamically -->

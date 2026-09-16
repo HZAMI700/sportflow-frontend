@@ -2,13 +2,14 @@
  * app.js — STREAM NARO Production Application Engine
  *
  * Core Subsystems:
- *   1. Intelligent Stream Selection & Auto-Recovery Fallback Engine
+ *   1. Intelligent Stream Selection & Auto-Recovery Engine (Anti-Lag, Pre-Caching)
  *   2. Stale-While-Revalidate Catalog Sync (0ms cold boot)
  *   3. ArtPlayer Pro Custom Integration (Cyan Theme, PiP, Theater Mode)
- *   4. Zero-Leak API Proxy Communications (Internal routing only)
- *   5. Hero Spotlight Match Switcher with Cross-fade
- *   6. Responsive Multi-Sport Navigation & Quick Streams Drawer
- *   7. Theme Controller (Ultra-Dark Fantasy-Black / Clean Light)
+ *   4. Clean Category Page Routing (/ufc-streams, /football, /basketball, etc.)
+ *   5. Modern Carousel Slider Controls (< and > smooth slide, zero native scrollbars)
+ *   6. Zero-Leak API Proxy Communications (Internal routing only)
+ *   7. Responsive Multi-Sport Navigation & Quick Streams Drawer
+ *   8. Theme Controller (Ultra-Dark Fantasy-Black / Clean Light)
  */
 
 (function () {
@@ -23,7 +24,6 @@
 
   // Resolve API Base without exposing controls or tokens in client UI
   function resolveApiBase() {
-    // If running in browser on production / Vercel, route through reverse-proxy
     const isWebHosted = typeof window !== 'undefined' &&
       window.location.protocol.startsWith('http') &&
       !window.location.hostname.includes('localhost') &&
@@ -123,14 +123,39 @@
     favorites = [];
   }
 
-  // ─── Intelligent Stream Engine State ─────────────────────────────────────────
+  // ─── Intelligent Stream Engine & Memory Cache ────────────────────────────────
+  const streamSourcesCache = new Map(); // cleanId -> { streams, timestamp }
+  const STREAM_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
   let activeMatch = null;
   let currentCandidates = [];
   let activeCandidateIndex = 0;
   let fallbackAttemptCount = 0;
   let artInstance = null;
   let stallWatchdogTimer = null;
-  const providerHealthScores = new Map(); // providerName -> score
+  const providerHealthScores = new Map();
+
+  // ─── Category Route Mapping ──────────────────────────────────────────────────
+  const ROUTE_CATEGORY_MAP = {
+    'ufc-streams': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
+    'ufc': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
+    'mma': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
+    'football': { category: 'football', tab: 'all', title: 'Live Football Streams — STREAM NARO' },
+    'soccer': { category: 'football', tab: 'all', title: 'Live Football Streams — STREAM NARO' },
+    'basketball': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — STREAM NARO' },
+    'nba': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — STREAM NARO' },
+    'tennis': { category: 'tennis', tab: 'all', title: 'Live Tennis Streams — STREAM NARO' },
+    'motorsport': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — STREAM NARO' },
+    'f1': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — STREAM NARO' },
+    'cricket': { category: 'cricket', tab: 'all', title: 'Live Cricket Streams — STREAM NARO' },
+    'hockey': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — STREAM NARO' },
+    'nhl': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — STREAM NARO' },
+    '247-tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — STREAM NARO' },
+    'tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — STREAM NARO' },
+    'live': { category: 'all', tab: 'live', title: 'Live Now Sports Broadcasts — STREAM NARO' },
+    'schedule': { category: 'all', tab: 'upcoming', title: 'Upcoming Sports Schedule — STREAM NARO' },
+    'favorites': { category: 'all', tab: 'favorites', title: 'Your Favorite Streams — STREAM NARO' }
+  };
 
   // ─── DOM Elements ───────────────────────────────────────────────────────────
   let searchInput, clearSearchBtn, themeToggleBtn, themeIconSun, themeIconMoon;
@@ -151,9 +176,13 @@
     initTheme();
     initEventListeners();
     initKeyboardShortcuts();
+    initCarouselControls();
 
     // 0ms Cold Start: render instantly from local cache
     loadCachedCatalog();
+
+    // Route matching for category pages
+    handleUrlRouting();
 
     // Non-blocking silent background synchronization
     syncCatalogInBackground();
@@ -241,6 +270,73 @@
     showToast(`Switched to ${next.toUpperCase()} theme`, 'info');
   }
 
+  // ─── URL Routing for Category Pages ──────────────────────────────────────────
+  function handleUrlRouting() {
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+    const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+    const targetSlug = path || hash;
+
+    if (targetSlug && ROUTE_CATEGORY_MAP[targetSlug]) {
+      const routeInfo = ROUTE_CATEGORY_MAP[targetSlug];
+      activeCategory = routeInfo.category;
+      activeTab = routeInfo.tab;
+      document.title = routeInfo.title;
+
+      syncCategoryPillActive(activeCategory);
+      syncSidebarActive();
+      syncDockActive();
+      renderCatalogGrid();
+    } else {
+      document.title = 'STREAM NARO — Premium Live Sports Streaming';
+    }
+  }
+
+  window.addEventListener('popstate', handleUrlRouting);
+
+  function navigateToCategory(category, slug = '') {
+    activeCategory = category;
+    displayedCount = pageLimit;
+    syncCategoryPillActive(category);
+
+    const routeInfo = ROUTE_CATEGORY_MAP[slug];
+    if (routeInfo) {
+      document.title = routeInfo.title;
+      try {
+        window.history.pushState(null, '', `/${slug}`);
+      } catch (_) {}
+    } else {
+      document.title = 'STREAM NARO — Premium Live Sports Streaming';
+      try {
+        window.history.pushState(null, '', '/');
+      } catch (_) {}
+    }
+
+    renderCatalogGrid();
+    document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function syncCategoryPillActive(cat) {
+    document.querySelectorAll('#top-category-pills .top-cat-pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.category === cat);
+    });
+  }
+
+  // ─── Modern Carousel Slider Controls ─────────────────────────────────────────
+  function initCarouselControls() {
+    document.querySelectorAll('.carousel-nav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const button = e.currentTarget;
+        const targetId = button.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        const isNext = button.classList.contains('next-btn');
+        const scrollAmount = isNext ? 680 : -680;
+        targetEl.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+    });
+  }
+
   // ─── Event Listeners ────────────────────────────────────────────────────────
   function initEventListeners() {
     if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
@@ -264,15 +360,12 @@
       });
     }
 
-    // Category Pills Scroll
+    // Category Pills Navigation
     document.querySelectorAll('#top-category-pills .top-cat-pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        document.querySelectorAll('#top-category-pills .top-cat-pill').forEach(b => b.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        activeCategory = e.currentTarget.dataset.category || 'all';
-        displayedCount = pageLimit;
-        renderCatalogGrid();
-        document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+        const cat = e.currentTarget.dataset.category || 'all';
+        const slug = e.currentTarget.dataset.slug || '';
+        navigateToCategory(cat, slug);
       });
     });
 
@@ -437,7 +530,6 @@
     try {
       let rawItems = [];
 
-      // Strategy 1: Stremio sports catalog
       try {
         const res = await fetch(buildApiUrl('/catalog/sports/all.json'), { cache: 'no-store' });
         if (res.ok) {
@@ -446,7 +538,6 @@
         }
       } catch (_) {}
 
-      // Strategy 2: Direct /api/matches
       if (!rawItems.length) {
         try {
           const res = await fetch(buildApiUrl('/api/matches'), { cache: 'no-store' });
@@ -457,7 +548,6 @@
         } catch (_) {}
       }
 
-      // Strategy 3: Parallel live + upcoming split
       if (!rawItems.length) {
         try {
           const [liveRes, upRes] = await Promise.all([
@@ -586,7 +676,10 @@
     }
 
     quickStreamsList.innerHTML = liveMatches.map(m => `
-      <div class="quick-item-card" onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+      <div class="quick-item-card" 
+           onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
+           ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
+           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
         <img class="quick-item-poster" src="${escapeHtml(m.poster)}" alt="" loading="lazy" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
         <div class="quick-item-info">
           <span class="quick-item-title">${escapeHtml(m.title)}</span>
@@ -646,7 +739,10 @@
       : (m.is247 ? '<span class="card-sched-tag">📺 24/7 TV</span>' : `<span class="card-sched-tag">${formatKickoffTime(m.date)}</span>`);
 
     return `
-      <div class="stream-card" onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+      <div class="stream-card" 
+           onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
+           ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
+           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
         <img class="stream-card-backdrop" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
         <div class="stream-card-top-tags">
           <span class="card-cat-tag">${escapeHtml(m.category.toUpperCase())}</span>
@@ -751,7 +847,27 @@
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  // ─── Intelligent Stream Selection & Auto-Recovery Engine ─────────────────────
+  // ─── Stream Pre-Caching (Instant 0ms start on click) ────────────────────────
+  async function prefetchStreamSources(cleanId) {
+    if (!cleanId) return;
+    const existing = streamSourcesCache.get(cleanId);
+    if (existing && Date.now() - existing.timestamp < STREAM_CACHE_TTL) {
+      return existing.streams;
+    }
+
+    try {
+      const res = await fetch(buildApiUrl(`/stream/sports/${cleanId}.json`), { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        const streams = json.streams || [];
+        streamSourcesCache.set(cleanId, { streams, timestamp: Date.now() });
+        return streams;
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  // ─── Intelligent Stream Selection & Anti-Lag Engine ─────────────────────────
   async function handleWatchStream(cleanId, title, league = 'Sports') {
     if (!playerSection) return;
 
@@ -760,25 +876,24 @@
     if (playingTitle) playingTitle.textContent = title;
     if (playerLeagueTag) playerLeagueTag.textContent = league;
     if (playerStatusTag) playerStatusTag.textContent = '● CONNECTING';
-    if (playerEngineTag) playerEngineTag.textContent = 'Auto Selection';
+    if (playerEngineTag) playerEngineTag.textContent = 'Turbo Select';
 
-    showPlayerOverlay(true, 'Intelligent stream engine discovering available servers...');
+    showPlayerOverlay(true, 'Connecting to ultra-fast stream server...');
     if (overlayRetryBtn) overlayRetryBtn.classList.add('hidden');
-    if (serverPillButtons) serverPillButtons.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">Analyzing sources...</span>';
+    if (serverPillButtons) serverPillButtons.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">Connecting...</span>';
 
     playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     try {
       let streams = [];
 
-      // Step 1: Discover available servers from /stream/sports/{id}.json
-      try {
-        const res = await fetch(buildApiUrl(`/stream/sports/${cleanId}.json`), { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          streams = json.streams || [];
-        }
-      } catch (_) {}
+      // Check pre-cache first for instant start
+      const cached = streamSourcesCache.get(cleanId);
+      if (cached && Date.now() - cached.timestamp < STREAM_CACHE_TTL && cached.streams.length > 0) {
+        streams = cached.streams;
+      } else {
+        streams = await prefetchStreamSources(cleanId);
+      }
 
       // Fallback: /stream/tv/{id}.json
       if (!streams.length) {
@@ -797,15 +912,15 @@
         return;
       }
 
-      // Step 2: Parse and rank candidates
+      // Parse and rank candidates
       currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx)));
       activeCandidateIndex = 0;
       fallbackAttemptCount = 0;
 
-      // Render server selection pills for user reference / manual override
+      // Render server selection pills
       renderServerPills();
 
-      // Step 3: Automatically start playback with top candidate
+      // Start playback immediately with top candidate
       startCandidatePlayback(0);
 
     } catch (err) {
@@ -876,18 +991,13 @@
     };
   }
 
-  // Internal Server Ranking: Prioritize reliable providers & HLS direct
   function rankCandidates(candidates) {
     return candidates.sort((a, b) => {
       const scoreA = providerHealthScores.get(a.provider) || 0;
       const scoreB = providerHealthScores.get(b.provider) || 0;
 
-      // Prefer servers with positive past success
       if (scoreA !== scoreB) return scoreB - scoreA;
-
-      // HLS streams offer richer native control than embeds
       if (a.type !== b.type) return a.type === 'hls' ? -1 : 1;
-
       return 0;
     });
   }
@@ -905,7 +1015,7 @@
 
   function selectServer(index) {
     if (index >= 0 && index < currentCandidates.length) {
-      fallbackAttemptCount = 0; // reset retry counter on deliberate user choice
+      fallbackAttemptCount = 0;
       startCandidatePlayback(index, { isManual: true });
     }
   }
@@ -926,7 +1036,7 @@
       playerStatusTag.textContent = candidate.type === 'embed' ? '● WEB STREAM' : '● HLS STREAM';
     }
     if (playerEngineTag) {
-      playerEngineTag.textContent = options.isManual ? 'Manual Selection' : 'Auto Selection';
+      playerEngineTag.textContent = options.isManual ? 'Manual Selection' : 'Turbo Auto';
     }
 
     if (candidate.type === 'embed') {
@@ -947,12 +1057,12 @@
     showPlayerOverlay(false);
     showToast(`Streaming via ${candidate.name}`, 'info');
 
-    // Embed safety watchdog: if frame cannot load within 14s, consider fallback
     stallWatchdogTimer = setTimeout(() => {
-      console.warn('[StreamEngine] Embed candidate watchdog timeout');
-    }, 14000);
+      console.warn('[StreamEngine] Embed watchdog notice');
+    }, 12000);
   }
 
+  // ─── Anti-Lag Tuned HLS Playback ───────────────────────────────────────────
   function playHlsStream(candidate, forceProxy = false) {
     if (embedFrame) {
       embedFrame.classList.add('hidden');
@@ -984,13 +1094,22 @@
             if (Hls.isSupported()) {
               if (art.hls) art.hls.destroy();
 
+              // Anti-Lag & Low-Latency Buffer Configuration
               const hls = new Hls({
                 loader: CustomHlsLoader,
                 enableWorker: true,
                 lowLatencyMode: true,
-                manifestLoadingTimeOut: 14000,
-                manifestLoadingMaxRetry: 2,
-                levelLoadingTimeOut: 14000
+                backBufferLength: 60,
+                maxBufferLength: 30,
+                maxMaxBufferLength: 60,
+                maxBufferSize: 60 * 1000 * 1000,
+                liveSyncDurationCount: 3,
+                liveMaxLatencyDurationCount: 8,
+                liveDurationInfinity: true,
+                highBufferWatchdogPeriod: 2,
+                manifestLoadingTimeOut: 10000,
+                manifestLoadingMaxRetry: 3,
+                levelLoadingTimeOut: 10000
               });
 
               hls.loadSource(url);
@@ -1004,12 +1123,16 @@
                 video.play().catch(() => {});
               });
 
+              hls.on(Hls.Events.LEVEL_LOADED, () => {
+                showPlayerOverlay(false);
+              });
+
               hls.on(Hls.Events.ERROR, (event, data) => {
                 if (data.fatal) {
                   switch (data.type) {
                     case Hls.ErrorTypes.NETWORK_ERROR:
                       if (!forceProxy) {
-                        console.log('[StreamEngine] Direct failed on CORS. Auto-retrying candidate via Proxy...');
+                        console.log('[StreamEngine] Direct blocked on CORS. Auto-retrying via Proxy...');
                         showToast('Direct stream blocked by CORS. Switching to Proxy...', 'warning');
                         playHlsStream(candidate, true);
                         return;
@@ -1037,7 +1160,6 @@
 
               art.on('destroy', () => hls.destroy());
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-              // Native Safari HLS
               video.src = url;
               video.addEventListener('loadedmetadata', () => {
                 showPlayerOverlay(false);
@@ -1071,7 +1193,7 @@
         showPlayerOverlay(false);
       });
 
-      // Stall Watchdog: detect continuous freezing without forward progress
+      // Quick Stall Watchdog (6 seconds without forward progress)
       armStallWatchdog();
 
     } catch (err) {
@@ -1089,7 +1211,7 @@
           triggerAutoFallback('Stream stalled without data');
         }
       }
-    }, 15000);
+    }, 6500);
   }
 
   function clearStallWatchdog() {
@@ -1118,7 +1240,7 @@
 
     setTimeout(() => {
       startCandidatePlayback(nextIndex);
-    }, 400);
+    }, 300);
   }
 
   function handleAllServersFailed() {
@@ -1208,11 +1330,13 @@
   // ─── Public API for Inline DOM Handlers ─────────────────────────────────────
   window.STREAM_NARO = {
     watch: handleWatchStream,
+    prefetch: prefetchStreamSources,
     selectServer: selectServer,
-    toggleFavorite: toggleFavorite
+    toggleFavorite: toggleFavorite,
+    navigateToCategory: navigateToCategory
   };
 
-  // Legacy fallback alias so any cached cards trigger cleanly
+  // Legacy fallback alias
   window.handleWatchClick = handleWatchStream;
 
 })();

@@ -5,6 +5,10 @@
     {
       "source": "/api/backend/:path*",
       "destination": "https://ahudwgrmu9.preview.c35.airoapp.ai/:path*?airoShareToken=At3udpbq8UOL&preview=1"
+    },
+    {
+      "source": "/((?!api/|.*\\..*).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [

@@ -1095,6 +1095,43 @@ body {
   color: var(--text-dim);
 }
 
+.row-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.carousel-nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.carousel-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-micro);
+}
+
+.carousel-nav-btn:hover {
+  color: var(--accent-cyan);
+  background: var(--surface-hover);
+  border-color: var(--card-border-hover);
+  transform: scale(1.06);
+}
+
+.carousel-nav-btn:active {
+  transform: scale(0.94);
+}
+
 .row-see-all {
   color: var(--accent-cyan);
   font-size: 0.82rem;
@@ -1108,14 +1145,21 @@ body {
   transform: translateX(2px);
 }
 
-/* Horizontal Cards Carousel */
+/* Horizontal Cards Carousel (Clean, Zero-Scrollbar) */
 .stream-cards-carousel {
   display: flex;
   gap: 1.1rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
   scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stream-cards-carousel::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .stream-cards-carousel > .stream-card {
