@@ -1,248 +1,405 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SportFlow — Live & Scheduled Sports Streaming</title>
+  <title>SportFlow — Prime Vision Sports Streaming</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-  <!-- Load Hls.js for playing .m3u8 streams -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Load Hls.js for stream decoding -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <!-- Load ArtPlayer for pro streaming controls -->
+  <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
 </head>
-<body>
-  <div class="app-wrapper">
-    <!-- Top Announcement / Live Pulse Bar -->
-    <aside class="top-announcement">
-      <div class="announcement-content">
-        <span class="pulse-indicator"></span>
-        <span id="announcement-text">Aggregating live & scheduled matches across 10+ providers...</span>
-      </div>
-      <div class="announcement-meta">
-        <span id="timezone-badge" class="time-badge">UTC</span>
-        <span id="events-stat" class="stat-pill">600+ Matches Available</span>
-      </div>
-    </aside>
-
-    <!-- Navigation Bar -->
-    <header class="navbar">
-      <div class="brand">
-        <div class="brand-logo">
-          <span class="logo-icon">⚡</span>
-          <span class="logo-glow"></span>
-        </div>
-        <div class="brand-text">
-          <h1>SportFlow</h1>
-          <span class="brand-tag">Live & Scheduled Sports Addon</span>
-        </div>
-      </div>
-
-      <!-- Quick Search in Header -->
-      <div class="header-search">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search teams, matches, leagues... (Press '/' to focus)" autocomplete="off">
-        <button id="clear-search-btn" class="clear-btn hidden">&times;</button>
-      </div>
-
-      <!-- Status & Actions -->
-      <div class="nav-actions">
-        <div id="plugin-status" class="status-badge status-checking">
-          <span class="status-dot"></span>
-          <span id="status-text">Checking plugin...</span>
-        </div>
-        <button id="refresh-btn" class="btn btn-secondary" title="Sync latest matches">
-          <svg class="refresh-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
-          Sync
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="main-container">
+<body class="theme-dark">
+  <div class="app-viewport">
+    <!-- Main Dashboard Curved Window Frame -->
+    <div class="app-dashboard-frame">
       
-      <!-- Video Player Modal / Section (Sticky or in-place) -->
-      <section id="player-section" class="player-card hidden">
-        <div class="player-header">
-          <div class="player-title-box">
-            <div class="player-badges">
-              <span id="player-status-tag" class="badge badge-live">● LIVE</span>
-              <span id="player-league-tag" class="badge badge-league">SPORTS</span>
-              <span id="player-source-count" class="badge badge-sources">1 Stream</span>
-            </div>
-            <h2 id="playing-title">Match Title</h2>
-          </div>
-          <div class="player-actions">
-            <button id="pip-btn" class="btn-tool" title="Picture in Picture">🪟 PiP</button>
-            <button id="theater-btn" class="btn-tool" title="Toggle Theater Mode">↔ Theater</button>
-            <button id="close-player-btn" class="btn-tool close-player" title="Close player">&times;</button>
-          </div>
+      <!-- Top Navigation Header -->
+      <header class="top-nav-bar">
+        <!-- Search Capsule -->
+        <div class="search-capsule">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search matches, teams, leagues... (Press '/')" autocomplete="off">
+          <span class="search-key-hint">/</span>
+          <button id="clear-search-btn" class="clear-btn hidden">&times;</button>
         </div>
 
-        <div class="video-container" id="video-container">
-          <!-- Video element for HLS streams -->
-          <video id="video-player" controls playsinline></video>
-          <!-- Iframe for embedded web streams -->
-          <iframe id="embed-frame" class="embed-frame hidden" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-          
-          <!-- Player Overlay for loading/errors -->
-          <div id="player-overlay" class="player-overlay hidden">
-            <div class="spinner"></div>
-            <p id="overlay-message">Resolving stream sources...</p>
+        <!-- Horizontal Category Pills -->
+        <nav class="top-category-scroll" id="top-category-pills">
+          <button class="top-cat-pill active" data-category="all">All Sports</button>
+          <button class="top-cat-pill" data-category="football">Football</button>
+          <button class="top-cat-pill" data-category="basketball">Basketball</button>
+          <button class="top-cat-pill" data-category="tennis">Tennis</button>
+          <button class="top-cat-pill" data-category="cricket">Cricket</button>
+          <button class="top-cat-pill" data-category="motorsport">F1 & Motor</button>
+          <button class="top-cat-pill" data-category="mma">MMA</button>
+          <button class="top-cat-pill" data-category="hockey">Hockey</button>
+          <button class="top-cat-pill" data-category="networks">24/7 TV</button>
+        </nav>
+
+        <!-- Top Right Actions -->
+        <div class="top-actions">
+          <!-- Notification Pill -->
+          <button class="icon-circle-btn" id="notifications-btn" title="Live Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-dot"></span>
+          </button>
+
+          <!-- Theme Toggle Button (Dark / Light) -->
+          <button class="icon-circle-btn theme-toggle" id="theme-toggle-btn" title="Toggle Dark / Light Mode">
+            <span class="theme-icon" id="theme-icon">☀️</span>
+          </button>
+
+          <!-- Live Sync Status Indicator -->
+          <div class="live-sync-pill" id="live-sync-pill" title="Live stream sync status">
+            <span class="radar-dot"></span>
+            <span id="sync-text">Live (Synced)</span>
+          </div>
+
+          <!-- API Source Switcher Dropdown -->
+          <div class="user-profile-pill" id="api-source-pill" onclick="promptChangeApi()" title="Click to change or switch API source">
+            <div class="avatar-circle">⚡</div>
+            <span class="profile-name" id="api-endpoint-label">Cloud API</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </div>
         </div>
+      </header>
 
-        <!-- Player Controls & Server Selection Bar -->
-        <div class="player-toolbar">
-          <div class="server-control">
-            <label for="server-select"><span class="tool-icon">📡</span> Server:</label>
-            <select id="server-select" class="custom-select">
-              <option value="">Select a server...</option>
-            </select>
-          </div>
-
-          <div class="proxy-control">
-            <label class="toggle-switch">
-              <input type="checkbox" id="proxy-checkbox" checked>
-              <span class="slider"></span>
-            </label>
-            <span class="toggle-label" title="Relays stream through http://localhost:7000/api/manifest to bypass CORS & CDN geoblocks">
-              ⚡ Local HLS Proxy
-            </span>
-          </div>
-
-          <div class="stream-indicators">
-            <span id="stream-type-tag" class="source-badge">HLS Direct</span>
-            <span id="stream-url-display" class="source-url-text" title="Stream URL">Connecting...</span>
-            <button id="reconnect-stream-btn" class="btn-mini" title="Reconnect Stream">🔄 Retry</button>
-          </div>
-        </div>
-
-        <div id="player-alert" class="alert hidden"></div>
-      </section>
-
-      <!-- Featured Spotlight Hero (Dynamic top match) -->
-      <section id="hero-spotlight" class="hero-spotlight hidden">
-        <div class="spotlight-bg" id="hero-bg"></div>
-        <div class="spotlight-content">
-          <div class="spotlight-badge-row">
-            <span class="badge badge-featured">⭐ FEATURED MATCH</span>
-            <span id="hero-status-pill" class="badge badge-live">● LIVE NOW</span>
-            <span id="hero-league" class="hero-league-text">UEFA Champions League</span>
-          </div>
-          <div class="spotlight-matchup">
-            <div class="team-spotlight team-home">
-              <img id="hero-home-logo" src="" alt="Home" onerror="this.style.display='none'">
-              <span id="hero-home-name" class="team-name">Team Home</span>
+      <!-- Dashboard Body Grid (Sidebar + Main Content) -->
+      <div class="dashboard-body">
+        
+        <!-- Left Sidebar -->
+        <aside class="app-sidebar">
+          <!-- Brand Logo -->
+          <div class="sidebar-brand">
+            <div class="brand-badge-icon">
+              <span class="brand-spark">⚡</span>
             </div>
-            <div class="spotlight-vs">VS</div>
-            <div class="team-spotlight team-away">
-              <img id="hero-away-logo" src="" alt="Away" onerror="this.style.display='none'">
-              <span id="hero-away-name" class="team-name">Team Away</span>
+            <div class="brand-titles">
+              <h1 class="brand-name">SPORTFLOW</h1>
+              <span class="brand-sub">PRIME VISION</span>
             </div>
           </div>
-          <div class="spotlight-actions">
-            <button id="hero-watch-btn" class="btn btn-hero">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+
+          <!-- Primary Navigation -->
+          <nav class="sidebar-nav">
+            <a href="#home" class="nav-item active" data-tab="all">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
-              Watch Stream
+              <span>Home</span>
+            </a>
+            <a href="#live" class="nav-item" data-tab="live">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+              </svg>
+              <span>Live Now</span>
+              <span class="nav-live-dot"></span>
+            </a>
+            <a href="#favorites" class="nav-item" data-tab="favorites">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>Favorites</span>
+            </a>
+            <a href="#networks" class="nav-item" data-tab="networks">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                <polyline points="17 2 12 7 7 2"></polyline>
+              </svg>
+              <span>24/7 TV</span>
+            </a>
+            <a href="#schedule" class="nav-item" data-tab="upcoming">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Schedule</span>
+            </a>
+          </nav>
+
+          <!-- Settings & API link -->
+          <div class="sidebar-secondary-nav">
+            <button class="nav-item" onclick="promptChangeApi()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>Settings / API</span>
             </button>
-            <span id="hero-kickoff-text" class="hero-kickoff-info">Kickoff in 30 mins</span>
           </div>
-        </div>
-      </section>
 
-      <!-- Tab Filters: All vs Live vs Scheduled vs 24/7 -->
-      <nav class="view-tabs-bar">
-        <div class="tabs-group">
-          <button class="tab-btn active" data-tab="all">
-            <span class="tab-icon">🔥</span> All Fixtures
-            <span id="tab-count-all" class="tab-counter">0</span>
-          </button>
-          <button class="tab-btn" data-tab="live">
-            <span class="tab-icon-live">●</span> Live Now
-            <span id="tab-count-live" class="tab-counter">0</span>
-          </button>
-          <button class="tab-btn" data-tab="upcoming">
-            <span class="tab-icon">⏱️</span> Scheduled
-            <span id="tab-count-upcoming" class="tab-counter">0</span>
-          </button>
-          <button class="tab-btn" data-tab="networks">
-            <span class="tab-icon">📺</span> 24/7 Channels
-            <span id="tab-count-networks" class="tab-counter">0</span>
-          </button>
-        </div>
+          <!-- Quick Streams / Continue Watching Section -->
+          <div class="sidebar-quick-streams">
+            <div class="quick-streams-header">
+              <h3>Quick Streams</h3>
+              <span class="quick-count" id="quick-count-pill">Live</span>
+            </div>
+            <div class="quick-streams-list" id="quick-streams-list">
+              <!-- Rendered dynamically with mini cards -->
+            </div>
+          </div>
+        </aside>
 
-        <!-- Sort by option -->
-        <div class="sort-box">
-          <label for="sort-select">Sort by:</label>
-          <select id="sort-select" class="sort-select">
-            <option value="time-asc">Kickoff (Soonest)</option>
-            <option value="popular">Most Popular</option>
-            <option value="title">Title (A-Z)</option>
-            <option value="sources">Most Stream Sources</option>
-          </select>
-        </div>
-      </nav>
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+          
+          <!-- Cinema Pro Video Player Section -->
+          <section id="player-section" class="cinema-player-card hidden">
+            <div class="cinema-header">
+              <div class="cinema-meta">
+                <div class="cinema-pill-group">
+                  <span id="player-status-tag" class="badge-live-dot">● LIVE NOW</span>
+                  <span id="player-league-tag" class="badge-glass">SPORTS</span>
+                  <span id="player-source-count" class="badge-glass">Servers Available</span>
+                </div>
+                <h2 id="playing-title" class="cinema-title">Match Title</h2>
+              </div>
+              <div class="cinema-actions">
+                <button id="theater-btn" class="cinema-btn" title="Toggle Theater Mode">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>Theater</span>
+                </button>
+                <button id="close-player-btn" class="cinema-btn cinema-close" title="Close Player">&times;</button>
+              </div>
+            </div>
 
-      <!-- Category Filter Pills -->
-      <div class="category-scroll-container">
-        <div class="category-pills" id="category-filters">
-          <button class="cat-pill active" data-category="all">⚡ All Sports</button>
-          <button class="cat-pill" data-category="football">⚽ Soccer</button>
-          <button class="cat-pill" data-category="basketball">🏀 Basketball</button>
-          <button class="cat-pill" data-category="motorsport">🏎️ Motorsport / F1</button>
-          <button class="cat-pill" data-category="cricket">🏏 Cricket</button>
-          <button class="cat-pill" data-category="baseball">⚾ Baseball</button>
-          <button class="cat-pill" data-category="hockey">🏒 Hockey</button>
-          <button class="cat-pill" data-category="mma">🥊 MMA / Boxing</button>
-          <button class="cat-pill" data-category="tennis">🎾 Tennis</button>
-          <button class="cat-pill" data-category="american_football">🏈 NFL / Football</button>
-          <button class="cat-pill" data-category="rugby">🏉 Rugby</button>
-          <button class="cat-pill" data-category="golf">⛳ Golf</button>
-        </div>
+            <!-- Video Player Display Container -->
+            <div class="cinema-viewport" id="cinema-viewport">
+              <!-- ArtPlayer App Container -->
+              <div id="artplayer-container" class="artplayer-app"></div>
+              
+              <!-- Web Embed Iframe for external web streams -->
+              <iframe id="embed-frame" class="embed-frame hidden" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+
+              <!-- Player Loading & Error Overlay -->
+              <div id="player-overlay" class="player-overlay hidden">
+                <div class="spinner-pulse"></div>
+                <p id="overlay-message">Connecting to pro streaming server...</p>
+              </div>
+            </div>
+
+            <!-- In-Player Quick Server Selector Bar -->
+            <div class="cinema-servers-bar">
+              <div class="servers-label">
+                <span class="server-icon">⚡</span>
+                <span>Select Stream Server:</span>
+              </div>
+              <div class="server-pill-buttons" id="server-pill-buttons">
+                <!-- Dynamically populated server pills -->
+              </div>
+              <div class="proxy-switch-pill">
+                <label class="switch-capsule">
+                  <input type="checkbox" id="proxy-checkbox" checked>
+                  <span class="switch-slider"></span>
+                </label>
+                <span class="switch-label">Reverse Proxy</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Hero Spotlight Banner (Avatar style from screenshot) -->
+          <section id="hero-spotlight" class="hero-spotlight">
+            <div class="hero-backdrop" id="hero-bg"></div>
+            <div class="hero-gradient-overlay"></div>
+            
+            <div class="hero-content">
+              <!-- Top Badge -->
+              <div class="hero-tag-row">
+                <span class="hero-trending-badge">
+                  <span class="fire-icon">🔥</span> Trending Now
+                </span>
+                <span id="hero-status-pill" class="hero-live-pill">● LIVE BROADCAST</span>
+              </div>
+
+              <!-- Main Titles & Match Info -->
+              <h2 class="hero-match-title" id="hero-title">Discovering Live Matches...</h2>
+              <div class="hero-meta-row" id="hero-meta">
+                <span id="hero-league-tag">Champions League</span>
+                <span class="meta-dot">&bull;</span>
+                <span id="hero-time-tag">Live Broadcast</span>
+                <span class="meta-dot">&bull;</span>
+                <span id="hero-quality-tag">1080p 60fps</span>
+              </div>
+              <p class="hero-description" id="hero-desc">
+                High-speed multi-provider sports streaming. Instant HLS direct and reverse proxy relay available across all servers.
+              </p>
+
+              <!-- Hero Call to Actions -->
+              <div class="hero-action-buttons">
+                <button id="hero-watch-btn" class="btn-hero-watch">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Watch Stream</span>
+                </button>
+                <button id="hero-servers-btn" class="btn-hero-glass">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Stream Servers</span>
+                </button>
+                <button id="hero-favorite-btn" class="btn-hero-circle" title="Save to Favorites">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Hero Carousel Up / Down Match Switcher Arrows -->
+            <div class="hero-carousel-controls">
+              <button class="hero-arrow-btn" id="hero-prev-btn" title="Previous Featured Match">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+              </button>
+              <button class="hero-arrow-btn" id="hero-next-btn" title="Next Featured Match">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- Section 1: "Trending Live Streams" ("You Might Like" style from screenshot) -->
+          <section class="content-row-section" id="live-section">
+            <div class="row-header">
+              <div class="row-title-box">
+                <h3 class="row-heading">You Might Like — Live Now</h3>
+                <span class="row-live-indicator"></span>
+              </div>
+              <a href="#catalog-section" class="row-see-all" id="see-all-live">See all &rarr;</a>
+            </div>
+            <div class="stream-cards-carousel" id="live-streams-grid">
+              <!-- Populated dynamically with wide 16:9 cards with red circular play buttons -->
+            </div>
+          </section>
+
+          <!-- Section 2: "Upcoming Scheduled Matches" -->
+          <section class="content-row-section" id="upcoming-section">
+            <div class="row-header">
+              <div class="row-title-box">
+                <h3 class="row-heading">Upcoming Fixtures Today</h3>
+                <span class="row-badge-pill" id="upcoming-count-badge">Scheduled</span>
+              </div>
+              <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">See all &rarr;</a>
+            </div>
+            <div class="stream-cards-carousel" id="upcoming-streams-grid">
+              <!-- Populated dynamically -->
+            </div>
+          </section>
+
+          <!-- Section 3: "24/7 Sports TV Networks" -->
+          <section class="content-row-section" id="networks-section">
+            <div class="row-header">
+              <div class="row-title-box">
+                <h3 class="row-heading">24/7 Sports TV Networks</h3>
+                <span class="row-badge-pill">Non-stop TV</span>
+              </div>
+              <a href="#catalog-section" class="row-see-all" id="see-all-networks">See all &rarr;</a>
+            </div>
+            <div class="stream-cards-carousel" id="networks-streams-grid">
+              <!-- Populated dynamically -->
+            </div>
+          </section>
+
+          <!-- Section 4: All Fixtures & Category Results (Filter Grid) -->
+          <section class="content-row-section" id="catalog-section">
+            <div class="row-header">
+              <div class="row-title-box">
+                <h3 class="row-heading" id="catalog-heading">All Sports Fixtures</h3>
+                <span class="row-badge-pill" id="catalog-count-pill">Synced</span>
+              </div>
+              <!-- Sort Select -->
+              <div class="sort-selector-capsule">
+                <label for="sort-select">Sort:</label>
+                <select id="sort-select">
+                  <option value="time-asc">Kickoff (Soonest)</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="title">Title (A-Z)</option>
+                  <option value="sources">Most Servers</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Matches Grid -->
+            <div class="catalog-grid" id="matches-grid">
+              <!-- Populated dynamically -->
+            </div>
+
+            <!-- Load More Pagination -->
+            <div id="load-more-container" class="load-more-wrapper hidden">
+              <button id="load-more-btn" class="btn-load-more">Load More Matches (+24)</button>
+            </div>
+          </section>
+
+        </main>
       </div>
 
-      <!-- Matches Grid Section -->
-      <section class="matches-section">
-        <div class="section-title-bar">
-          <div class="title-with-badge">
-            <h2 id="grid-title">All Fixtures & Streams</h2>
-            <span id="grid-count-badge" class="count-badge">Loading...</span>
-          </div>
-          <div class="view-indicator" id="active-filter-label">Showing all sports</div>
-        </div>
+    </div>
 
-        <div id="catalog-alert" class="alert hidden"></div>
-
-        <!-- Matches Cards Grid -->
-        <div id="matches-grid" class="matches-grid">
-          <!-- Populated dynamically via app.js -->
-        </div>
-
-        <!-- Load More Pagination Button -->
-        <div id="load-more-container" class="load-more-box hidden">
-          <button id="load-more-btn" class="btn btn-secondary btn-load-more">
-            Load More Matches (+24)
-          </button>
-        </div>
-      </section>
-    </main>
+    <!-- Floating Bottom Dock Navigation Bar (from screenshot) -->
+    <nav class="floating-bottom-dock">
+      <button class="dock-btn active" id="dock-home" data-tab="all" title="Home">
+        <span class="dock-icon-circle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+          </svg>
+        </span>
+      </button>
+      <button class="dock-btn" id="dock-live" data-tab="live" title="Live Now">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-favorites" data-tab="favorites" title="Favorites">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-refresh" title="Sync Live Streams">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-networks" data-tab="networks" title="24/7 Channels">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+          <polyline points="17 2 12 7 7 2"></polyline>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-theme" title="Switch Theme">
+        <span id="dock-theme-icon">🌙</span>
+      </button>
+    </nav>
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="toast-container"></div>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-        <p><strong>SportFlow Live Sport Plugin</strong> &bull; Connected to <code id="api-endpoint-label" style="cursor: pointer;" title="Click to switch or configure API endpoint" onclick="promptChangeApi()">Connecting...</code></p>
-        <p class="footer-note">Supports direct HLS (.m3u8) playback, GoDaddy cloud proxy relay, and web embed streams.</p>
-      </div>
-    </footer>
   </div>
 
   <script src="app.js"></script>

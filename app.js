@@ -1,12 +1,22 @@
 /**
- * app.js — SportFlow Live & Scheduled Sports Streaming Frontend
- * Connects to the local Live Sport Plugin API (http://localhost:7000)
- * Scrapes & displays all matches (live, scheduled, 24/7), supports multi-server switching,
- * HLS direct/proxy streaming, web player embeds, and smart fallback.
+ * app.js — SportFlow Prime Vision Sports Streaming Platform
+ * Connects to GoDaddy Airo backend (with authenticated airoShareToken)
+ * Features:
+ *   - Instant Stale-While-Revalidate caching (0ms cold load)
+ *   - Non-intrusive background sync with radar pulse indicator
+ *   - ArtPlayer pro streaming integration (with quality, PiP, theater, mini-player)
+ *   - In-player quick server switching
+ *   - Robust stream target parsing (HLS direct/proxy vs Web embeds)
+ *   - Hero spotlight match flipper
+ *   - Dark & Light mode switcher with persistence
+ *   - Quick streams sidebar
  */
 
-// GoDaddy Airo Backend with authenticated share token
+// ─── Constants & Configuration ───────────────────────────────────────────────
 const GODADDY_AIRO_URL = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
+const STORAGE_CACHE_KEY = 'sportflow_cached_matches_v2';
+const STORAGE_THEME_KEY = 'sportflow_theme';
+const STORAGE_FAVORITES_KEY = 'sportflow_favorites';
 
 function getInitialApiBase() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -30,8 +40,7 @@ function getInitialApiBase() {
     return clean;
   }
 
-  // When hosted on Vercel or any web server, use same-origin reverse proxy /api/backend
-  // which attaches the airoShareToken server-side and eliminates all browser CORS blocks
+  // When hosted on Vercel or any non-localhost host, use /api/backend rewrite proxy
   const isWebHosted = window.location.protocol.startsWith('http') && 
                       !window.location.hostname.includes('localhost') && 
                       !window.location.hostname.includes('127.0.0.1');
@@ -129,314 +138,326 @@ function resolveMediaUrl(url) {
   return fixedUrl;
 }
 
-
-// App State
+// ─── App State ───────────────────────────────────────────────────────────────
 let allMatches = [];
-let activeTab = 'all'; // 'all', 'live', 'upcoming', 'networks'
+let featuredMatches = [];
+let heroIndex = 0;
+let activeTab = 'all'; // 'all', 'live', 'upcoming', 'networks', 'favorites'
 let activeCategory = 'all';
 let currentSearch = '';
 let currentSort = 'time-asc';
 let pageLimit = 24;
 let displayedCount = 24;
 
+let favorites = JSON.parse(localStorage.getItem(STORAGE_FAVORITES_KEY) || '[]');
 let currentStreams = [];
+let activeStreamIndex = 0;
 let activeStreamInfo = null;
-let hlsInstance = null;
-let userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+let artInstance = null;
 
-// DOM Elements
-const pluginStatusEl = document.getElementById('plugin-status');
-const statusTextEl = document.getElementById('status-text');
-const refreshBtn = document.getElementById('refresh-btn');
-const timezoneBadge = document.getElementById('timezone-badge');
-const eventsStat = document.getElementById('events-stat');
+// ─── DOM References ──────────────────────────────────────────────────────────
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search-btn');
-const sortSelect = document.getElementById('sort-select');
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const themeIcon = document.getElementById('theme-icon');
+const dockThemeBtn = document.getElementById('dock-theme');
+const dockThemeIcon = document.getElementById('dock-theme-icon');
+const liveSyncPill = document.getElementById('live-sync-pill');
+const syncText = document.getElementById('sync-text');
+const apiEndpointLabel = document.getElementById('api-endpoint-label');
+
+const quickStreamsList = document.getElementById('quick-streams-list');
+const quickCountPill = document.getElementById('quick-count-pill');
 
 const heroSection = document.getElementById('hero-spotlight');
 const heroBg = document.getElementById('hero-bg');
 const heroStatusPill = document.getElementById('hero-status-pill');
-const heroLeague = document.getElementById('hero-league');
-const heroHomeLogo = document.getElementById('hero-home-logo');
-const heroHomeName = document.getElementById('hero-home-name');
-const heroAwayLogo = document.getElementById('hero-away-logo');
-const heroAwayName = document.getElementById('hero-away-name');
+const heroTitle = document.getElementById('hero-title');
+const heroLeagueTag = document.getElementById('hero-league-tag');
+const heroTimeTag = document.getElementById('hero-time-tag');
+const heroQualityTag = document.getElementById('hero-quality-tag');
+const heroDesc = document.getElementById('hero-desc');
 const heroWatchBtn = document.getElementById('hero-watch-btn');
-const heroKickoffText = document.getElementById('hero-kickoff-info');
-
-const tabCountAll = document.getElementById('tab-count-all');
-const tabCountLive = document.getElementById('tab-count-live');
-const tabCountUpcoming = document.getElementById('tab-count-upcoming');
-const tabCountNetworks = document.getElementById('tab-count-networks');
-const categoryFilters = document.getElementById('category-filters');
-
-const gridTitle = document.getElementById('grid-title');
-const gridCountBadge = document.getElementById('grid-count-badge');
-const activeFilterLabel = document.getElementById('active-filter-label');
-const matchesGrid = document.getElementById('matches-grid');
-const catalogAlert = document.getElementById('catalog-alert');
-const loadMoreContainer = document.getElementById('load-more-container');
-const loadMoreBtn = document.getElementById('load-more-btn');
+const heroServersBtn = document.getElementById('hero-servers-btn');
+const heroFavoriteBtn = document.getElementById('hero-favorite-btn');
+const heroPrevBtn = document.getElementById('hero-prev-btn');
+const heroNextBtn = document.getElementById('hero-next-btn');
 
 const playerSection = document.getElementById('player-section');
-const closePlayerBtn = document.getElementById('close-player-btn');
-const pipBtn = document.getElementById('pip-btn');
-const theaterBtn = document.getElementById('theater-btn');
+const playingTitle = document.getElementById('playing-title');
 const playerStatusTag = document.getElementById('player-status-tag');
 const playerLeagueTag = document.getElementById('player-league-tag');
 const playerSourceCount = document.getElementById('player-source-count');
-const playingTitle = document.getElementById('playing-title');
-const videoPlayer = document.getElementById('video-player');
+const theaterBtn = document.getElementById('theater-btn');
+const closePlayerBtn = document.getElementById('close-player-btn');
+const artplayerContainer = document.getElementById('artplayer-container');
 const embedFrame = document.getElementById('embed-frame');
 const playerOverlay = document.getElementById('player-overlay');
 const overlayMessage = document.getElementById('overlay-message');
-const serverSelect = document.getElementById('server-select');
+const serverPillButtons = document.getElementById('server-pill-buttons');
 const proxyCheckbox = document.getElementById('proxy-checkbox');
-const streamTypeTag = document.getElementById('stream-type-tag');
-const streamUrlDisplay = document.getElementById('stream-url-display');
-const reconnectStreamBtn = document.getElementById('reconnect-stream-btn');
-const playerAlert = document.getElementById('player-alert');
+
+const liveStreamsGrid = document.getElementById('live-streams-grid');
+const upcomingStreamsGrid = document.getElementById('upcoming-streams-grid');
+const networksStreamsGrid = document.getElementById('networks-streams-grid');
+const matchesGrid = document.getElementById('matches-grid');
+const catalogHeading = document.getElementById('catalog-heading');
+const catalogCountPill = document.getElementById('catalog-count-pill');
+const sortSelect = document.getElementById('sort-select');
+const loadMoreContainer = document.getElementById('load-more-container');
+const loadMoreBtn = document.getElementById('load-more-btn');
 const toastContainer = document.getElementById('toast-container');
 
 // ─── Initialization ──────────────────────────────────────────────────────────
-
 document.addEventListener('DOMContentLoaded', () => {
-  timezoneBadge.textContent = userTimezone;
+  initTheme();
   initEventListeners();
   initKeyboardShortcuts();
-  checkPluginHealth();
-  fetchAllMatches();
+
+  // Instant 0ms Load: Read from cache immediately so user never sees a blank screen
+  loadCachedMatches();
+
+  // Non-blocking background sync from GoDaddy API
+  syncMatchesInBackground();
 });
 
+// ─── Theme Management (Dark / Light) ─────────────────────────────────────────
+function initTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_THEME_KEY) || 'dark';
+  setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+  const isLight = theme === 'light';
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  document.body.className = isLight ? 'theme-light' : 'theme-dark';
+  const icon = isLight ? '🌙' : '☀️';
+  if (themeIcon) themeIcon.textContent = icon;
+  if (dockThemeIcon) dockThemeIcon.textContent = icon;
+  localStorage.setItem(STORAGE_THEME_KEY, theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  setTheme(next);
+  showToast(`Switched to ${next.toUpperCase()} mode`, 'info');
+}
+
+// ─── Event Listeners ─────────────────────────────────────────────────────────
 function initEventListeners() {
-  refreshBtn.addEventListener('click', () => {
-    refreshBtn.classList.add('rotating');
-    checkPluginHealth();
-    fetchAllMatches(() => {
-      refreshBtn.classList.remove('rotating');
-      showToast('Matches synchronized successfully', 'success');
+  if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+  if (dockThemeBtn) dockThemeBtn.addEventListener('click', toggleTheme);
+
+  // Search input
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value.toLowerCase().trim();
+      clearSearchBtn.classList.toggle('hidden', !currentSearch);
+      displayedCount = pageLimit;
+      renderAllSections();
     });
-  });
+  }
 
-  searchInput.addEventListener('input', (e) => {
-    currentSearch = e.target.value.toLowerCase().trim();
-    clearSearchBtn.classList.toggle('hidden', !currentSearch);
-    displayedCount = pageLimit;
-    renderMatches();
-  });
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      currentSearch = '';
+      clearSearchBtn.classList.add('hidden');
+      displayedCount = pageLimit;
+      renderAllSections();
+    });
+  }
 
-  clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    currentSearch = '';
-    clearSearchBtn.classList.add('hidden');
-    displayedCount = pageLimit;
-    renderMatches();
-  });
-
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  // Top category pills
+  document.querySelectorAll('.top-cat-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      document.querySelectorAll('.top-cat-pill').forEach(p => p.classList.remove('active'));
       const target = e.currentTarget;
       target.classList.add('active');
-      activeTab = target.dataset.tab;
+      activeCategory = target.dataset.category || 'all';
       displayedCount = pageLimit;
-      renderMatches();
+      renderAllSections();
+      // Scroll to catalog
+      document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
     });
   });
 
-  categoryFilters.addEventListener('click', (e) => {
-    const pill = e.target.closest('.cat-pill');
-    if (!pill) return;
-    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    activeCategory = pill.dataset.category || 'all';
-    displayedCount = pageLimit;
-    renderMatches();
+  // Sidebar navigation
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(i => i.classList.remove('active'));
+      const target = e.currentTarget;
+      target.classList.add('active');
+      activeTab = target.dataset.tab || 'all';
+      syncDockActive();
+      displayedCount = pageLimit;
+      renderAllSections();
+      document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+    });
   });
 
-  sortSelect.addEventListener('change', (e) => {
-    currentSort = e.target.value;
-    renderMatches();
-  });
-
-  loadMoreBtn.addEventListener('click', () => {
-    displayedCount += pageLimit;
-    renderMatches();
-  });
-
-  closePlayerBtn.addEventListener('click', closePlayer);
-  
-  pipBtn.addEventListener('click', async () => {
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-      } else if (videoPlayer.readyState > 0 && !videoPlayer.classList.contains('hidden')) {
-        await videoPlayer.requestPictureInPicture();
+  // Floating dock navigation
+  document.querySelectorAll('.floating-bottom-dock .dock-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const tab = e.currentTarget.dataset.tab;
+      if (tab) {
+        activeTab = tab;
+        syncSidebarActive();
+        syncDockActive();
+        displayedCount = pageLimit;
+        renderAllSections();
+        document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
       }
-    } catch (err) {
-      showToast('Picture-in-Picture not supported or active', 'warning');
-    }
+    });
   });
 
-  theaterBtn.addEventListener('click', () => {
-    playerSection.classList.toggle('theater-mode');
+  // Floating dock refresh button
+  document.getElementById('dock-refresh')?.addEventListener('click', () => {
+    syncMatchesInBackground(true);
+    showToast('Refreshing live stream catalog...', 'info');
   });
 
-  serverSelect.addEventListener('change', (e) => {
-    const idx = parseInt(e.target.value, 10);
-    if (!isNaN(idx) && currentStreams[idx]) {
-      playStreamIndex(idx);
-    }
-  });
+  // Hero carousel arrows
+  if (heroPrevBtn) {
+    heroPrevBtn.addEventListener('click', () => {
+      if (featuredMatches.length > 0) {
+        heroIndex = (heroIndex - 1 + featuredMatches.length) % featuredMatches.length;
+        renderHeroSpotlight();
+      }
+    });
+  }
+  if (heroNextBtn) {
+    heroNextBtn.addEventListener('click', () => {
+      if (featuredMatches.length > 0) {
+        heroIndex = (heroIndex + 1) % featuredMatches.length;
+        renderHeroSpotlight();
+      }
+    });
+  }
 
-  proxyCheckbox.addEventListener('change', () => {
-    if (activeStreamInfo) {
-      playCurrentStream({ forceProxy: proxyCheckbox.checked, isRetry: true });
-      showToast(proxyCheckbox.checked ? 'Local HLS Proxy Enabled' : 'Direct Playback Enabled', 'info');
-    }
-  });
+  // Hero watch button
+  if (heroWatchBtn) {
+    heroWatchBtn.addEventListener('click', () => {
+      if (featuredMatches[heroIndex]) {
+        const m = featuredMatches[heroIndex];
+        handleWatchClick(m.cleanId, m.title, m.league);
+      }
+    });
+  }
 
-  reconnectStreamBtn.addEventListener('click', () => {
-    if (activeStreamInfo) {
-      playCurrentStream({ isRetry: true });
-      showToast('Reconnecting stream...', 'info');
-    }
+  // Hero servers button
+  if (heroServersBtn) {
+    heroServersBtn.addEventListener('click', () => {
+      if (featuredMatches[heroIndex]) {
+        const m = featuredMatches[heroIndex];
+        handleWatchClick(m.cleanId, m.title, m.league);
+      }
+    });
+  }
+
+  // Hero favorite button
+  if (heroFavoriteBtn) {
+    heroFavoriteBtn.addEventListener('click', () => {
+      if (featuredMatches[heroIndex]) {
+        toggleFavorite(featuredMatches[heroIndex].cleanId);
+      }
+    });
+  }
+
+  // Theater mode button
+  if (theaterBtn) {
+    theaterBtn.addEventListener('click', () => {
+      playerSection.classList.toggle('theater-mode');
+    });
+  }
+
+  // Close player button
+  if (closePlayerBtn) {
+    closePlayerBtn.addEventListener('click', closePlayer);
+  }
+
+  // Proxy toggle
+  if (proxyCheckbox) {
+    proxyCheckbox.addEventListener('change', () => {
+      if (activeStreamInfo) {
+        playCurrentStream({ forceProxy: proxyCheckbox.checked, isRetry: true });
+        showToast(proxyCheckbox.checked ? 'Reverse Proxy Enabled' : 'Direct Playback Enabled', 'info');
+      }
+    });
+  }
+
+  // Sort select
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderCatalogGrid();
+    });
+  }
+
+  // Load more button
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+      displayedCount += pageLimit;
+      renderCatalogGrid();
+    });
+  }
+}
+
+function syncSidebarActive() {
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.tab === activeTab);
+  });
+}
+
+function syncDockActive() {
+  document.querySelectorAll('.floating-bottom-dock .dock-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === activeTab);
   });
 }
 
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    // '/' focuses search
     if (e.key === '/' && document.activeElement !== searchInput) {
       e.preventDefault();
       searchInput.focus();
     }
-    // 'Escape' closes player
     if (e.key === 'Escape' && !playerSection.classList.contains('hidden')) {
       closePlayer();
-    }
-    // 'Space' plays/pauses video if player is active and not typing in search
-    if (e.code === 'Space' && document.activeElement !== searchInput && !playerSection.classList.contains('hidden') && !videoPlayer.classList.contains('hidden')) {
-      e.preventDefault();
-      if (videoPlayer.paused) videoPlayer.play();
-      else videoPlayer.pause();
     }
   });
 }
 
-// ─── Health Check & API Switcher ─────────────────────────────────────────────
-
-async function checkPluginHealth() {
-  setPluginStatus('checking', 'Connecting to API...');
-  const label = document.getElementById('api-endpoint-label');
-  if (label) label.textContent = API_BASE;
-
+// ─── Instant Local Caching (0ms Stale-While-Revalidate) ───────────────────────
+function loadCachedMatches() {
   try {
-    let manifestUrl = buildApiUrl('/manifest.json');
-    let res = await fetch(manifestUrl, { cache: 'no-store' });
-
-    // Fallback: If /api/backend returned 404 (e.g. running locally without Vercel rewrites), switch to direct GoDaddy API
-    if (!res.ok && API_BASE === '/api/backend') {
-      console.log('Vercel rewrite /api/backend not available. Falling back to direct GoDaddy API...');
-      API_BASE = GODADDY_AIRO_URL;
-      if (label) label.textContent = API_BASE;
-      manifestUrl = buildApiUrl('/manifest.json');
-      res = await fetch(manifestUrl, { cache: 'no-store' });
-    }
-
-    if (res.ok) {
-      const data = await res.json();
-      setPluginStatus('online', `${data.name || 'Live Sports API'} (Connected)`);
-      showCatalogAlert(null);
-    } else if (res.status === 401) {
-      setPluginStatus('offline', 'GoDaddy Auth Error (HTTP 401)');
-      showCatalogAlert('warning', `
-        <strong>⚠️ GoDaddy Preview URL returned Unauthorized (HTTP 401)</strong><br>
-        Current API: <code>${escapeHtml(API_BASE)}</code><br>
-        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button onclick="switchToCloudApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">☁️ Connect to GoDaddy Cloud API</button>
-          <button onclick="switchToLocalApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">💻 Switch to Local API (localhost:7000)</button>
-          <button onclick="promptChangeApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">🔗 Change URL</button>
-        </div>
-      `);
-    } else {
-      setPluginStatus('offline', `API HTTP ${res.status}`);
+    const raw = localStorage.getItem(STORAGE_CACHE_KEY);
+    if (raw) {
+      const cached = JSON.parse(raw);
+      if (Array.isArray(cached) && cached.length > 0) {
+        allMatches = cached;
+        extractFeaturedMatches();
+        renderAllSections();
+        if (syncText) syncText.textContent = `Cached (${allMatches.length})`;
+      }
     }
   } catch (err) {
-    // If /api/backend failed network request, try falling back to direct cloud
-    if (API_BASE === '/api/backend') {
-      API_BASE = GODADDY_AIRO_URL;
-      if (label) label.textContent = API_BASE;
-      try {
-        const res2 = await fetch(buildApiUrl('/manifest.json'), { cache: 'no-store' });
-        if (res2.ok) {
-          const data = await res2.json();
-          setPluginStatus('online', `${data.name || 'Live Sports API'} (Connected)`);
-          showCatalogAlert(null);
-          return;
-        }
-      } catch (_) {}
-    }
-    setPluginStatus('offline', 'API Offline (Click to configure)');
+    console.warn('[Cache] Could not parse cached matches:', err);
   }
 }
 
-function setPluginStatus(status, text) {
-  pluginStatusEl.className = `status-badge status-${status}`;
-  statusTextEl.textContent = text;
-  pluginStatusEl.style.cursor = 'pointer';
-  pluginStatusEl.title = 'Click to switch or configure API endpoint';
+function saveMatchesToCache(matches) {
+  try {
+    localStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(matches));
+  } catch (_) {}
 }
 
-window.promptChangeApi = function() {
-  const input = prompt('Enter your Backend API Base URL:\n(e.g., /api/backend, ' + GODADDY_AIRO_URL + ' or http://localhost:7000)', API_BASE);
-  if (input && input.trim()) {
-    let val = input.trim().replace(/\/$/, '');
-    if (val.includes('ahudwgrmu9.preview.c35.airoapp.ai') && !val.includes('airoShareToken')) {
-      val = GODADDY_AIRO_URL;
-    }
-    API_BASE = val;
-    localStorage.setItem('sportflow_api_base', API_BASE);
-    const label = document.getElementById('api-endpoint-label');
-    if (label) label.textContent = API_BASE;
-    checkPluginHealth();
-    fetchAllMatches();
-    showToast(`Switched API to: ${API_BASE}`, 'info');
-  }
-};
-
-window.switchToCloudApi = function() {
-  API_BASE = GODADDY_AIRO_URL;
-  localStorage.setItem('sportflow_api_base', API_BASE);
-  const label = document.getElementById('api-endpoint-label');
-  if (label) label.textContent = API_BASE;
-  checkPluginHealth();
-  fetchAllMatches();
-  showToast('Switched to GoDaddy Cloud API', 'info');
-};
-
-window.switchToLocalApi = function() {
-  API_BASE = 'http://localhost:7000';
-  localStorage.setItem('sportflow_api_base', API_BASE);
-  const label = document.getElementById('api-endpoint-label');
-  if (label) label.textContent = API_BASE;
-  checkPluginHealth();
-  fetchAllMatches();
-  showToast('Switched to local backend: http://localhost:7000', 'info');
-};
-
-// ─── Fetch All Matches (Live & Scheduled) ────────────────────────────────────
-
-async function fetchAllMatches(callback) {
-  showCatalogAlert(null);
-  matchesGrid.innerHTML = `
-    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #94a3b8;">
-      <div class="spinner" style="margin: 0 auto 1rem;"></div>
-      <p style="font-size: 1.1rem; font-weight: 600;">Scraping all live & scheduled matches across providers...</p>
-      <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">Checking StreamFree, Streamed.pk, TimStreams, WatchFooty, and more.</p>
-    </div>
-  `;
+// ─── Non-Blocking Background Sync ───────────────────────────────────────────
+async function syncMatchesInBackground(showFeedback = false) {
+  if (liveSyncPill) liveSyncPill.classList.add('syncing');
+  if (syncText) syncText.textContent = 'Syncing...';
+  if (apiEndpointLabel) apiEndpointLabel.textContent = API_BASE.includes('airoapp.ai') ? 'Cloud API' : API_BASE;
 
   try {
     let rawItems = [];
@@ -461,7 +482,7 @@ async function fetchAllMatches(callback) {
       } catch (_) {}
     }
 
-    // Attempt 3: Combine /catalog/sports/live.json + /catalog/sports/upcoming.json
+    // Attempt 3: Combine /catalog/sports/live.json + upcoming.json
     if (!rawItems.length) {
       try {
         const [liveRes, upRes] = await Promise.all([
@@ -474,7 +495,7 @@ async function fetchAllMatches(callback) {
       } catch (_) {}
     }
 
-    // Attempt 4: Standard Stremio addon catalogs /catalog/tv/nuvio_sports_live.json & nuvio_sports_upcoming.json
+    // Attempt 4: Standard Stremio addon catalogs /catalog/tv/nuvio_sports_live.json
     if (!rawItems.length) {
       try {
         const [liveRes, upRes] = await Promise.all([
@@ -487,183 +508,257 @@ async function fetchAllMatches(callback) {
       } catch (_) {}
     }
 
-    if (!rawItems.length) {
-      showCatalogAlert('warning', `
-        <strong>Could not load matches from backend API</strong><br>
-        Current Endpoint: <code>${escapeHtml(API_BASE)}</code><br>
-        <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
-          <button onclick="switchToCloudApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">☁️ Connect to GoDaddy Cloud API</button>
-          <button onclick="switchToLocalApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">💻 Connect to Localhost:7000</button>
-          <button onclick="promptChangeApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">🔗 Enter Custom URL</button>
-        </div>
-      `);
-      matchesGrid.innerHTML = '';
-      return;
+    if (rawItems.length > 0) {
+      const now = Date.now();
+
+      // Standardize matches
+      allMatches = rawItems.map(item => {
+        const rawId = String(item.id || '');
+        const cleanId = rawId.replace(/^nuvio_sport_/, '');
+        const title = item.name || item.title || 'Sports Event';
+        const category = (item.genres && item.genres[0]) || item.category || 'sports';
+        const categoryClean = category.toLowerCase().replace(/[^a-z0-9_]/g, '');
+        const is247 = item.is247 || categoryClean === 'networks' || (!item.date && !item.released);
+
+        let dateTimestamp = null;
+        if (item.date) {
+          const d = Number(item.date);
+          dateTimestamp = !isNaN(d) && d > 0 ? d : null;
+        } else if (item.released) {
+          dateTimestamp = new Date(item.released).getTime();
+        }
+
+        const isLive = item.isLive !== undefined
+          ? item.isLive
+          : (is247 || (dateTimestamp && dateTimestamp <= now + 15 * 60 * 1000 && dateTimestamp >= now - 3 * 60 * 60 * 1000));
+
+        const rawPoster = item.poster || item.background || item.thumbnail_url || buildApiUrl('/img/placeholder', { text: title, color: '182234' });
+        const poster = resolveMediaUrl(rawPoster);
+
+        const team1 = item.team1 || (item.cast && item.cast[0] ? { name: item.cast[0], logo: null } : null);
+        const team2 = item.team2 || (item.cast && item.cast[1] ? { name: item.cast[1], logo: null } : null);
+        const sourcesCount = item.sourcesCount || (item.sources && item.sources.length) || 1;
+
+        return {
+          id: rawId,
+          cleanId: cleanId,
+          title: title.replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, ''),
+          category: categoryClean,
+          league: item.league || '',
+          date: dateTimestamp,
+          isLive: isLive,
+          is247: is247,
+          popular: item.popular === true || item.popular === '1',
+          sourcesCount: sourcesCount,
+          poster: poster,
+          team1: team1,
+          team2: team2,
+          releaseInfo: item.releaseInfo || ''
+        };
+      });
+
+      saveMatchesToCache(allMatches);
+      extractFeaturedMatches();
+      renderAllSections();
+
+      if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+      if (syncText) syncText.textContent = `Live (${allMatches.length} Synced)`;
+      if (showFeedback) showToast(`Synchronized ${allMatches.length} live matches`, 'success');
+    } else {
+      // If network sync returned 0 items but we have cached matches, stay calm and keep displaying cache
+      if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+      if (syncText) syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Ready';
     }
-
-    const now = Date.now();
-
-    // Standardize matches
-    allMatches = rawItems.map(item => {
-      const rawId = String(item.id || '');
-      const cleanId = rawId.replace(/^nuvio_sport_/, '');
-      const title = item.name || item.title || 'Sports Event';
-      const category = (item.genres && item.genres[0]) || item.category || 'sports';
-      const categoryClean = category.toLowerCase().replace(/[^a-z0-9_]/g, '');
-      
-      const is247 = item.is247 || categoryClean === 'networks' || (!item.date && !item.released);
-      
-      let dateTimestamp = null;
-      if (item.date) {
-        const d = Number(item.date);
-        dateTimestamp = !isNaN(d) && d > 0 ? d : null;
-      } else if (item.released) {
-        dateTimestamp = new Date(item.released).getTime();
-      }
-
-      const isLive = item.isLive !== undefined 
-        ? item.isLive 
-        : (is247 || (dateTimestamp && dateTimestamp <= now + 15 * 60 * 1000 && dateTimestamp >= now - 3 * 60 * 60 * 1000));
-
-      const rawPoster = item.poster || item.background || item.thumbnail_url || buildApiUrl('/img/placeholder', { text: title, color: '182234' });
-      const poster = resolveMediaUrl(rawPoster);
-
-      const team1 = item.team1 || (item.cast && item.cast[0] ? { name: item.cast[0], logo: null } : null);
-      const team2 = item.team2 || (item.cast && item.cast[1] ? { name: item.cast[1], logo: null } : null);
-
-      const sourcesCount = item.sourcesCount || (item.sources && item.sources.length) || 1;
-
-      return {
-        id: rawId,
-        cleanId: cleanId,
-        title: title.replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, ''),
-        category: categoryClean,
-        league: item.league || '',
-        date: dateTimestamp,
-        isLive: isLive,
-        is247: is247,
-        popular: item.popular === true || item.popular === '1',
-        sourcesCount: sourcesCount,
-        poster: poster,
-        team1: team1,
-        team2: team2,
-        releaseInfo: item.releaseInfo || ''
-      };
-    });
-
-    eventsStat.textContent = `${allMatches.length} Matches Scraped`;
-    updateTabCounts();
-    renderHeroSpotlight();
-    renderMatches();
-
-    if (callback) callback();
-
   } catch (err) {
-    console.error('Failed to load matches:', err);
-    showCatalogAlert('danger', 'Could not load matches. Check backend connection.');
-    matchesGrid.innerHTML = '';
+    console.warn('[Sync] Background sync encountered notice:', err.message);
+    if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+    if (syncText) syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Offline';
   }
 }
 
-// ─── Update Tab Counters ─────────────────────────────────────────────────────
-
-function updateTabCounts() {
-  const liveCount = allMatches.filter(m => m.isLive && !m.is247).length;
-  const upcomingCount = allMatches.filter(m => !m.isLive && !m.is247).length;
-  const networksCount = allMatches.filter(m => m.is247).length;
-
-  tabCountAll.textContent = allMatches.length;
-  tabCountLive.textContent = liveCount;
-  tabCountUpcoming.textContent = upcomingCount;
-  tabCountNetworks.textContent = networksCount;
+function extractFeaturedMatches() {
+  // Select top 8 live or popular matches with posters for the hero carousel
+  const liveWithPosters = allMatches.filter(m => m.isLive && m.poster);
+  const otherMatches = allMatches.filter(m => !m.isLive);
+  featuredMatches = [...liveWithPosters, ...otherMatches].slice(0, 10);
+  if (heroIndex >= featuredMatches.length) heroIndex = 0;
 }
 
-// ─── Render Hero Spotlight ───────────────────────────────────────────────────
+// ─── Master Section Renderers ────────────────────────────────────────────────
+function renderAllSections() {
+  renderHeroSpotlight();
+  renderQuickStreams();
+  renderLiveCarousel();
+  renderUpcomingCarousel();
+  renderNetworksCarousel();
+  renderCatalogGrid();
+}
 
+// ─── Hero Spotlight Card (Matching Reference Screenshot) ─────────────────────
 function renderHeroSpotlight() {
-  // Find featured live match or nearest upcoming match with teams
-  const featured = allMatches.find(m => m.isLive && !m.is247 && m.team1 && m.team2) ||
-                   allMatches.find(m => m.popular && m.team1 && m.team2) ||
-                   allMatches.find(m => m.team1 && m.team2 && m.team1.logo) ||
-                   allMatches[0];
+  if (!featuredMatches.length) return;
+  const current = featuredMatches[heroIndex] || featuredMatches[0];
+  if (!current) return;
 
-  if (!featured) {
-    heroSection.classList.add('hidden');
+  if (heroBg) {
+    heroBg.style.backgroundImage = `url('${current.poster}')`;
+  }
+  if (heroTitle) {
+    heroTitle.textContent = current.title;
+  }
+  if (heroLeagueTag) {
+    heroLeagueTag.textContent = current.league || current.category.toUpperCase();
+  }
+  if (heroTimeTag) {
+    heroTimeTag.textContent = current.isLive ? '🔴 Live Broadcast' : formatKickoffTime(current.date);
+  }
+  if (heroQualityTag) {
+    heroQualityTag.textContent = `⚡ ${current.sourcesCount} Server${current.sourcesCount === 1 ? '' : 's'}`;
+  }
+  if (heroDesc) {
+    heroDesc.textContent = current.releaseInfo || `Live sports coverage across multiple high-speed servers. Direct HLS and local reverse proxy relay available.`;
+  }
+
+  if (heroStatusPill) {
+    heroStatusPill.textContent = current.isLive ? '● LIVE BROADCAST' : '⏱️ UPCOMING FIXTURE';
+    heroStatusPill.style.background = current.isLive ? 'var(--accent-red)' : '#334155';
+  }
+
+  if (heroFavoriteBtn) {
+    const isFav = favorites.includes(current.cleanId);
+    heroFavoriteBtn.style.color = isFav ? '#ef4444' : '#ffffff';
+  }
+}
+
+// ─── Quick Streams in Left Sidebar ("Continue watching" style) ───────────────
+function renderQuickStreams() {
+  if (!quickStreamsList) return;
+  const liveList = allMatches.filter(m => m.isLive).slice(0, 4);
+
+  if (!liveList.length) {
+    quickStreamsList.innerHTML = `<p style="font-size: 0.76rem; color: var(--text-dim); padding: 0.25rem 0;">No active live matches right now.</p>`;
+    if (quickCountPill) quickCountPill.textContent = '0 Live';
     return;
   }
 
-  heroSection.classList.remove('hidden');
-  heroBg.style.backgroundImage = `url('${featured.poster}')`;
-  heroLeague.textContent = featured.league || featured.category.toUpperCase();
+  if (quickCountPill) quickCountPill.textContent = `${liveList.length} Live`;
 
-  if (featured.isLive) {
-    heroStatusPill.className = 'badge badge-live';
-    heroStatusPill.textContent = '● LIVE NOW';
-    heroKickoffText.textContent = 'Broadcast is live right now';
-    heroWatchBtn.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-      </svg>
-      Watch Live Stream
+  quickStreamsList.innerHTML = liveList.map(m => {
+    return `
+      <div class="mini-stream-card" onclick="handleWatchClick('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+        <img class="mini-thumb" src="${escapeHtml(m.poster)}" alt="" loading="lazy" onerror="this.src='${resolveMediaUrl('/img/placeholder?text=Sport&color=111827')}';">
+        <div class="mini-info">
+          <span class="mini-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</span>
+          <span class="mini-sub">${m.is247 ? '📺 24/7 Channel' : '🔴 Live Now'}</span>
+        </div>
+        <span class="mini-play-icon">▶</span>
+      </div>
     `;
-  } else {
-    heroStatusPill.className = 'badge badge-sources';
-    heroStatusPill.textContent = '⏱️ UPCOMING';
-    heroKickoffText.textContent = formatKickoffTime(featured.date);
-    heroWatchBtn.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-      </svg>
-      View Available Streams (${featured.sourcesCount})
-    `;
-  }
-
-  if (featured.team1) {
-    heroHomeName.textContent = featured.team1.name;
-    if (featured.team1.logo) {
-      heroHomeLogo.src = featured.team1.logo;
-      heroHomeLogo.style.display = 'block';
-    } else {
-      heroHomeLogo.style.display = 'none';
-    }
-  } else {
-    heroHomeName.textContent = featured.title.split(' vs ')[0] || featured.title;
-    heroHomeLogo.style.display = 'none';
-  }
-
-  if (featured.team2) {
-    heroAwayName.textContent = featured.team2.name;
-    if (featured.team2.logo) {
-      heroAwayLogo.src = featured.team2.logo;
-      heroAwayLogo.style.display = 'block';
-    } else {
-      heroAwayLogo.style.display = 'none';
-    }
-  } else {
-    heroAwayName.textContent = featured.title.split(' vs ')[1] || '';
-    heroAwayLogo.style.display = 'none';
-  }
-
-  heroWatchBtn.onclick = () => {
-    handleWatchClick(featured.cleanId, featured.title, featured.league);
-  };
+  }).join('');
 }
 
-// ─── Filter & Render Matches ─────────────────────────────────────────────────
+// ─── Live Streams Carousel ("You Might Like" style from screenshot) ───────────
+function renderLiveCarousel() {
+  if (!liveStreamsGrid) return;
+  let liveMatches = allMatches.filter(m => m.isLive && !m.is247);
 
-function renderMatches() {
+  // Apply search filter if active
+  if (currentSearch) {
+    liveMatches = liveMatches.filter(m => m.title.toLowerCase().includes(currentSearch) || m.category.includes(currentSearch));
+  }
+
+  if (!liveMatches.length) {
+    liveStreamsGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--text-dim); font-size: 0.88rem; padding: 1rem 0;">No live fixtures matching current criteria.</p>`;
+    return;
+  }
+
+  liveStreamsGrid.innerHTML = liveMatches.slice(0, 6).map(m => renderStreamCardHtml(m)).join('');
+}
+
+// ─── Upcoming Streams Carousel ───────────────────────────────────────────────
+function renderUpcomingCarousel() {
+  if (!upcomingStreamsGrid) return;
+  let upcoming = allMatches.filter(m => !m.isLive && !m.is247);
+
+  if (currentSearch) {
+    upcoming = upcoming.filter(m => m.title.toLowerCase().includes(currentSearch) || m.category.includes(currentSearch));
+  }
+
+  const badge = document.getElementById('upcoming-count-badge');
+  if (badge) badge.textContent = `${upcoming.length} Fixtures`;
+
+  if (!upcoming.length) {
+    upcomingStreamsGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--text-dim); font-size: 0.88rem; padding: 1rem 0;">No upcoming matches found.</p>`;
+    return;
+  }
+
+  upcomingStreamsGrid.innerHTML = upcoming.slice(0, 6).map(m => renderStreamCardHtml(m)).join('');
+}
+
+// ─── 24/7 TV Networks Carousel ───────────────────────────────────────────────
+function renderNetworksCarousel() {
+  if (!networksStreamsGrid) return;
+  let networks = allMatches.filter(m => m.is247);
+
+  if (currentSearch) {
+    networks = networks.filter(m => m.title.toLowerCase().includes(currentSearch) || m.category.includes(currentSearch));
+  }
+
+  if (!networks.length) {
+    networksStreamsGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--text-dim); font-size: 0.88rem; padding: 1rem 0;">No 24/7 channels found.</p>`;
+    return;
+  }
+
+  networksStreamsGrid.innerHTML = networks.slice(0, 6).map(m => renderStreamCardHtml(m)).join('');
+}
+
+// ─── Stream Card HTML Generator (16:9 Curved Card with Red Play Button) ───────
+function renderStreamCardHtml(m) {
+  const isFav = favorites.includes(m.cleanId);
+  const favIcon = isFav ? '❤️' : '🤍';
+  const tagHtml = m.isLive
+    ? '<span class="card-live-dot-tag">● LIVE</span>'
+    : (m.is247 ? '<span class="card-sched-tag">📺 24/7</span>' : `<span class="card-sched-tag">${formatKickoffTime(m.date)}</span>`);
+
+  return `
+    <div class="stream-card" onclick="handleWatchClick('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+      <img class="stream-card-backdrop" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.src='${resolveMediaUrl('/img/placeholder?text=' + encodeURIComponent(m.category) + '&color=111827')}';">
+      <div class="stream-card-top-tags">
+        <span class="card-cat-tag">${escapeHtml(m.category.toUpperCase())}</span>
+        ${tagHtml}
+      </div>
+      <div class="stream-card-overlay">
+        <div class="card-info">
+          <h4 class="card-match-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</h4>
+          <span class="card-match-meta">${escapeHtml(m.league || m.category.toUpperCase())} &bull; ${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
+        </div>
+        <button class="card-play-btn" title="Watch Match" aria-label="Play">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Filter & Render Catalog Grid ────────────────────────────────────────────
+function renderCatalogGrid() {
+  if (!matchesGrid) return;
   let list = allMatches;
 
-  // 1. Tab Filter
+  // Tab Filter
   if (activeTab === 'live') {
     list = list.filter(m => m.isLive && !m.is247);
   } else if (activeTab === 'upcoming') {
     list = list.filter(m => !m.isLive && !m.is247);
   } else if (activeTab === 'networks') {
     list = list.filter(m => m.is247);
+  } else if (activeTab === 'favorites') {
+    list = list.filter(m => favorites.includes(m.cleanId));
   }
 
-  // 2. Category Filter
+  // Category Filter
   if (activeCategory !== 'all') {
     list = list.filter(m => {
       if (activeCategory === 'networks') return m.is247 || m.category === 'networks';
@@ -671,180 +766,74 @@ function renderMatches() {
     });
   }
 
-  // 3. Search Filter
+  // Search Filter
   if (currentSearch) {
-    list = list.filter(m =>
-      m.title.toLowerCase().includes(currentSearch) ||
-      m.league.toLowerCase().includes(currentSearch) ||
-      m.category.toLowerCase().includes(currentSearch) ||
-      (m.team1 && m.team1.name.toLowerCase().includes(currentSearch)) ||
-      (m.team2 && m.team2.name.toLowerCase().includes(currentSearch))
-    );
+    list = list.filter(m => m.title.toLowerCase().includes(currentSearch) || m.category.includes(currentSearch) || (m.league && m.league.toLowerCase().includes(currentSearch)));
   }
 
-  // 4. Sort
-  list = [...list].sort((a, b) => {
-    if (currentSort === 'time-asc') {
-      // Live matches first
-      const aLive = a.isLive ? 1 : 0;
-      const bLive = b.isLive ? 1 : 0;
-      if (aLive !== bLive) return bLive - aLive;
+  // Sort
+  if (currentSort === 'time-asc') {
+    list.sort((a, b) => (a.date || Infinity) - (b.date || Infinity));
+  } else if (currentSort === 'popular') {
+    list.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
+  } else if (currentSort === 'title') {
+    list.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (currentSort === 'sources') {
+    list.sort((a, b) => (b.sourcesCount || 1) - (a.sourcesCount || 1));
+  }
 
-      // Then soonest kickoff
-      const aDate = a.date || Number.MAX_SAFE_INTEGER;
-      const bDate = b.date || Number.MAX_SAFE_INTEGER;
-      return aDate - bDate;
-    } else if (currentSort === 'popular') {
-      const aPop = a.popular ? 1 : 0;
-      const bPop = b.popular ? 1 : 0;
-      return bPop - aPop;
-    } else if (currentSort === 'sources') {
-      return (b.sourcesCount || 0) - (a.sourcesCount || 0);
-    } else if (currentSort === 'title') {
-      return a.title.localeCompare(b.title);
-    }
-    return 0;
-  });
+  if (catalogCountPill) {
+    catalogCountPill.textContent = `${list.length} Matches`;
+  }
+  if (catalogHeading) {
+    catalogHeading.textContent = activeCategory !== 'all' ? `${activeCategory.toUpperCase()} Fixtures` : (activeTab === 'live' ? 'Live Matches' : 'All Fixtures');
+  }
 
-  // Update headers
-  gridCountBadge.textContent = `${list.length} matches`;
-  activeFilterLabel.textContent = `Showing ${activeTab.toUpperCase()} &bull; ${activeCategory.toUpperCase()}`;
-
-  if (list.length === 0) {
+  if (!list.length) {
     matchesGrid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #64748b;">
-        <p style="font-size: 1.25rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem;">No sports events found</p>
-        <p style="font-size: 0.875rem;">Try changing your search term, sport category, or active tab.</p>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-dim);">
+        <p style="font-size: 1.1rem; font-weight: 700;">No matches found matching criteria</p>
+        <p style="font-size: 0.85rem; margin-top: 0.25rem;">Try selecting another sport category or clearing your search.</p>
       </div>
     `;
-    loadMoreContainer.classList.add('hidden');
+    if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
     return;
   }
 
-  // Pagination slice
-  const visibleItems = list.slice(0, displayedCount);
+  const slice = list.slice(0, displayedCount);
+  matchesGrid.innerHTML = slice.map(m => renderStreamCardHtml(m)).join('');
 
-  matchesGrid.innerHTML = visibleItems.map(m => renderMatchCard(m)).join('');
-
-  if (displayedCount < list.length) {
-    loadMoreContainer.classList.remove('hidden');
-    loadMoreBtn.textContent = `Load More Matches (${list.length - displayedCount} remaining)`;
-  } else {
-    loadMoreContainer.classList.add('hidden');
+  if (loadMoreContainer) {
+    loadMoreContainer.classList.toggle('hidden', displayedCount >= list.length);
   }
 }
 
-function renderMatchCard(m) {
-  const hasTeams = m.team1 && m.team2 && (m.team1.name || m.team2.name);
-  const leagueText = m.league || m.category.toUpperCase();
-  
-  let statusBadgeHtml = '';
-  if (m.is247) {
-    statusBadgeHtml = `<span class="card-status-pill status-network">📺 24/7 TV</span>`;
-  } else if (m.isLive) {
-    statusBadgeHtml = `<span class="card-status-pill status-live">● LIVE</span>`;
-  } else {
-    statusBadgeHtml = `<span class="card-status-pill status-upcoming">${formatKickoffTime(m.date, true)}</span>`;
-  }
-
-  let visualHtml = '';
-  if (hasTeams) {
-    visualHtml = `
-      <div class="card-clash-visual">
-        <div class="clash-team">
-          ${m.team1.logo ? `<img src="${escapeHtml(m.team1.logo)}" alt="${escapeHtml(m.team1.name)}" loading="lazy" onerror="this.style.display='none'">` : ''}
-          <span>${escapeHtml(m.team1.name)}</span>
-        </div>
-        <span class="clash-vs-badge">VS</span>
-        <div class="clash-team">
-          ${m.team2.logo ? `<img src="${escapeHtml(m.team2.logo)}" alt="${escapeHtml(m.team2.name)}" loading="lazy" onerror="this.style.display='none'">` : ''}
-          <span>${escapeHtml(m.team2.name)}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  const actionClass = m.isLive ? 'action-live' : 'action-scheduled';
-  const actionText = m.isLive ? 'Watch Live' : 'View Streams';
-
-  return `
-    <div class="match-card">
-      <div class="match-card-header">
-        <img class="match-backdrop-img" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.onerror=null;this.src='${escapeHtml(resolveMediaUrl('/img/placeholder?text=' + encodeURIComponent(m.category) + '&color=111827'))}';">
-        <div class="card-overlay-gradient"></div>
-        <div class="card-top-tags">
-          <span class="card-league-pill" title="${escapeHtml(leagueText)}">${escapeHtml(leagueText)}</span>
-          ${statusBadgeHtml}
-        </div>
-        ${visualHtml}
-      </div>
-      <div class="match-card-body">
-        <h3 class="card-match-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</h3>
-        <div class="card-kickoff-meta">
-          <span>📅 ${formatKickoffFull(m.date, m.isLive, m.is247)}</span>
-        </div>
-        <div class="card-footer-actions">
-          <span class="sources-indicator">⚡ ${m.sourcesCount} Source${m.sourcesCount === 1 ? '' : 's'}</span>
-          <button class="btn-card-action ${actionClass}" onclick="handleWatchClick('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml(leagueText.replace(/'/g, "\\'"))}')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            ${actionText}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ─── Kickoff Time Formatters ─────────────────────────────────────────────────
-
-function formatKickoffTime(timestamp, compact = false) {
-  if (!timestamp) return compact ? 'Scheduled' : 'Kickoff Scheduled';
-  const date = new Date(timestamp);
+// ─── Time Formatting Helpers ─────────────────────────────────────────────────
+function formatKickoffTime(timestamp) {
+  if (!timestamp) return '24/7 TV';
   const now = Date.now();
-  const diffMs = timestamp - now;
+  const diffMinutes = Math.round((timestamp - now) / 60000);
 
-  if (diffMs > 0) {
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    if (hours >= 24) {
-      const days = Math.floor(hours / 24);
-      return compact ? `In ${days}d` : `Starts in ${days} days`;
-    } else if (hours > 0) {
-      return compact ? `In ${hours}h ${mins}m` : `Starts in ${hours}h ${mins}m`;
-    } else {
-      return compact ? `In ${mins}m` : `Starts in ${mins} mins`;
-    }
+  if (diffMinutes <= 0 && diffMinutes >= -150) {
+    return '🔴 LIVE NOW';
+  }
+  if (diffMinutes > 0 && diffMinutes <= 60) {
+    return `In ${diffMinutes}m`;
   }
 
-  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return compact ? timeStr : `Started at ${timeStr}`;
+  const d = new Date(timestamp);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatKickoffFull(timestamp, isLive, is247) {
-  if (is247) return '24/7 Continuous Stream';
-  if (isLive) return 'Broadcast Live Now';
-  if (!timestamp) return 'Scheduled Event';
-  
-  const date = new Date(timestamp);
-  const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return `${dateStr} &bull; ${timeStr} (${userTimezone})`;
-}
-
-// ─── Stream Resolution & Watch Click ─────────────────────────────────────────
-
+// ─── Pro Video Player Engine (ArtPlayer + Web Embed Relay) ───────────────────
 window.handleWatchClick = async function(cleanId, title, league = 'Sports') {
   playerSection.classList.remove('hidden');
   playingTitle.textContent = title;
   playerLeagueTag.textContent = league;
-  showPlayerAlert(null);
-  showPlayerOverlay(true, 'Resolving live stream sources across providers...');
-  serverSelect.innerHTML = '<option value="">Searching stream servers...</option>';
-  streamUrlDisplay.textContent = 'Resolving...';
+  showPlayerOverlay(true, 'Resolving pro stream servers across providers...');
+  if (serverPillButtons) serverPillButtons.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">Searching servers...</span>';
 
-  // Smooth scroll to video player
+  // Smooth scroll to cinema player
   playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   try {
@@ -872,61 +861,83 @@ window.handleWatchClick = async function(cleanId, title, league = 'Sports') {
 
     if (!streams || streams.length === 0) {
       showPlayerOverlay(false);
-      showPlayerAlert('warning', 'No active streams available yet for this match. For upcoming matches, streams typically go live 15-30 minutes prior to kickoff.');
-      serverSelect.innerHTML = '<option value="">No streams found</option>';
-      playerSourceCount.textContent = '0 Streams';
+      showToast('No active servers available yet for this match. Streams typically go live 15-30m before kickoff.', 'warning');
+      playerSourceCount.textContent = '0 Servers';
       return;
     }
 
     currentStreams = streams;
-    playerSourceCount.textContent = `${streams.length} Stream${streams.length === 1 ? '' : 's'}`;
+    playerSourceCount.textContent = `${streams.length} Server${streams.length === 1 ? '' : 's'}`;
 
-    // Populate server selector dropdown with clean, informative labels
-    serverSelect.innerHTML = streams.map((s, idx) => {
-      const provider = s._source ? `[${s._source.toUpperCase()}] ` : '';
-      const label = (s.title || s.name || `Server ${idx + 1}`).split('\n')[0];
-      const res = s.resolution || s.quality ? ` • ${s.resolution || s.quality}` : '';
-      const isWeb = !!s.externalUrl ? ' (Web Player)' : '';
-      return `<option value="${idx}">Server ${idx + 1}: ${provider}${escapeHtml(label)}${res}${isWeb}</option>`;
-    }).join('');
+    // Populate server pill buttons on the cinema toolbar
+    if (serverPillButtons) {
+      serverPillButtons.innerHTML = streams.map((s, idx) => {
+        const prov = s._source ? `[${s._source.toUpperCase()}] ` : '';
+        const res = s.resolution || s.quality ? ` • ${s.resolution || s.quality}` : '';
+        const isWeb = !!s.externalUrl ? ' (Web)' : '';
+        return `<button class="server-pill-btn ${idx === 0 ? 'active' : ''}" onclick="playStreamIndex(${idx})">${prov}Server ${idx + 1}${res}${isWeb}</button>`;
+      }).join('');
+    }
 
     playStreamIndex(0);
 
   } catch (err) {
     console.error('Error fetching stream:', err);
     showPlayerOverlay(false);
-    showPlayerAlert('danger', 'Failed to fetch streams. Make sure the backend API is online.');
+    showToast('Failed to resolve streams from backend', 'danger');
   }
 };
 
-// ─── Stream Target Parsing ───────────────────────────────────────────────────
+window.playStreamIndex = function(index) {
+  if (!currentStreams || !currentStreams[index]) return;
+  activeStreamIndex = index;
+
+  // Update active pill
+  document.querySelectorAll('.server-pill-btn').forEach((btn, idx) => {
+    btn.classList.toggle('active', idx === index);
+  });
+
+  activeStreamInfo = parseStreamTarget(currentStreams[index]);
+  playCurrentStream();
+};
 
 function parseStreamTarget(streamObj) {
   if (!streamObj) return { directUrl: '', proxyUrl: '', isExternal: false, provider: '' };
-  
   const provider = streamObj._source || 'stream';
-  let raw = streamObj.url || streamObj.externalUrl || '';
+
+  // 1. Explicit external web embed URL from backend
+  if (streamObj.externalUrl) {
+    const resolved = resolveMediaUrl(streamObj.externalUrl);
+    return {
+      directUrl: resolved,
+      proxyUrl: resolved,
+      isExternal: true,
+      provider
+    };
+  }
+
+  let raw = streamObj.url || '';
   if (!raw) return { directUrl: '', proxyUrl: '', isExternal: false, provider };
 
-  // Resolve media URL (handles relative paths, internal container IPs, and appends tokens)
   raw = resolveMediaUrl(raw);
 
+  // 2. Parse URL with base to handle relative URLs (/watch or /api/manifest)
   try {
-    const parsed = new URL(raw);
+    const parsed = new URL(raw, window.location.origin);
+    if (parsed.pathname === '/watch' || raw.includes('/embed/')) {
+      return {
+        directUrl: raw,
+        proxyUrl: raw,
+        isExternal: true,
+        provider
+      };
+    }
     if (parsed.pathname === '/api/manifest' && parsed.searchParams.has('url')) {
       const direct = parsed.searchParams.get('url');
       return {
         directUrl: direct,
         proxyUrl: raw,
         isExternal: false,
-        provider
-      };
-    }
-    if (parsed.pathname === '/watch' || raw.includes('/embed/')) {
-      return {
-        directUrl: raw,
-        proxyUrl: raw,
-        isExternal: true,
         provider
       };
     }
@@ -940,177 +951,189 @@ function parseStreamTarget(streamObj) {
   };
 }
 
-function playStreamIndex(index, options = {}) {
-  const streamObj = currentStreams[index];
-  if (!streamObj) return;
-  activeStreamInfo = parseStreamTarget(streamObj);
-  playCurrentStream(options);
-}
-
-// ─── Playback Controller (HLS + Web Embed) ───────────────────────────────────
-
 function playCurrentStream(options = {}) {
   if (!activeStreamInfo) return;
   const { forceProxy = false, isRetry = false } = options;
 
-  showPlayerAlert(null);
-
-  // 1. Web Embed Mode (iframe)
+  // ─── Mode 1: Web Embed Stream (iframe) ───────────────────────────────────
   if (activeStreamInfo.isExternal) {
-    teardownHls();
-    videoPlayer.classList.add('hidden');
+    teardownArtPlayer();
+    artplayerContainer.classList.add('hidden');
     embedFrame.classList.remove('hidden');
     embedFrame.src = activeStreamInfo.directUrl;
-    streamTypeTag.textContent = 'Web Player';
-    streamUrlDisplay.textContent = activeStreamInfo.directUrl.slice(0, 45) + '...';
+    playerStatusTag.textContent = '● WEB STREAM';
     showPlayerOverlay(false);
-    showToast('Loaded embed stream player', 'info');
+    showToast(`Playing via ${activeStreamInfo.provider.toUpperCase()} (Web)`, 'info');
     return;
   }
 
-  // 2. HLS Video Mode
+  // ─── Mode 2: HLS Video Stream (ArtPlayer + Hls.js) ─────────────────────────
   embedFrame.classList.add('hidden');
   embedFrame.removeAttribute('src');
-  videoPlayer.classList.remove('hidden');
+  artplayerContainer.classList.remove('hidden');
 
-  const useProxy = forceProxy || proxyCheckbox.checked;
+  const useProxy = forceProxy || (proxyCheckbox && proxyCheckbox.checked);
   const targetUrl = useProxy ? activeStreamInfo.proxyUrl : activeStreamInfo.directUrl;
+  if (proxyCheckbox) proxyCheckbox.checked = useProxy;
 
-  proxyCheckbox.checked = useProxy;
-  streamTypeTag.textContent = useProxy ? 'HLS (Proxy)' : 'HLS Direct';
-  streamUrlDisplay.textContent = targetUrl.slice(0, 45) + '...';
+  playerStatusTag.textContent = useProxy ? '● HLS PROXY' : '● HLS DIRECT';
+  showPlayerOverlay(true, useProxy ? 'Streaming via Reverse Proxy...' : 'Connecting to direct HLS stream...');
 
-  showPlayerOverlay(true, useProxy ? 'Streaming via Local Reverse Proxy...' : 'Connecting to direct stream...');
+  teardownArtPlayer();
 
-  teardownHls();
-
-  if (Hls.isSupported()) {
-    // Custom Loader to rewrite child playlist and segment URLs via resolveMediaUrl
-    class CustomHlsLoader extends Hls.DefaultConfig.loader {
-      load(context, config, callbacks) {
-        if (context && context.url) {
-          context.url = resolveMediaUrl(context.url);
-        }
-        super.load(context, config, callbacks);
+  // Custom Hls Loader that rewrites child manifests & TS video segments
+  class CustomHlsLoader extends Hls.DefaultConfig.loader {
+    load(context, config, callbacks) {
+      if (context && context.url) {
+        context.url = resolveMediaUrl(context.url);
       }
+      super.load(context, config, callbacks);
     }
+  }
 
-    hlsInstance = new Hls({
-      loader: CustomHlsLoader,
-      enableWorker: true,
-      lowLatencyMode: true,
-      manifestLoadingTimeOut: 15000,
-      manifestLoadingMaxRetry: 3,
-      levelLoadingTimeOut: 15000
-    });
+  try {
+    artInstance = new Artplayer({
+      container: '#artplayer-container',
+      url: targetUrl,
+      type: 'm3u8',
+      customType: {
+        m3u8: function (video, url, art) {
+          if (Hls.isSupported()) {
+            if (art.hls) art.hls.destroy();
+            const hls = new Hls({
+              loader: CustomHlsLoader,
+              enableWorker: true,
+              lowLatencyMode: true,
+              manifestLoadingTimeOut: 16000,
+              manifestLoadingMaxRetry: 3,
+              levelLoadingTimeOut: 16000
+            });
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            art.hls = hls;
 
-    hlsInstance.loadSource(targetUrl);
-    hlsInstance.attachMedia(videoPlayer);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              showPlayerOverlay(false);
+              video.play().catch(() => console.log('Autoplay deferred'));
+            });
 
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-      showPlayerOverlay(false);
-      videoPlayer.play().catch(e => console.warn('Autoplay prevented:', e));
-      showToast(`Stream playing via ${activeStreamInfo.provider.toUpperCase()}`, 'success');
-    });
+            hls.on(Hls.Events.ERROR, (event, data) => {
+              if (data.fatal) {
+                switch (data.type) {
+                  case Hls.ErrorTypes.NETWORK_ERROR:
+                    if (!useProxy && !isRetry) {
+                      console.log('[ArtPlayer] Direct blocked. Auto-retrying via Proxy...');
+                      showToast('Direct stream blocked by CORS. Switching to Proxy...', 'warning');
+                      playCurrentStream({ forceProxy: true, isRetry: true });
+                      return;
+                    }
+                    showPlayerOverlay(false);
+                    showToast('Stream server failed. Please switch to another server above.', 'warning');
+                    break;
+                  case Hls.ErrorTypes.MEDIA_ERROR:
+                    hls.recoverMediaError();
+                    break;
+                  default:
+                    showPlayerOverlay(false);
+                    break;
+                }
+              }
+            });
 
-    hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-      console.warn('[HLS.js] Error event:', data);
-      if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            // Auto fallback from direct to proxy on CORS/Network error
-            if (!useProxy && !isRetry) {
-              console.log('[Player] Direct playback blocked. Auto-retrying via local proxy...');
-              showToast('Direct stream blocked by CORS. Switching to Local Proxy...', 'warning');
-              playCurrentStream({ forceProxy: true, isRetry: true });
-              return;
-            }
-            teardownHls();
-            showPlayerOverlay(false);
-            showPlayerAlert('danger', 'Video stream failed to load. Please switch to another server from the dropdown above.');
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            hlsInstance.recoverMediaError();
-            break;
-          default:
-            teardownHls();
-            showPlayerOverlay(false);
-            showPlayerAlert('danger', 'Playback error encountered. Suggest selecting another server.');
-            break;
+            art.on('destroy', () => hls.destroy());
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
+            video.addEventListener('loadedmetadata', () => {
+              showPlayerOverlay(false);
+              video.play();
+            }, { once: true });
+          }
         }
-      }
+      },
+      theme: '#ef4444',
+      volume: 0.8,
+      autoplay: true,
+      pip: true,
+      fullscreen: true,
+      fullscreenWeb: true,
+      setting: true,
+      playbackRate: true,
+      aspectRatio: true,
+      miniProgressBar: true,
+      autoSize: true,
+      autoMini: true
     });
 
-  } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-    // Native Safari / iOS HLS
-    videoPlayer.src = targetUrl;
-    videoPlayer.addEventListener('loadedmetadata', () => {
+    artInstance.on('ready', () => {
       showPlayerOverlay(false);
-      videoPlayer.play();
-    }, { once: true });
+    });
 
-    videoPlayer.addEventListener('error', () => {
-      if (!useProxy && !isRetry) {
-        playCurrentStream({ forceProxy: true, isRetry: true });
-        return;
-      }
-      showPlayerOverlay(false);
-      showPlayerAlert('danger', 'Playback error. Please try another server.');
-    }, { once: true });
-  } else {
+  } catch (err) {
+    console.error('ArtPlayer init error:', err);
     showPlayerOverlay(false);
-    showPlayerAlert('danger', 'HLS video playback is not supported on this device.');
   }
 }
 
-function teardownHls() {
-  if (hlsInstance) {
-    hlsInstance.destroy();
-    hlsInstance = null;
+function teardownArtPlayer() {
+  if (artInstance) {
+    try { artInstance.destroy(); } catch (_) {}
+    artInstance = null;
   }
 }
 
 function closePlayer() {
-  teardownHls();
-  videoPlayer.pause();
-  videoPlayer.removeAttribute('src');
-  videoPlayer.load();
+  teardownArtPlayer();
   embedFrame.removeAttribute('src');
   playerSection.classList.add('hidden');
 }
 
-// ─── UI Helper Functions ─────────────────────────────────────────────────────
-
 function showPlayerOverlay(show, message = 'Loading stream...') {
+  if (!playerOverlay) return;
   if (show) {
     playerOverlay.classList.remove('hidden');
-    overlayMessage.textContent = message;
+    if (overlayMessage) overlayMessage.textContent = message;
   } else {
     playerOverlay.classList.add('hidden');
   }
 }
 
-function showPlayerAlert(type, message) {
-  if (!type || !message) {
-    playerAlert.className = 'alert hidden';
-    playerAlert.textContent = '';
-    return;
+// ─── Favorites Feature ───────────────────────────────────────────────────────
+function toggleFavorite(cleanId) {
+  const idx = favorites.indexOf(cleanId);
+  if (idx > -1) {
+    favorites.splice(idx, 1);
+    showToast('Removed from favorites', 'info');
+  } else {
+    favorites.push(cleanId);
+    showToast('Saved to favorites', 'success');
   }
-  playerAlert.className = `alert alert-${type}`;
-  playerAlert.innerHTML = message;
+  localStorage.setItem(STORAGE_FAVORITES_KEY, JSON.stringify(favorites));
+  renderHeroSpotlight();
+  if (activeTab === 'favorites') renderCatalogGrid();
 }
 
-function showCatalogAlert(type, message) {
-  if (!type || !message) {
-    catalogAlert.className = 'alert hidden';
-    catalogAlert.textContent = '';
-    return;
+// ─── In-UI API Switcher ───────────────────────────────────────────────────────
+window.promptChangeApi = function() {
+  const input = prompt(
+    'Configure Backend API Endpoint:\n(e.g., /api/backend or ' + GODADDY_AIRO_URL + ' or http://localhost:7000)',
+    API_BASE
+  );
+  if (input && input.trim()) {
+    let val = input.trim().replace(/\/$/, '');
+    if (val.includes('ahudwgrmu9.preview.c35.airoapp.ai') && !val.includes('airoShareToken')) {
+      val = GODADDY_AIRO_URL;
+    }
+    API_BASE = val;
+    localStorage.setItem('sportflow_api_base', API_BASE);
+    if (apiEndpointLabel) apiEndpointLabel.textContent = API_BASE.includes('airoapp.ai') ? 'Cloud API' : API_BASE;
+    syncMatchesInBackground(true);
+    showToast(`Switched API to: ${API_BASE}`, 'info');
   }
-  catalogAlert.className = `alert alert-${type}`;
-  catalogAlert.innerHTML = message;
-}
+};
 
+// ─── Toast Notifications ─────────────────────────────────────────────────────
 function showToast(message, type = 'info') {
+  if (!toastContainer) return;
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
