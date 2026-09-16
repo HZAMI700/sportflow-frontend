@@ -5,10 +5,130 @@
  * HLS direct/proxy streaming, web player embeds, and smart fallback.
  */
 
-// Configurable API base: URL query parameter (?api=...), localStorage, or default GoDaddy API
-const DEFAULT_REMOTE_API = 'https://ahudwgrmu9.preview.c35.airoapp.ai';
-const urlParams = new URLSearchParams(window.location.search);
-let API_BASE = (urlParams.get('api') || localStorage.getItem('sportflow_api_base') || DEFAULT_REMOTE_API).replace(/\/$/, '');
+// GoDaddy Airo Backend with authenticated share token
+const GODADDY_AIRO_URL = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
+
+function getInitialApiBase() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramApi = urlParams.get('api');
+  if (paramApi && paramApi.trim()) {
+    let clean = paramApi.trim().replace(/\/$/, '');
+    if (clean.includes('ahudwgrmu9.preview.c35.airoapp.ai') && !clean.includes('airoShareToken')) {
+      const sep = clean.includes('?') ? '&' : '?';
+      clean = `${clean}${sep}airoShareToken=At3udpbq8UOL&preview=1`;
+    }
+    return clean;
+  }
+
+  const storedApi = localStorage.getItem('sportflow_api_base');
+  if (storedApi && storedApi.trim()) {
+    let clean = storedApi.trim().replace(/\/$/, '');
+    if (clean.includes('ahudwgrmu9.preview.c35.airoapp.ai') && !clean.includes('airoShareToken')) {
+      clean = GODADDY_AIRO_URL;
+      localStorage.setItem('sportflow_api_base', clean);
+    }
+    return clean;
+  }
+
+  // When hosted on Vercel or any web server, use same-origin reverse proxy /api/backend
+  // which attaches the airoShareToken server-side and eliminates all browser CORS blocks
+  const isWebHosted = window.location.protocol.startsWith('http') && 
+                      !window.location.hostname.includes('localhost') && 
+                      !window.location.hostname.includes('127.0.0.1');
+
+  return isWebHosted ? '/api/backend' : GODADDY_AIRO_URL;
+}
+
+let API_BASE = getInitialApiBase();
+
+function parseApiBase(rawUrl) {
+  try {
+    if (rawUrl.startsWith('/')) {
+      return { originAndPath: rawUrl.replace(/\/$/, ''), baseParams: new URLSearchParams(), isRelative: true };
+    }
+    const urlObj = new URL(rawUrl);
+    const originAndPath = `${urlObj.origin}${urlObj.pathname.replace(/\/$/, '')}`;
+    const baseParams = new URLSearchParams(urlObj.search);
+    return { originAndPath, baseParams, isRelative: false };
+  } catch (_) {
+    return { originAndPath: rawUrl.replace(/\/$/, ''), baseParams: new URLSearchParams(), isRelative: false };
+  }
+}
+
+function buildApiUrl(endpoint, extraParams = {}) {
+  const { originAndPath, baseParams } = parseApiBase(API_BASE);
+  let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  let pathOnly = path;
+  let endpointParams = new URLSearchParams();
+
+  if (path.includes('?')) {
+    const parts = path.split('?');
+    pathOnly = parts[0];
+    endpointParams = new URLSearchParams(parts[1]);
+  }
+
+  const mergedParams = new URLSearchParams();
+  for (const [k, v] of baseParams.entries()) {
+    mergedParams.set(k, v);
+  }
+  for (const [k, v] of endpointParams.entries()) {
+    mergedParams.set(k, v);
+  }
+  for (const [k, v] of Object.entries(extraParams)) {
+    if (v !== undefined && v !== null) {
+      mergedParams.set(k, v);
+    }
+  }
+
+  const queryString = mergedParams.toString();
+  return `${originAndPath}${pathOnly}${queryString ? '?' + queryString : ''}`;
+}
+
+function resolveMediaUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const { originAndPath, baseParams, isRelative } = parseApiBase(API_BASE);
+
+  let fixedUrl = url;
+
+  // If URL points to frontend origin's /api/manifest or /img, rewrite to API base
+  const locOrigin = window.location.origin;
+  if (locOrigin && fixedUrl.startsWith(locOrigin + '/api/manifest')) {
+    fixedUrl = fixedUrl.replace(locOrigin, originAndPath);
+  }
+  if (locOrigin && fixedUrl.startsWith(locOrigin + '/img')) {
+    fixedUrl = fixedUrl.replace(locOrigin, originAndPath);
+  }
+
+  // If it's a relative path starting with /, prefix with originAndPath
+  if (fixedUrl.startsWith('/')) {
+    if (isRelative) {
+      if (!fixedUrl.startsWith(originAndPath)) {
+        fixedUrl = `${originAndPath}${fixedUrl}`;
+      }
+    } else {
+      fixedUrl = `${originAndPath}${fixedUrl}`;
+    }
+  } else {
+    // Replace internal container IPs (100.117.x, 169.254.x, 127.0.0.1:7000)
+    fixedUrl = fixedUrl.replace(/^http:\/\/(?:100\.\d+\.\d+\.\d+:\d+|169\.254\.\d+\.\d+:\d+|localhost:\d+|127\.0\.0\.1:\d+)/, originAndPath);
+  }
+
+  // If targeting GoDaddy Airo preview directly, ensure share tokens are attached
+  if (fixedUrl.includes('ahudwgrmu9.preview.c35.airoapp.ai')) {
+    try {
+      const u = new URL(fixedUrl);
+      for (const [k, v] of baseParams.entries()) {
+        if (!u.searchParams.has(k)) {
+          u.searchParams.set(k, v);
+        }
+      }
+      return u.toString();
+    } catch (_) {}
+  }
+
+  return fixedUrl;
+}
+
 
 // App State
 let allMatches = [];
@@ -213,26 +333,51 @@ async function checkPluginHealth() {
   if (label) label.textContent = API_BASE;
 
   try {
-    const res = await fetch(`${API_BASE}/manifest.json`, { cache: 'no-store' });
+    let manifestUrl = buildApiUrl('/manifest.json');
+    let res = await fetch(manifestUrl, { cache: 'no-store' });
+
+    // Fallback: If /api/backend returned 404 (e.g. running locally without Vercel rewrites), switch to direct GoDaddy API
+    if (!res.ok && API_BASE === '/api/backend') {
+      console.log('Vercel rewrite /api/backend not available. Falling back to direct GoDaddy API...');
+      API_BASE = GODADDY_AIRO_URL;
+      if (label) label.textContent = API_BASE;
+      manifestUrl = buildApiUrl('/manifest.json');
+      res = await fetch(manifestUrl, { cache: 'no-store' });
+    }
+
     if (res.ok) {
       const data = await res.json();
-      setPluginStatus('online', `${data.name || 'API Online'} (Connected)`);
+      setPluginStatus('online', `${data.name || 'Live Sports API'} (Connected)`);
       showCatalogAlert(null);
     } else if (res.status === 401) {
-      setPluginStatus('offline', 'GoDaddy Preview is Private (Click to configure)');
+      setPluginStatus('offline', 'GoDaddy Auth Error (HTTP 401)');
       showCatalogAlert('warning', `
-        <strong>⚠️ GoDaddy Preview URL is currently Private (HTTP 401)</strong><br>
-        GoDaddy Airo previews require a share link or to be published to a public live domain.<br>
-        Backend URL: <code>${escapeHtml(API_BASE)}</code><br>
+        <strong>⚠️ GoDaddy Preview URL returned Unauthorized (HTTP 401)</strong><br>
+        Current API: <code>${escapeHtml(API_BASE)}</code><br>
         <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button onclick="promptChangeApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">🔗 Change / Enter Published API URL</button>
+          <button onclick="switchToCloudApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">☁️ Connect to GoDaddy Cloud API</button>
           <button onclick="switchToLocalApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">💻 Switch to Local API (localhost:7000)</button>
+          <button onclick="promptChangeApi()" class="btn btn-secondary" style="padding:5px 12px; font-size:12px;">🔗 Change URL</button>
         </div>
       `);
     } else {
       setPluginStatus('offline', `API HTTP ${res.status}`);
     }
   } catch (err) {
+    // If /api/backend failed network request, try falling back to direct cloud
+    if (API_BASE === '/api/backend') {
+      API_BASE = GODADDY_AIRO_URL;
+      if (label) label.textContent = API_BASE;
+      try {
+        const res2 = await fetch(buildApiUrl('/manifest.json'), { cache: 'no-store' });
+        if (res2.ok) {
+          const data = await res2.json();
+          setPluginStatus('online', `${data.name || 'Live Sports API'} (Connected)`);
+          showCatalogAlert(null);
+          return;
+        }
+      } catch (_) {}
+    }
     setPluginStatus('offline', 'API Offline (Click to configure)');
   }
 }
@@ -245,9 +390,13 @@ function setPluginStatus(status, text) {
 }
 
 window.promptChangeApi = function() {
-  const input = prompt('Enter your Backend API Base URL:\n(e.g., https://your-published-domain.com or http://localhost:7000)', API_BASE);
+  const input = prompt('Enter your Backend API Base URL:\n(e.g., /api/backend, ' + GODADDY_AIRO_URL + ' or http://localhost:7000)', API_BASE);
   if (input && input.trim()) {
-    API_BASE = input.trim().replace(/\/$/, '');
+    let val = input.trim().replace(/\/$/, '');
+    if (val.includes('ahudwgrmu9.preview.c35.airoapp.ai') && !val.includes('airoShareToken')) {
+      val = GODADDY_AIRO_URL;
+    }
+    API_BASE = val;
     localStorage.setItem('sportflow_api_base', API_BASE);
     const label = document.getElementById('api-endpoint-label');
     if (label) label.textContent = API_BASE;
@@ -255,6 +404,16 @@ window.promptChangeApi = function() {
     fetchAllMatches();
     showToast(`Switched API to: ${API_BASE}`, 'info');
   }
+};
+
+window.switchToCloudApi = function() {
+  API_BASE = GODADDY_AIRO_URL;
+  localStorage.setItem('sportflow_api_base', API_BASE);
+  const label = document.getElementById('api-endpoint-label');
+  if (label) label.textContent = API_BASE;
+  checkPluginHealth();
+  fetchAllMatches();
+  showToast('Switched to GoDaddy Cloud API', 'info');
 };
 
 window.switchToLocalApi = function() {
@@ -282,9 +441,9 @@ async function fetchAllMatches(callback) {
   try {
     let rawItems = [];
 
-    // Attempt 1: New /catalog/sports/all.json
+    // Attempt 1: /catalog/sports/all.json
     try {
-      const res = await fetch(`${API_BASE}/catalog/sports/all.json`, { cache: 'no-store' });
+      const res = await fetch(buildApiUrl('/catalog/sports/all.json'), { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         rawItems = json.metas || [];
@@ -294,7 +453,7 @@ async function fetchAllMatches(callback) {
     // Attempt 2: Direct /api/matches
     if (!rawItems.length) {
       try {
-        const res = await fetch(`${API_BASE}/api/matches`, { cache: 'no-store' });
+        const res = await fetch(buildApiUrl('/api/matches'), { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           if (Array.isArray(json)) rawItems = json;
@@ -302,12 +461,25 @@ async function fetchAllMatches(callback) {
       } catch (_) {}
     }
 
-    // Attempt 3: Combine live + upcoming
+    // Attempt 3: Combine /catalog/sports/live.json + /catalog/sports/upcoming.json
     if (!rawItems.length) {
       try {
         const [liveRes, upRes] = await Promise.all([
-          fetch(`${API_BASE}/catalog/sports/live.json`),
-          fetch(`${API_BASE}/catalog/sports/upcoming.json`)
+          fetch(buildApiUrl('/catalog/sports/live.json')),
+          fetch(buildApiUrl('/catalog/sports/upcoming.json'))
+        ]);
+        const liveJson = await liveRes.json();
+        const upJson = await upRes.json();
+        rawItems = [...(liveJson.metas || []), ...(upJson.metas || [])];
+      } catch (_) {}
+    }
+
+    // Attempt 4: Standard Stremio addon catalogs /catalog/tv/nuvio_sports_live.json & nuvio_sports_upcoming.json
+    if (!rawItems.length) {
+      try {
+        const [liveRes, upRes] = await Promise.all([
+          fetch(buildApiUrl('/catalog/tv/nuvio_sports_live.json')),
+          fetch(buildApiUrl('/catalog/tv/nuvio_sports_upcoming.json'))
         ]);
         const liveJson = await liveRes.json();
         const upJson = await upRes.json();
@@ -316,7 +488,15 @@ async function fetchAllMatches(callback) {
     }
 
     if (!rawItems.length) {
-      showCatalogAlert('warning', 'Could not load matches. Ensure the Live Sport Plugin is running on http://localhost:7000.');
+      showCatalogAlert('warning', `
+        <strong>Could not load matches from backend API</strong><br>
+        Current Endpoint: <code>${escapeHtml(API_BASE)}</code><br>
+        <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="switchToCloudApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">☁️ Connect to GoDaddy Cloud API</button>
+          <button onclick="switchToLocalApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">💻 Connect to Localhost:7000</button>
+          <button onclick="promptChangeApi()" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">🔗 Enter Custom URL</button>
+        </div>
+      `);
       matchesGrid.innerHTML = '';
       return;
     }
@@ -345,7 +525,8 @@ async function fetchAllMatches(callback) {
         ? item.isLive 
         : (is247 || (dateTimestamp && dateTimestamp <= now + 15 * 60 * 1000 && dateTimestamp >= now - 3 * 60 * 60 * 1000));
 
-      const poster = item.poster || item.background || item.thumbnail_url || `${API_BASE}/img/placeholder?text=${encodeURIComponent(title)}&color=182234`;
+      const rawPoster = item.poster || item.background || item.thumbnail_url || buildApiUrl('/img/placeholder', { text: title, color: '182234' });
+      const poster = resolveMediaUrl(rawPoster);
 
       const team1 = item.team1 || (item.cast && item.cast[0] ? { name: item.cast[0], logo: null } : null);
       const team2 = item.team2 || (item.cast && item.cast[1] ? { name: item.cast[1], logo: null } : null);
@@ -363,7 +544,7 @@ async function fetchAllMatches(callback) {
         is247: is247,
         popular: item.popular === true || item.popular === '1',
         sourcesCount: sourcesCount,
-        poster: poster.startsWith('/') ? `${API_BASE}${poster}` : poster,
+        poster: poster,
         team1: team1,
         team2: team2,
         releaseInfo: item.releaseInfo || ''
@@ -589,7 +770,7 @@ function renderMatchCard(m) {
   return `
     <div class="match-card">
       <div class="match-card-header">
-        <img class="match-backdrop-img" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.onerror=null;this.src='${API_BASE}/img/placeholder?text=${encodeURIComponent(m.category)}&color=111827';">
+        <img class="match-backdrop-img" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.onerror=null;this.src='${escapeHtml(resolveMediaUrl('/img/placeholder?text=' + encodeURIComponent(m.category) + '&color=111827'))}';">
         <div class="card-overlay-gradient"></div>
         <div class="card-top-tags">
           <span class="card-league-pill" title="${escapeHtml(leagueText)}">${escapeHtml(leagueText)}</span>
@@ -671,7 +852,7 @@ window.handleWatchClick = async function(cleanId, title, league = 'Sports') {
 
     // Primary: /stream/sports/{id}.json
     try {
-      const res = await fetch(`${API_BASE}/stream/sports/${cleanId}.json`, { cache: 'no-store' });
+      const res = await fetch(buildApiUrl(`/stream/sports/${cleanId}.json`), { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         streams = json.streams || [];
@@ -681,7 +862,7 @@ window.handleWatchClick = async function(cleanId, title, league = 'Sports') {
     // Fallback: /stream/tv/nuvio_sport_{id}.json
     if (!streams.length) {
       try {
-        const res = await fetch(`${API_BASE}/stream/tv/nuvio_sport_${cleanId}.json`, { cache: 'no-store' });
+        const res = await fetch(buildApiUrl(`/stream/tv/nuvio_sport_${cleanId}.json`), { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           streams = json.streams || [];
@@ -714,7 +895,7 @@ window.handleWatchClick = async function(cleanId, title, league = 'Sports') {
   } catch (err) {
     console.error('Error fetching stream:', err);
     showPlayerOverlay(false);
-    showPlayerAlert('danger', 'Failed to fetch streams. Make sure the plugin is running.');
+    showPlayerAlert('danger', 'Failed to fetch streams. Make sure the backend API is online.');
   }
 };
 
@@ -727,11 +908,8 @@ function parseStreamTarget(streamObj) {
   let raw = streamObj.url || streamObj.externalUrl || '';
   if (!raw) return { directUrl: '', proxyUrl: '', isExternal: false, provider };
 
-  if (raw.startsWith('/')) {
-    raw = `${API_BASE}${raw}`;
-  }
-
-  raw = raw.replace('169.254.83.107:7000', 'localhost:7000');
+  // Resolve media URL (handles relative paths, internal container IPs, and appends tokens)
+  raw = resolveMediaUrl(raw);
 
   try {
     const parsed = new URL(raw);
@@ -756,7 +934,7 @@ function parseStreamTarget(streamObj) {
 
   return {
     directUrl: raw,
-    proxyUrl: `${API_BASE}/api/manifest?url=${encodeURIComponent(raw)}`,
+    proxyUrl: buildApiUrl('/api/manifest', { url: raw }),
     isExternal: false,
     provider
   };
@@ -807,12 +985,23 @@ function playCurrentStream(options = {}) {
   teardownHls();
 
   if (Hls.isSupported()) {
+    // Custom Loader to rewrite child playlist and segment URLs via resolveMediaUrl
+    class CustomHlsLoader extends Hls.DefaultConfig.loader {
+      load(context, config, callbacks) {
+        if (context && context.url) {
+          context.url = resolveMediaUrl(context.url);
+        }
+        super.load(context, config, callbacks);
+      }
+    }
+
     hlsInstance = new Hls({
+      loader: CustomHlsLoader,
       enableWorker: true,
       lowLatencyMode: true,
-      manifestLoadingTimeOut: 12000,
-      manifestLoadingMaxRetry: 2,
-      levelLoadingTimeOut: 12000
+      manifestLoadingTimeOut: 15000,
+      manifestLoadingMaxRetry: 3,
+      levelLoadingTimeOut: 15000
     });
 
     hlsInstance.loadSource(targetUrl);
