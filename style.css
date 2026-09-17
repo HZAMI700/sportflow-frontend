@@ -1812,3 +1812,50 @@ body {
 .embed-click-shield:hover::after {
   opacity: 1;
 }
+
+/* ─── 17. Stream Loading Skeletons ────────────────────────────────────────── */
+@keyframes naroShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.stream-card-skeleton {
+  background: var(--card-bg, #111216);
+  border: 1px solid var(--border-subtle, #1e222d);
+  border-radius: var(--radius-card, 12px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-media {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: linear-gradient(90deg, #12141a 25%, #1c212c 50%, #12141a 75%);
+  background-size: 200% 100%;
+  animation: naroShimmer 1.8s infinite ease-in-out;
+}
+
+.skeleton-body {
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #151821 25%, #202634 50%, #151821 75%);
+  background-size: 200% 100%;
+  animation: naroShimmer 1.8s infinite ease-in-out;
+}
+
+.skeleton-line.title {
+  width: 75%;
+  height: 14px;
+}
+
+.skeleton-line.meta {
+  width: 45%;
+}

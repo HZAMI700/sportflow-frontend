@@ -154,16 +154,24 @@
     };
   }
 
-  // RAF-batched rendering to avoid layout thrashing
-  let _renderQueued = false;
+  // RAF-batched rendering to avoid layout thrashing (always executes latest frame)
+  let _renderRafId = null;
   function queueRender(fn) {
-    if (_renderQueued) return;
-    _renderQueued = true;
-    requestAnimationFrame(() => {
-      fn();
-      _renderQueued = false;
+    if (_renderRafId) {
+      cancelAnimationFrame(_renderRafId);
+    }
+    _renderRafId = requestAnimationFrame(() => {
+      _renderRafId = null;
+      try {
+        fn();
+      } catch (err) {
+        console.error('[RenderError]', err);
+      }
     });
   }
+
+  // ─── Instant 0ms Cold-Start Built-in Catalog Seed ────────────────────────
+  const BUILTIN_SEEDED_MATCHES = [{"id":"nuvio_sport_spk_ppv-nfl-network","cleanId":"spk_ppv-nfl-network","title":"NFL Network","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmQggAxqWwgqIGMBokQIUiETqpwkHphaRSmSClYQF9bMXKaU6SnIRQYQSKbZ6YQsCS5HIXJuThdhOScCYHhyN2AXSSA.webp&text=NFL%20Network&color=0369a1"},{"id":"nuvio_sport_sf_rb-salzburg-vs-levski-sofia","cleanId":"sf_rb-salzburg-vs-levski-sofia","title":"RB Salzburg @ Levski Sofia","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VHC1mE%2BIbiB0h9IFCEQ6ShkDALAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp&text=RB%20Salzburg%0Avs%0ALevski%20Sofia&color=10b981"},{"id":"nuvio_sport_sf_tsg-hoffenheim-vs-ofi-crete","cleanId":"sf_tsg-hoffenheim-vs-ofi-crete","title":"TSG Hoffenheim @ OFI Crete","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VGJRApiMgAwhuIPiBPGUIRMZImjBYEgp9hs%2BijArtbd%2BXpZZ2plowdzFRCCA.webp&text=TSG%20Hoffenheim%0Avs%0AOFI%20Crete&color=10b981"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"basketball","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_sf_connecticut-sun-vs-atlanta-dream","cleanId":"sf_connecticut-sun-vs-atlanta-dream","title":"Atlanta Dream vs Connecticut Sun","category":"basketball","league":"WNBA","date":1789687800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rNCDKJeKSCG4gpm-SBSmQFiMYlMkFPsNn1dKlFzBaiWWW6a0wHmKiEEA.webp&text=Connecticut%20Sun%0Avs%0AAtlanta%20Dream&color=f97316"},{"id":"nuvio_sport_sf_washington-mystics-vs-chicago-sky","cleanId":"sf_washington-mystics-vs-chicago-sky","title":"Chicago Sky vs Washington Mystics","category":"basketball","league":"WNBA","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aEChACwdECS0huIKXsMbzIEBGMaCwJBT7DZ9FGBUou78vSyzPTLRg7mKiEEA.webp&text=Washington%20Mystics%0Avs%0AChicago%20Sky&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_live-event_2026-truck-playoff-at-bristol-live-stream","cleanId":"spk_live-event_2026-truck-playoff-at-bristol-live-stream","title":"2026 Truck Playoff at Bristol","category":"motorsport","league":"","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=2026%20Truck%20Playoff%20at%20Bristol&color=ef4444"},{"id":"nuvio_sport_spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","cleanId":"spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","title":"Nascar Cup Series 2026 - Bass Pro Shops Night Race","category":"motorsport","league":"","date":1789807500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=Nascar%20Cup%20Series%202026%0A-%0ABass%20Pro%20Shops%20Night%20Race&color=ef4444"},{"id":"nuvio_sport_spk_ppv-tna-impact","cleanId":"spk_ppv-tna-impact","title":"TNA Impact","category":"mma","league":"","date":1789693200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IAMYgQwKiBJSQWUqRCyschSmwTVM3cODxgEZcJAwQKOXqtlE60eRMChIptnphCwJLnFahMG5OEwMyLQJDciDjZQggA.webp&text=TNA%20Impact&color=dc2626"},{"id":"nuvio_sport_spk_ppv-wwe-friday-night-smackdown","cleanId":"spk_ppv-wwe-friday-night-smackdown","title":"WWE Friday Night Smackdown","category":"mma","league":"","date":1789776000000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE5MZRAGMQ0rCBgiQVacBqJEKELNnjSIRCU1yRweCpAal0idkV6U5CKDCDjBbPTCFgSXBPtDnVkdhUno3UzBnYEcyCCA.webp&text=WWE%20Friday%20Night%20Smackdown&color=dc2626"},{"id":"nuvio_sport_spk_live-event_john-hedges-vs-pat-brown-live-stream","cleanId":"spk_live-event_john-hedges-vs-pat-brown-live-stream","title":"John Hedges vs Pat Brown","category":"mma","league":"","date":1789840800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=John%20Hedges%0Avs%0APat%20Brown&color=dc2626"},{"id":"nuvio_sport_spk_ppv-fox-cricket","cleanId":"spk_ppv-fox-cricket","title":"Fox Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMhGA0SIYVOCIQpcSBoQVKbMEnr1AYy01hIGFNXKUIS9JUlN-MIJFMt9wsCS49moY9aS5Mk0CBXJHbVJtIA.webp&text=Fox%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_admin-willow-cricket","cleanId":"spk_admin-willow-cricket","title":"Willow Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ2C4%2BcBjYAUwRQFYxi8xg61rLoATdMFSCiUME-YAE5gFbLnrlGUGtB5lBFRvPqVgSWMEJ58fBJCGlxo%2BBP5zgEIA.webp&text=Willow%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_england-cricket-vs-sri-lanka-cricket-2524747","cleanId":"spk_england-cricket-vs-sri-lanka-cricket-2524747","title":"England Cricket vs Sri Lanka Cricket","category":"cricket","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rMNhAhgABkggIIbiD5aQiUyVzWcCpkgp9hs%2BijAqUXd%2BXpZZnploNUXoQoA.webp&text=England%20Cricket%0Avs%0ASri%20Lanka%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_eisb-ren-berlin-vs-straubing-tigers-2518140","cleanId":"spk_eisb-ren-berlin-vs-straubing-tigers-2518140","title":"Eisbären Berlin vs Straubing Tigers","category":"hockey","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLGDIhgMtCAghuIPiBLH9IGCCmWQiKQWBIKfYbPopNbFF03l6WLI%2BTLRgXvSiEEA.webp&text=Eisb%C3%A4ren%20Berlin%0Avs%0AStraubing%20Tigers&color=06b6d4"},{"id":"nuvio_sport_spk_schwenninger-vs-frankfurt-lowen-hockey-433611","cleanId":"spk_schwenninger-vs-frankfurt-lowen-hockey-433611","title":"Schwenninger vs Frankfurt Lowen","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohsi%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Schwenninger%0Avs%0AFrankfurt%20Lowen&color=06b6d4"},{"id":"nuvio_sport_spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","cleanId":"spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","title":"Krefeld Pinguine vs Bremerhaven","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohs8%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Krefeld%20Pinguine%0Avs%0ABremerhaven&color=06b6d4"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"basketball","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_ppv-fox-league","cleanId":"spk_ppv-fox-league","title":"Fox League","category":"rugby","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmUQQQKEInjAqICNlIgliDWqziQWYCpolxwRAGMT%2B6cOVre5FQKEimqlOULAkuM%2B6FhuThVhUnoCU3IAg1CIIA.webp&text=Fox%20League&color=8b5cf6"},{"id":"nuvio_sport_wf_23_6Rktf6TF","cleanId":"wf_23_6Rktf6TF","title":"DP WORLD TOUR: BMW PGA Championship (United Kingdom)","category":"golf","league":"","date":1789624800000,"isLive":true,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fapi.watchfooty.st%2Fapi%2Fv1%2Fposter%2FPFZfk5TG26PM1L9mqMVZjaeMMtx9SYrBmuZMVRqRHDjwbw9vRtBQ66x7Yqptm4Cy7Tm87sYV9jsEXCEcV8SBey9Bd7ncM1Hoi1X1czAxEMKuxXQChtBgzBpBpTRKoPN74UBfo2nYsRYZWKP6BaxVqDZyzwwmuwKUw3rrpvfhTgfPVViCPw2EgyGp6ibh6Tnrgce7T2Laij4MoGFtnix9i33geRgwMyFQiAPejCCAWWj7Ux5vmoHmi19oRFRhqJnKG1p2LZCT4RuVkLufvspbD3cikTzyngMXQpaKwTQa3dZ1fhwQT&text=GOLF&color=22c55e"},{"id":"nuvio_sport_sf_milwaukee-brewers-vs-pittsburgh-pirates","cleanId":"sf_milwaukee-brewers-vs-pittsburgh-pirates","title":"Brewers @ Pirates","category":"baseball","league":"MLB","date":1789662900000,"isLive":false,"is247":false,"popular":true,"sourcesCount":4,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLKRBQSIPiH3dd%2B4yi0hEMXLgLAkFPsNn0UYFSi6vy9DaPdNaYK5iohBAA.webp&text=Milwaukee%20Brewers%0Avs%0APittsburgh%20Pirates&color=f43f5e"}];
 
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
   const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
@@ -420,6 +428,21 @@
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
   }
 
+
+  function renderSkeletonCards(count = 6) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      html += '<div class="stream-card-skeleton">' +
+        '<div class="skeleton-media"></div>' +
+        '<div class="skeleton-body">' +
+          '<div class="skeleton-line title"></div>' +
+          '<div class="skeleton-line meta"></div>' +
+        '</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
   // ─── DOM Elements ───────────────────────────────────────────────────────────
   let searchInput, clearSearchBtn, themeToggleBtn, themeIconSun, themeIconMoon;
   let dockThemeBtn, dockThemeIconSun, dockThemeIconMoon, liveSyncPill, syncText;
@@ -459,14 +482,20 @@
       document.head.appendChild(link);
     } catch (_) {}
 
-    // 0ms Cold Start: render instantly from local cache
+    // 0ms Cold Start: render instantly from local cache or built-in seed
     loadCachedCatalog();
+
+    // Fast CDN seed load (<25ms) if catalog is small or empty
+    loadInitialSeedIfNeeded();
 
     // Route matching for category pages
     handleUrlRouting();
 
-    // Non-blocking silent background synchronization
+    // Silent background live synchronization with automatic retry
     syncCatalogInBackground();
+
+    // Periodic live synchronization every 60 seconds (keeps scores/streams fresh)
+    setInterval(() => syncCatalogInBackground(false), 60000);
   });
 
   function cacheDomElements() {
@@ -888,7 +917,7 @@
     });
   }
 
-  // ─── 0ms Cold Start Local Cache ─────────────────────────────────────────────
+  // ─── 0ms Cold Start Local Cache & Seed ──────────────────────────────────────
   function loadCachedCatalog() {
     try {
       const raw = localStorage.getItem(STORAGE_CACHE_KEY);
@@ -899,6 +928,29 @@
           extractFeaturedMatches();
           renderAllSections();
           if (syncText) syncText.textContent = `Cached (${allMatches.length})`;
+          return true;
+        }
+      }
+    } catch (_) {}
+
+    // Fallback to built-in seed for 0ms instant display if cache is empty
+    if (Array.isArray(BUILTIN_SEEDED_MATCHES) && BUILTIN_SEEDED_MATCHES.length > 0) {
+      allMatches = BUILTIN_SEEDED_MATCHES.map(m => ({ ...m }));
+      extractFeaturedMatches();
+      renderAllSections();
+      if (syncText) syncText.textContent = 'Syncing...';
+    }
+    return false;
+  }
+
+  async function loadInitialSeedIfNeeded() {
+    if (allMatches.length >= 50) return;
+    try {
+      const res = await fetch('/seed-catalog.json', { cache: 'no-cache' });
+      if (res.ok) {
+        const rawItems = await res.json();
+        if (Array.isArray(rawItems) && rawItems.length > allMatches.length) {
+          processCatalogItems(rawItems, 'Seed');
         }
       }
     } catch (_) {}
@@ -910,99 +962,133 @@
     } catch (_) {}
   }
 
-  // ─── Silent Background Catalog Sync ─────────────────────────────────────────
+  function processCatalogItems(rawItems, sourceLabel = 'Live') {
+    if (!Array.isArray(rawItems) || rawItems.length === 0) return false;
+
+    const now = Date.now();
+    allMatches = rawItems.map(item => {
+      const rawId = String(item.id || '');
+      const cleanId = rawId.replace(/^nuvio_sport_/, '');
+      const title = (item.name || item.title || 'Sports Event').replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, '');
+      const category = ((item.genres && item.genres[0]) || item.category || 'sports').toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const is247 = item.is247 || category === 'networks' || (!item.date && !item.released);
+
+      let dateTimestamp = null;
+      if (item.date) {
+        const d = Number(item.date);
+        dateTimestamp = !isNaN(d) && d > 0 ? d : null;
+      } else if (item.released) {
+        dateTimestamp = new Date(item.released).getTime();
+      }
+
+      const isLive = item.isLive !== undefined
+        ? item.isLive
+        : (is247 || (dateTimestamp && dateTimestamp <= now + 15 * 60 * 1000 && dateTimestamp >= now - 3 * 60 * 60 * 1000));
+
+      const rawPoster = item.poster || item.background || item.thumbnail_url || buildApiUrl('/img/placeholder', { text: title, color: '0a0d14' });
+      const poster = resolveMediaUrl(rawPoster);
+
+      return {
+        id: rawId,
+        cleanId: cleanId,
+        title: title,
+        category: category,
+        league: item.league || '',
+        date: dateTimestamp,
+        isLive: isLive,
+        is247: is247,
+        popular: item.popular === true || item.popular === '1',
+        sourcesCount: item.sourcesCount || (item.sources && item.sources.length) || 1,
+        poster: poster
+      };
+    });
+
+    saveCatalogToCache(allMatches);
+    extractFeaturedMatches();
+    renderAllSections();
+
+    if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+    if (syncText) syncText.textContent = `Live (${allMatches.length} Synced)`;
+    return true;
+  }
+
+  // ─── Silent Background Catalog Sync (Multi-Source + Auto-Retry) ───────────────
+  let _syncRetryTimer = null;
+  let _syncRetryCount = 0;
+  const MAX_SYNC_RETRIES = 6;
+
+  async function fetchFromEndpoints(urls) {
+    for (const url of urls) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const json = await res.json();
+          const items = Array.isArray(json) ? json : (json.metas || []);
+          if (Array.isArray(items) && items.length > 0) {
+            return items;
+          }
+        }
+      } catch (_) {}
+    }
+    return [];
+  }
+
   async function syncCatalogInBackground(isUserTriggered = false) {
     if (liveSyncPill) liveSyncPill.classList.add('syncing');
     if (syncText) syncText.textContent = 'Syncing...';
 
     try {
-      let rawItems = [];
+      const primaryUrl = buildApiUrl('/catalog/sports/all.json');
+      const directUrl = `${INTERNAL_BACKEND_FALLBACK.replace(/\/?\?/, '/catalog/sports/all.json?')}`;
+      const matchesUrl = buildApiUrl('/api/matches');
+      const directMatchesUrl = `${INTERNAL_BACKEND_FALLBACK.replace(/\/?\?/, '/api/matches?')}`;
 
-      try {
-        const res = await fetch(buildApiUrl('/catalog/sports/all.json'), { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          rawItems = json.metas || [];
-        }
-      } catch (_) {}
-
-      if (!rawItems.length) {
-        try {
-          const res = await fetch(buildApiUrl('/api/matches'), { cache: 'no-store' });
-          if (res.ok) {
-            const json = await res.json();
-            if (Array.isArray(json)) rawItems = json;
-          }
-        } catch (_) {}
-      }
-
-      if (!rawItems.length) {
-        try {
-          const [liveRes, upRes] = await Promise.all([
-            fetch(buildApiUrl('/catalog/sports/live.json')),
-            fetch(buildApiUrl('/catalog/sports/upcoming.json'))
-          ]);
-          const liveJson = await liveRes.json();
-          const upJson = await upRes.json();
-          rawItems = [...(liveJson.metas || []), ...(upJson.metas || [])];
-        } catch (_) {}
-      }
+      const rawItems = await fetchFromEndpoints([primaryUrl, matchesUrl, directUrl, directMatchesUrl]);
 
       if (rawItems.length > 0) {
-        const now = Date.now();
+        _syncRetryCount = 0;
+        if (_syncRetryTimer) {
+          clearTimeout(_syncRetryTimer);
+          _syncRetryTimer = null;
+        }
+        processCatalogItems(rawItems, 'Live');
+        if (isUserTriggered) {
+          showToast(`Synchronized ${allMatches.length} live streams`, 'success');
+        }
+        return;
+      }
 
-        allMatches = rawItems.map(item => {
-          const rawId = String(item.id || '');
-          const cleanId = rawId.replace(/^nuvio_sport_/, '');
-          const title = item.name || item.title || 'Sports Event';
-          const category = (item.genres && item.genres[0]) || item.category || 'sports';
-          const categoryClean = category.toLowerCase().replace(/[^a-z0-9_]/g, '');
-          const is247 = item.is247 || categoryClean === 'networks' || (!item.date && !item.released);
+      // If backend returned empty (e.g. cold container warming up):
+      if (_syncRetryCount < MAX_SYNC_RETRIES) {
+        _syncRetryCount++;
+        const delay = Math.min(1000 + (_syncRetryCount * 800), 4000);
+        console.log(`[StreamEngine] Backend warming up. Auto-retrying catalog sync in ${delay}ms (attempt ${_syncRetryCount}/${MAX_SYNC_RETRIES})...`);
+        if (syncText) syncText.textContent = `Connecting (${_syncRetryCount})...`;
+        
+        if (_syncRetryTimer) clearTimeout(_syncRetryTimer);
+        _syncRetryTimer = setTimeout(() => {
+          syncCatalogInBackground(false);
+        }, delay);
+        return;
+      }
 
-          let dateTimestamp = null;
-          if (item.date) {
-            const d = Number(item.date);
-            dateTimestamp = !isNaN(d) && d > 0 ? d : null;
-          } else if (item.released) {
-            dateTimestamp = new Date(item.released).getTime();
-          }
-
-          const isLive = item.isLive !== undefined
-            ? item.isLive
-            : (is247 || (dateTimestamp && dateTimestamp <= now + 15 * 60 * 1000 && dateTimestamp >= now - 3 * 60 * 60 * 1000));
-
-          const rawPoster = item.poster || item.background || item.thumbnail_url || buildApiUrl('/img/placeholder', { text: title, color: '0a0d14' });
-          const poster = resolveMediaUrl(rawPoster);
-
-          return {
-            id: rawId,
-            cleanId: cleanId,
-            title: title.replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, ''),
-            category: categoryClean,
-            league: item.league || '',
-            date: dateTimestamp,
-            isLive: isLive,
-            is247: is247,
-            popular: item.popular === true || item.popular === '1',
-            sourcesCount: item.sourcesCount || (item.sources && item.sources.length) || 1,
-            poster: poster
-          };
-        });
-
-        saveCatalogToCache(allMatches);
-        extractFeaturedMatches();
-        renderAllSections();
-
-        if (liveSyncPill) liveSyncPill.classList.remove('syncing');
-        if (syncText) syncText.textContent = `Live (${allMatches.length} Synced)`;
-        if (isUserTriggered) showToast(`Synchronized ${allMatches.length} live streams`, 'success');
-      } else {
-        if (liveSyncPill) liveSyncPill.classList.remove('syncing');
-        if (syncText) syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Connected';
+      if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+      if (syncText) {
+        syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Connected';
       }
     } catch (_) {
-      if (liveSyncPill) liveSyncPill.classList.remove('syncing');
-      if (syncText) syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Live Stream';
+      if (_syncRetryCount < MAX_SYNC_RETRIES) {
+        _syncRetryCount++;
+        _syncRetryTimer = setTimeout(() => syncCatalogInBackground(false), 2000);
+      } else {
+        if (liveSyncPill) liveSyncPill.classList.remove('syncing');
+        if (syncText) {
+          syncText.textContent = allMatches.length > 0 ? `Live (${allMatches.length})` : 'Connected';
+        }
+      }
     }
   }
 
@@ -1105,6 +1191,11 @@
 
   function renderQuickStreams() {
     if (!quickStreamsList) return;
+    if (allMatches.length === 0) {
+      if (quickCountPill) quickCountPill.textContent = 'Syncing...';
+      quickStreamsList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-dim); padding:0.5rem;">Connecting live streams...</p>';
+      return;
+    }
     const liveMatches = allMatches.filter(m => m.isLive).slice(0, 8);
 
     if (quickCountPill) {
@@ -1136,6 +1227,11 @@
 
   function renderLiveGrid() {
     if (!liveStreamsGrid) return;
+    if (allMatches.length === 0) {
+      if (liveCountBadge) liveCountBadge.textContent = 'Syncing...';
+      liveStreamsGrid.innerHTML = renderSkeletonCards(4);
+      return;
+    }
     let list = allMatches.filter(m => m.isLive && !m.is247);
     if (activeCategory !== 'all') {
       list = list.filter(m => m.category.includes(activeCategory));
@@ -1156,6 +1252,11 @@
 
   function renderUpcomingGrid() {
     if (!upcomingStreamsGrid) return;
+    if (allMatches.length === 0) {
+      if (upcomingCountBadge) upcomingCountBadge.textContent = 'Syncing...';
+      upcomingStreamsGrid.innerHTML = renderSkeletonCards(4);
+      return;
+    }
     let list = allMatches.filter(m => !m.isLive && !m.is247);
     if (activeCategory !== 'all') {
       list = list.filter(m => m.category.includes(activeCategory));
@@ -1236,6 +1337,12 @@
 
   function renderCatalogGrid() {
     if (!matchesGrid) return;
+    if (allMatches.length === 0) {
+      if (catalogCountPill) catalogCountPill.textContent = 'Syncing...';
+      matchesGrid.innerHTML = renderSkeletonCards(8);
+      if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
+      return;
+    }
     let list = allMatches;
 
     // Tab Filter

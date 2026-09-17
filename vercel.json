@@ -7,7 +7,7 @@
       "destination": "https://ahudwgrmu9.preview.c35.airoapp.ai/:path*?airoShareToken=At3udpbq8UOL&preview=1"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|.*\\.(?:json|js|css|png|jpg|jpeg|svg|ico|webp|woff2?|ttf)).*)",
       "destination": "/index.html"
     }
   ],
