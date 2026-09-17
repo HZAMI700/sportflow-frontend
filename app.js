@@ -15,6 +15,156 @@
 (function () {
   'use strict';
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AD-BLOCKING ENGINE — 5-Layer Defense System (Zero Pop-Unders Guarantee)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Layer 1: Block ALL window.open() pop-unders from any source
+  const _originalWindowOpen = window.open;
+  let _allowedOpenCount = 0;
+  window.open = function (...args) {
+    // Only allow if explicitly triggered by our own code (never by ads)
+    if (_allowedOpenCount > 0) {
+      _allowedOpenCount--;
+      return _originalWindowOpen.apply(window, args);
+    }
+    console.warn('[AdShield] Blocked pop-under attempt:', args[0]);
+    return null;
+  };
+
+  // Layer 2: Block beforeunload hijacking (ad redirects)
+  window.addEventListener('beforeunload', function (e) {
+    // Don't allow ad scripts to set custom messages
+    delete e.returnValue;
+  });
+
+  // Layer 3: MutationObserver — detect and destroy injected ad elements
+  function initAdBlockObserver() {
+    const AD_PATTERNS = [
+      /pop(under|up|over)/i, /ad[sx]?\d/i, /banner/i, /sponsor/i,
+      /overlay-ad/i, /interstitial/i, /clickunder/i, /exoclick/i,
+      /propellerads/i, /adsterra/i, /hilltopads/i, /trafficjunky/i,
+      /juicyads/i, /pushground/i, /monetag/i, /clickadu/i
+    ];
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType !== 1) continue; // Skip non-element nodes
+
+          // Check for injected iframes that aren't ours
+          if (node.tagName === 'IFRAME' && node.id !== 'embed-frame') {
+            const src = (node.src || '').toLowerCase();
+            const id = (node.id || '').toLowerCase();
+            const cls = (node.className || '').toLowerCase();
+            const isAd = AD_PATTERNS.some(p => p.test(src) || p.test(id) || p.test(cls));
+            const isTiny = (node.offsetWidth <= 1 || node.offsetHeight <= 1 || 
+                           node.style.width === '0px' || node.style.height === '0px' ||
+                           node.style.display === 'none' || node.style.visibility === 'hidden');
+            
+            if (isAd || isTiny) {
+              node.remove();
+              console.warn('[AdShield] Removed injected ad iframe:', src || id);
+              continue;
+            }
+          }
+
+          // Check for injected scripts from ad networks
+          if (node.tagName === 'SCRIPT') {
+            const src = (node.src || '').toLowerCase();
+            if (AD_PATTERNS.some(p => p.test(src))) {
+              node.remove();
+              console.warn('[AdShield] Removed ad script:', src);
+              continue;
+            }
+          }
+
+          // Check for overlay/popup divs injected by ad scripts
+          if (node.tagName === 'DIV' || node.tagName === 'A') {
+            const style = node.style;
+            const isOverlay = (style.position === 'fixed' || style.position === 'absolute') &&
+                             (style.zIndex > 999 || parseInt(style.zIndex) > 999);
+            const id = (node.id || '').toLowerCase();
+            const cls = (node.className || '').toLowerCase();
+            if (isOverlay && AD_PATTERNS.some(p => p.test(id) || p.test(cls))) {
+              node.remove();
+              console.warn('[AdShield] Removed ad overlay:', id || cls);
+            }
+          }
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    return observer;
+  }
+
+  // Layer 4: Block suspicious anchor clicks (ad redirect links)
+  document.addEventListener('click', function (e) {
+    const target = e.target.closest('a');
+    if (!target) return;
+    const href = (target.href || '').toLowerCase();
+    const rel = (target.rel || '').toLowerCase();
+    
+    // Block links that open new tabs if they didn't come from our UI
+    if (target.target === '_blank' && !target.closest('.app-viewport')) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.warn('[AdShield] Blocked suspicious external link:', href);
+    }
+  }, true);
+
+  // Layer 5: Periodic cleanup sweep (catches delayed ad injections)
+  function runAdCleanupSweep() {
+    // Remove any iframes that aren't our embed-frame
+    document.querySelectorAll('iframe:not(#embed-frame):not(#artplayer-container iframe)').forEach(iframe => {
+      const src = (iframe.src || '').toLowerCase();
+      const isArtPlayer = iframe.closest('#artplayer-container');
+      if (!isArtPlayer && !iframe.closest('.cinema-viewport')) {
+        iframe.remove();
+        console.warn('[AdShield] Sweep removed rogue iframe:', src);
+      }
+    });
+
+    // Remove fixed/absolute overlays with high z-index that aren't ours
+    document.querySelectorAll('div[style*="z-index"]').forEach(div => {
+      if (div.closest('.app-viewport') || div.closest('.toast-container')) return;
+      const z = parseInt(div.style.zIndex);
+      if (z > 9000 && div.style.position === 'fixed') {
+        div.remove();
+        console.warn('[AdShield] Sweep removed high-z overlay');
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PERFORMANCE UTILITIES
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Debounce utility for search input
+  function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  // RAF-batched rendering to avoid layout thrashing
+  let _renderQueued = false;
+  function queueRender(fn) {
+    if (_renderQueued) return;
+    _renderQueued = true;
+    requestAnimationFrame(() => {
+      fn();
+      _renderQueued = false;
+    });
+  }
+
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
   const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
   const STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v1';
@@ -177,6 +327,21 @@
     initEventListeners();
     initKeyboardShortcuts();
     initCarouselControls();
+
+    // Initialize ad-blocking defense system
+    initAdBlockObserver();
+    // Run periodic cleanup sweep every 8 seconds
+    setInterval(runAdCleanupSweep, 8000);
+
+    // Preconnect to backend API for faster stream starts
+    try {
+      const apiBase = new URL(API_BASE, window.location.origin);
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = apiBase.origin;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    } catch (_) {}
 
     // 0ms Cold Start: render instantly from local cache
     loadCachedCatalog();
@@ -342,12 +507,16 @@
     if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
     if (dockThemeBtn) dockThemeBtn.addEventListener('click', toggleTheme);
 
-    // Search Input
+    // Search Input (debounced for performance)
     if (searchInput) {
+      const debouncedSearch = debounce(() => {
+        renderCatalogGrid();
+      }, 150);
+
       searchInput.addEventListener('input', (e) => {
         currentSearch = e.target.value.trim().toLowerCase();
         if (clearSearchBtn) clearSearchBtn.classList.toggle('hidden', !currentSearch);
-        renderCatalogGrid();
+        debouncedSearch();
       });
     }
 
@@ -627,12 +796,14 @@
 
   // ─── Master View Renderers ──────────────────────────────────────────────────
   function renderAllSections() {
-    renderHeroSpotlight();
-    renderQuickStreams();
-    renderLiveCarousel();
-    renderUpcomingCarousel();
-    renderNetworksCarousel();
-    renderCatalogGrid();
+    queueRender(() => {
+      renderHeroSpotlight();
+      renderQuickStreams();
+      renderLiveCarousel();
+      renderUpcomingCarousel();
+      renderNetworksCarousel();
+      renderCatalogGrid();
+    });
   }
 
   function renderHeroSpotlight() {
@@ -743,7 +914,7 @@
            onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
            ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
            onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
-        <img class="stream-card-backdrop" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
+        <img class="stream-card-backdrop" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" decoding="async" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
         <div class="stream-card-top-tags">
           <span class="card-cat-tag">${escapeHtml(m.category.toUpperCase())}</span>
           ${tagHtml}
@@ -827,7 +998,18 @@
     }
 
     const slice = list.slice(0, displayedCount);
-    matchesGrid.innerHTML = slice.map(m => renderStreamCardHtml(m)).join('');
+    
+    // Use DocumentFragment for batch DOM insertion (faster than innerHTML for large lists)
+    const fragment = document.createDocumentFragment();
+    slice.forEach(m => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = renderStreamCardHtml(m);
+      while (wrapper.firstChild) {
+        fragment.appendChild(wrapper.firstChild);
+      }
+    });
+    matchesGrid.innerHTML = '';
+    matchesGrid.appendChild(fragment);
 
     if (loadMoreContainer) {
       loadMoreContainer.classList.toggle('hidden', displayedCount >= list.length);
@@ -1056,6 +1238,30 @@
 
     showPlayerOverlay(false);
     showToast(`Streaming via ${candidate.name}`, 'info');
+
+    // Click-Shield: Absorb first click to neutralize pop-under ads
+    const viewport = document.getElementById('cinema-viewport');
+    if (viewport) {
+      // Remove any existing shield first
+      viewport.querySelectorAll('.embed-click-shield').forEach(s => s.remove());
+      
+      const shield = document.createElement('div');
+      shield.className = 'embed-click-shield';
+      viewport.appendChild(shield);
+
+      // First click/touch removes the shield (ad trigger absorbed)
+      const removeShield = () => {
+        shield.remove();
+        console.log('[AdShield] Click-shield absorbed first interaction — stream is now clean');
+      };
+      shield.addEventListener('click', removeShield, { once: true });
+      shield.addEventListener('touchstart', removeShield, { once: true, passive: true });
+
+      // Auto-remove after 5 seconds if user hasn't interacted
+      setTimeout(() => {
+        if (shield.parentNode) shield.remove();
+      }, 5000);
+    }
 
     stallWatchdogTimer = setTimeout(() => {
       console.warn('[StreamEngine] Embed watchdog notice');

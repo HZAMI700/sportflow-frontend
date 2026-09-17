@@ -86,6 +86,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 html {
@@ -1178,12 +1180,14 @@ body {
   cursor: pointer;
   transition: var(--transition-micro);
   box-shadow: var(--shadow-card);
+  contain: layout style paint;
 }
 
 .stream-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) translateZ(0);
   border-color: var(--card-border-hover);
   box-shadow: var(--shadow-card-hover);
+  will-change: transform;
 }
 
 .stream-card-backdrop {
@@ -1311,6 +1315,8 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.25rem;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 
 .sort-selector-capsule {
@@ -1374,27 +1380,34 @@ body {
 /* ─── 12. Floating Bottom Mobile Dock ────────────────────────────────────── */
 .floating-bottom-dock {
   position: fixed;
-  bottom: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   display: none;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(9, 11, 16, 0.88);
+  gap: 0.25rem;
+  background: rgba(9, 11, 16, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
-  padding: 0.4rem 0.6rem;
+  padding: 0.35rem 0.5rem;
   border-radius: var(--radius-capsule);
   box-shadow: var(--shadow-dock);
   z-index: 100;
+  will-change: transform;
+}
+
+[data-theme="light"] .floating-bottom-dock {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .dock-btn {
   background: transparent;
   border: none;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1461,9 +1474,11 @@ body {
 }
 
 /* ─── 14. Responsive Layouts & Breakpoints ───────────────────────────────── */
+
+/* Tablet & Small Laptops */
 @media (max-width: 1024px) {
   body {
-    padding: 0.75rem 0.5rem 5rem;
+    padding: 0.75rem 0.5rem calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .dashboard-body {
@@ -1494,11 +1509,22 @@ body {
   .search-capsule:focus-within {
     width: 240px;
   }
+
+  /* Reduce backdrop-filter for mobile GPU performance */
+  .top-nav-bar {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .cinema-viewport {
+    max-height: 55dvh;
+  }
 }
 
+/* Phones — Landscape & Large Phones */
 @media (max-width: 768px) {
   body {
-    padding: 0.25rem 0.25rem 5rem;
+    padding: 0.25rem 0.25rem calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .app-dashboard-frame {
@@ -1506,9 +1532,9 @@ body {
   }
 
   .top-nav-bar {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.75rem;
     flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 
   .search-capsule {
@@ -1527,8 +1553,8 @@ body {
   }
 
   .hero-spotlight {
-    min-height: 320px;
-    padding: 1.5rem 1.25rem;
+    min-height: 300px;
+    padding: 1.5rem 1rem;
   }
 
   .hero-match-title {
@@ -1536,41 +1562,145 @@ body {
   }
 
   .dashboard-main {
-    padding: 1rem 0.75rem;
+    padding: 1rem 0.65rem;
     gap: 1.5rem;
   }
 
   .catalog-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 0.85rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
   }
 
   .toast-container {
-    right: 1rem;
-    bottom: 5rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .toast {
+    font-size: 0.8rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  /* Server pills: momentum scroll on mobile */
+  .cinema-servers-bar {
+    padding: 0.5rem 0.75rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .server-pill {
+    font-size: 0.72rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  /* Carousel cards shrink for mobile */
+  .stream-cards-carousel > .stream-card {
+    flex: 0 0 240px;
+  }
+
+  .cinema-header {
+    padding: 0.65rem 0.85rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .cinema-title {
+    font-size: 0.95rem;
+  }
+
+  /* Ensure nav pills minimum touch target */
+  .top-cat-pill {
+    min-height: 36px;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .live-sync-pill {
+    display: none;
+  }
+
+  .row-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
 
+/* Small Phones */
 @media (max-width: 480px) {
   .hero-spotlight {
-    min-height: 280px;
-    padding: 1.25rem 1rem;
+    min-height: 260px;
+    padding: 1.15rem 0.85rem;
   }
 
   .hero-match-title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
   }
 
   .hero-description {
     display: none;
   }
 
+  .hero-action-buttons {
+    flex-wrap: wrap;
+  }
+
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+
+  .stream-cards-carousel > .stream-card {
+    flex: 0 0 200px;
+  }
+
+  .row-heading {
+    font-size: 1rem;
+  }
+
+  .btn-hero-watch {
+    font-size: 0.82rem;
+    padding: 0.55rem 1.1rem;
+  }
+
+  .hero-carousel-controls {
+    right: 0.75rem;
+    bottom: 1rem;
+  }
+
+  .cinema-viewport {
+    max-height: 45dvh;
+  }
+}
+
+/* Very Small Phones (320px) */
+@media (max-width: 360px) {
   .catalog-grid {
     grid-template-columns: 1fr;
   }
 
   .stream-cards-carousel > .stream-card {
-    flex: 0 0 240px;
+    flex: 0 0 180px;
+  }
+
+  .hero-match-title {
+    font-size: 1rem;
+  }
+
+  .top-nav-bar {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .brand-title {
+    font-size: 0.95rem;
+  }
+
+  .hero-tag-row {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .dashboard-main {
+    padding: 0.75rem 0.5rem;
+    gap: 1.25rem;
   }
 }
 
@@ -1582,4 +1712,40 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ─── 16. Click-Shield for Ad Protection ──────────────────────────────────── */
+.embed-click-shield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  cursor: pointer;
+  background: transparent;
+}
+
+.embed-click-shield::after {
+  content: 'Click to start stream';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent-cyan);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius-capsule);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.embed-click-shield:hover::after {
+  opacity: 1;
 }

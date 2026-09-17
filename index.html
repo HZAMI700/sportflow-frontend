@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>STREAM NARO — Premium Live Sports Streaming</title>
   
+  <!-- Security: Block pop-unders, ad scripts, unwanted navigations -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' https: data: blob:;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' https: data: blob:;
+    media-src 'self' https: blob:;
+    frame-src https:;
+    connect-src 'self' https: wss:;
+    child-src 'self' https: blob:;
+  ">
+  <meta name="referrer" content="no-referrer">
+  <meta name="format-detection" content="telephone=no">
+
   <!-- SEO & Social Meta -->
   <meta name="description" content="STREAM NARO delivers live sports streaming, real-time match coverage, and 24/7 sports networks with intelligent multi-server auto-recovery.">
   <meta name="theme-color" content="#050608">
@@ -24,9 +39,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   
   <!-- HLS.js for direct video streaming -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js" fetchpriority="high"></script>
   <!-- ArtPlayer Pro for streaming controls -->
-  <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js" fetchpriority="high"></script>
+
+  <!-- Preconnect to backend & CDN for faster stream starts -->
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
 </head>
 <body class="theme-dark">
   <div class="app-viewport">
@@ -216,7 +236,11 @@
               <div id="artplayer-container" class="artplayer-app"></div>
               
               <!-- Web Embed Iframe for external web streams -->
-              <iframe id="embed-frame" class="embed-frame hidden" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+              <iframe id="embed-frame" class="embed-frame hidden" 
+                sandbox="allow-scripts allow-same-origin allow-presentation" 
+                referrerpolicy="no-referrer" 
+                allowfullscreen 
+                allow="autoplay; encrypted-media; picture-in-picture"></iframe>
 
               <!-- Player Loading, Server Recovery & Status Overlay -->
               <div id="player-overlay" class="player-overlay hidden">
