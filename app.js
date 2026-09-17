@@ -307,13 +307,129 @@
     'favorites': { category: 'all', tab: 'favorites', title: 'Your Favorite Streams — STREAM NARO' }
   };
 
+  // ─── Smart Match Thumbnail Generator (Cinema-Grade SVG Fallback) ────────────
+  function formatCardDate(m) {
+    if (m.isLive) return '● LIVE';
+    if (m.is247) return '24/7 TV';
+    if (!m.date) return 'Live';
+    const now = Date.now();
+    const diff = Math.round((m.date - now) / 60000);
+    if (diff <= 0 && diff >= -150) return '● LIVE';
+    if (diff > 0 && diff <= 60) return `In ${diff}m`;
+
+    const d = new Date(m.date);
+    const month = d.toLocaleDateString('en-US', { month: 'short' });
+    const day = d.getDate();
+    return `${month} ${day}`;
+  }
+
+  function createSmartThumbnailSvg(m) {
+    const title = m.title || 'Live Match';
+    const cat = (m.category || 'sports').toLowerCase();
+
+    const sportMeta = {
+      basketball: {
+        bg1: '#1e0e04', bg2: '#090a0d', accent: '#f59e0b', stroke: 'rgba(245,158,11,0.35)',
+        glyph: '<circle cx="320" cy="180" r="44" fill="none" stroke="#f59e0b" stroke-width="2.5"/><path d="M276 180h88M320 136v88M288 149c22 20 22 42 0 62M352 149c-22 20-22 42 0 62" fill="none" stroke="#f59e0b" stroke-width="2"/>'
+      },
+      football: {
+        bg1: '#021a12', bg2: '#090a0d', accent: '#10b981', stroke: 'rgba(16,185,129,0.35)',
+        glyph: '<circle cx="320" cy="180" r="44" fill="none" stroke="#10b981" stroke-width="2.5"/><polygon points="320 155 339 169 332 191 308 191 301 169" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="2"/>'
+      },
+      tennis: {
+        bg1: '#121c04', bg2: '#090a0d', accent: '#84cc16', stroke: 'rgba(132,204,22,0.35)',
+        glyph: '<circle cx="320" cy="180" r="42" fill="none" stroke="#84cc16" stroke-width="2.5"/><path d="M292 152c20 20 20 36 0 56M348 152c-20 20-20 36 0 56" fill="none" stroke="#84cc16" stroke-width="2"/>'
+      },
+      motorsport: {
+        bg1: '#200707', bg2: '#090a0d', accent: '#ef4444', stroke: 'rgba(239,68,68,0.35)',
+        glyph: '<rect x="290" y="152" width="60" height="56" rx="8" fill="none" stroke="#ef4444" stroke-width="2.5"/><path d="M290 171h60M290 190h60M310 152v56M330 152v56" stroke="#ef4444" stroke-width="1.5"/>'
+      },
+      mma: {
+        bg1: '#1f1003', bg2: '#090a0d', accent: '#f97316', stroke: 'rgba(249,115,22,0.35)',
+        glyph: '<polygon points="320 138 356 154 356 196 320 216 284 196 284 154" fill="none" stroke="#f97316" stroke-width="2.5"/>'
+      },
+      cricket: {
+        bg1: '#091c16', bg2: '#090a0d', accent: '#14b8a6', stroke: 'rgba(20,184,166,0.35)',
+        glyph: '<line x1="305" y1="145" x2="305" y2="215" stroke="#14b8a6" stroke-width="2.5"/><line x1="320" y1="145" x2="320" y2="215" stroke="#14b8a6" stroke-width="2.5"/><line x1="335" y1="145" x2="335" y2="215" stroke="#14b8a6" stroke-width="2.5"/><line x1="298" y1="145" x2="342" y2="145" stroke="#14b8a6" stroke-width="3"/>'
+      },
+      hockey: {
+        bg1: '#041724', bg2: '#090a0d', accent: '#00f0ff', stroke: 'rgba(0,240,255,0.35)',
+        glyph: '<line x1="295" y1="150" x2="345" y2="210" stroke="#00f0ff" stroke-width="3"/><line x1="345" y1="150" x2="295" y2="210" stroke="#00f0ff" stroke-width="3"/><circle cx="320" cy="180" r="10" fill="#00f0ff"/>'
+      },
+      networks: {
+        bg1: '#091322', bg2: '#090a0d', accent: '#00f0ff', stroke: 'rgba(0,240,255,0.35)',
+        glyph: '<rect x="286" y="154" width="68" height="50" rx="6" fill="none" stroke="#00f0ff" stroke-width="2.5"/><polyline points="304 142 320 154 336 142" stroke="#00f0ff" stroke-width="2" fill="none"/>'
+      }
+    };
+
+    const s = sportMeta[cat] || {
+      bg1: '#0d131f', bg2: '#090a0d', accent: '#00f0ff', stroke: 'rgba(0,240,255,0.25)',
+      glyph: '<circle cx="320" cy="180" r="40" fill="none" stroke="#00f0ff" stroke-width="2.5"/>'
+    };
+
+    let team1 = '';
+    let team2 = '';
+    const vsMatch = title.match(/^(.*?)\s+(?:vs\.?|v|-|@)\s+(.*)$/i);
+    if (vsMatch) {
+      team1 = vsMatch[1].trim();
+      team2 = vsMatch[2].trim();
+    }
+
+    const t1Initials = team1 ? team1.split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase() : '';
+    const t2Initials = team2 ? team2.split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase() : '';
+
+    const svgContent = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <radialGradient id="thumbBg" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="${s.bg1}"/>
+      <stop offset="100%" stop-color="${s.bg2}"/>
+    </radialGradient>
+    <linearGradient id="crestG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.14)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.5)"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#thumbBg)"/>
+  <circle cx="320" cy="50" r="160" fill="${s.accent}" opacity="0.08"/>
+  <rect x="1" y="1" width="638" height="358" rx="14" fill="none" stroke="${s.stroke}" stroke-width="1.5"/>
+
+  ${team1 && team2 ? `
+    <g transform="translate(135, 105)">
+      <rect width="105" height="105" rx="18" fill="url(#crestG)" stroke="${s.stroke}" stroke-width="2"/>
+      <text x="52" y="64" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="900" text-anchor="middle" letter-spacing="1">${escapeHtml(t1Initials)}</text>
+    </g>
+
+    <g transform="translate(292, 131)">
+      <circle cx="28" cy="28" r="23" fill="#0c0d12" stroke="${s.accent}" stroke-width="2"/>
+      <text x="28" y="34" fill="${s.accent}" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="900" text-anchor="middle">VS</text>
+    </g>
+
+    <g transform="translate(400, 105)">
+      <rect width="105" height="105" rx="18" fill="url(#crestG)" stroke="${s.stroke}" stroke-width="2"/>
+      <text x="52" y="64" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="900" text-anchor="middle" letter-spacing="1">${escapeHtml(t2Initials)}</text>
+    </g>
+  ` : `
+    ${s.glyph}
+  `}
+
+  <rect x="235" y="285" width="170" height="32" rx="16" fill="rgba(0,0,0,0.65)" stroke="${s.stroke}" stroke-width="1"/>
+  <text x="320" y="306" fill="${s.accent}" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="800" text-anchor="middle" letter-spacing="1.5">${escapeHtml(cat.toUpperCase())}</text>
+</svg>`.trim();
+
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
+  }
+
   // ─── DOM Elements ───────────────────────────────────────────────────────────
   let searchInput, clearSearchBtn, themeToggleBtn, themeIconSun, themeIconMoon;
-  let dockThemeBtn, dockThemeIcon, liveSyncPill, syncText;
+  let dockThemeBtn, dockThemeIconSun, dockThemeIconMoon, liveSyncPill, syncText;
   let quickStreamsList, quickCountPill;
-  let heroBg, heroStatusPill, heroTitle, heroLeagueTag, heroTimeTag, heroQualityTag, heroDesc;
+  let heroSpotlight, heroBg, heroStatusPill, heroTitle, heroLeagueTag, heroTimeTag, heroQualityTag, heroDesc;
   let heroWatchBtn, heroFavoriteBtn, heroPrevBtn, heroNextBtn;
-  let playerSection, playingTitle, playerStatusTag, playerLeagueTag, playerEngineTag;
+  let watchView, homeView, watchBackBtn, watchFavBtn, watchQuickGrid, watchQuickCounter;
+  let categoryHeaderBanner, catBannerIcon, catBannerTitle, catBannerDesc, catLiveStat, catTotalStat;
+  let topNavLogo, sidebarLogo;
+  let playingTitle, playerStatusTag, playerLeagueTag, playerEngineTag;
   let theaterBtn, closePlayerBtn, artplayerContainer, embedFrame, playerOverlay, overlayMessage, overlayRetryBtn;
   let serverPillButtons;
   let liveStreamsGrid, liveCountBadge, upcomingStreamsGrid, upcomingCountBadge;
@@ -360,13 +476,18 @@
     themeIconSun = document.getElementById('theme-icon-sun');
     themeIconMoon = document.getElementById('theme-icon-moon');
     dockThemeBtn = document.getElementById('dock-theme');
-    dockThemeIcon = document.getElementById('dock-theme-icon');
+    dockThemeIconSun = document.getElementById('dock-theme-icon-sun');
+    dockThemeIconMoon = document.getElementById('dock-theme-icon-moon');
     liveSyncPill = document.getElementById('live-sync-pill');
     syncText = document.getElementById('sync-text');
+
+    topNavLogo = document.getElementById('top-nav-logo');
+    sidebarLogo = document.getElementById('sidebar-logo');
 
     quickStreamsList = document.getElementById('quick-streams-list');
     quickCountPill = document.getElementById('quick-count-pill');
 
+    heroSpotlight = document.getElementById('hero-spotlight');
     heroBg = document.getElementById('hero-bg');
     heroStatusPill = document.getElementById('hero-status-pill');
     heroTitle = document.getElementById('hero-title');
@@ -379,7 +500,20 @@
     heroPrevBtn = document.getElementById('hero-prev-btn');
     heroNextBtn = document.getElementById('hero-next-btn');
 
-    playerSection = document.getElementById('player-section');
+    watchView = document.getElementById('watch-view');
+    homeView = document.getElementById('home-view');
+    watchBackBtn = document.getElementById('watch-back-btn');
+    watchFavBtn = document.getElementById('watch-fav-btn');
+    watchQuickGrid = document.getElementById('watch-quick-grid');
+    watchQuickCounter = document.getElementById('watch-quick-counter');
+
+    categoryHeaderBanner = document.getElementById('category-header-banner');
+    catBannerIcon = document.getElementById('cat-banner-icon');
+    catBannerTitle = document.getElementById('cat-banner-title');
+    catBannerDesc = document.getElementById('cat-banner-desc');
+    catLiveStat = document.getElementById('cat-live-stat');
+    catTotalStat = document.getElementById('cat-total-stat');
+
     playingTitle = document.getElementById('playing-title');
     playerStatusTag = document.getElementById('player-status-tag');
     playerLeagueTag = document.getElementById('player-league-tag');
@@ -422,8 +556,9 @@
       themeIconSun.classList.toggle('hidden', isLight);
       themeIconMoon.classList.toggle('hidden', !isLight);
     }
-    if (dockThemeIcon) {
-      dockThemeIcon.textContent = isLight ? '🌙' : '☀️';
+    if (dockThemeIconSun && dockThemeIconMoon) {
+      dockThemeIconSun.classList.toggle('hidden', isLight);
+      dockThemeIconMoon.classList.toggle('hidden', !isLight);
     }
     localStorage.setItem(STORAGE_THEME_KEY, theme);
   }
@@ -432,15 +567,43 @@
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
     setTheme(next);
-    showToast(`Switched to ${next.toUpperCase()} theme`, 'info');
+    showToast(`Switched to ${next.toUpperCase()} mode`, 'info');
   }
 
-  // ─── URL Routing for Category Pages ──────────────────────────────────────────
+  // ─── URL Routing & SPA Navigation (Zero 404 Guarantee) ──────────────────────
   function handleUrlRouting() {
+    const url = new URL(window.location.href);
     const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
     const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
-    const targetSlug = path || hash;
+    const idFromQuery = url.searchParams.get('id') || url.searchParams.get('watch');
 
+    // 1. Check if direct /watch route
+    let watchId = idFromQuery;
+    if (!watchId && path.startsWith('watch')) {
+      const parts = path.split('/');
+      if (parts.length > 1) watchId = parts[1];
+    }
+    if (!watchId && hash.startsWith('watch=')) {
+      watchId = hash.replace('watch=', '');
+    }
+
+    if (watchId) {
+      const existing = allMatches.find(m => m.cleanId === watchId || m.id === watchId);
+      if (existing) {
+        handleWatchStream(existing.cleanId, existing.title, existing.league || existing.category);
+      } else {
+        handleWatchStream(watchId, 'Live Stream', 'SPORTS');
+      }
+      return;
+    }
+
+    // 2. If viewing watch page but URL has no watch parameter, close watch view
+    if (watchView && !watchView.classList.contains('hidden')) {
+      closeWatchView(false);
+    }
+
+    // 3. Check category route or home
+    const targetSlug = path || hash;
     if (targetSlug && ROUTE_CATEGORY_MAP[targetSlug]) {
       const routeInfo = ROUTE_CATEGORY_MAP[targetSlug];
       activeCategory = routeInfo.category;
@@ -450,9 +613,15 @@
       syncCategoryPillActive(activeCategory);
       syncSidebarActive();
       syncDockActive();
-      renderCatalogGrid();
+      renderAllSections();
     } else {
+      activeCategory = 'all';
+      activeTab = 'all';
       document.title = 'STREAM NARO — Premium Live Sports Streaming';
+      syncCategoryPillActive('all');
+      syncSidebarActive();
+      syncDockActive();
+      renderAllSections();
     }
   }
 
@@ -462,6 +631,10 @@
     activeCategory = category;
     displayedCount = pageLimit;
     syncCategoryPillActive(category);
+
+    if (watchView && !watchView.classList.contains('hidden')) {
+      closeWatchView(false);
+    }
 
     const routeInfo = ROUTE_CATEGORY_MAP[slug];
     if (routeInfo) {
@@ -476,8 +649,29 @@
       } catch (_) {}
     }
 
-    renderCatalogGrid();
-    document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+    renderAllSections();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() {
+    if (watchView && !watchView.classList.contains('hidden')) {
+      closeWatchView(false);
+    }
+    activeCategory = 'all';
+    activeTab = 'all';
+    currentSearch = '';
+    if (searchInput) searchInput.value = '';
+    if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+    syncCategoryPillActive('all');
+    syncSidebarActive();
+    syncDockActive();
+    displayedCount = pageLimit;
+    try {
+      window.history.pushState(null, '', '/');
+    } catch (_) {}
+    document.title = 'STREAM NARO — Premium Live Sports Streaming';
+    renderAllSections();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function syncCategoryPillActive(cat) {
@@ -575,6 +769,30 @@
       showToast('Checking for latest stream updates...', 'info');
     });
 
+    // Logo Clicks (Top Navbar & Sidebar Brand) -> Go to Home
+    if (topNavLogo) topNavLogo.addEventListener('click', goHome);
+    if (sidebarLogo) sidebarLogo.addEventListener('click', goHome);
+    const dockHome = document.getElementById('dock-home');
+    if (dockHome) {
+      dockHome.addEventListener('click', (e) => {
+        e.preventDefault();
+        goHome();
+      });
+    }
+
+    // Dedicated Watch View Buttons
+    if (watchBackBtn) {
+      watchBackBtn.addEventListener('click', () => closeWatchView(true));
+    }
+    if (watchFavBtn) {
+      watchFavBtn.addEventListener('click', () => {
+        if (activeMatch && activeMatch.cleanId) {
+          toggleFavorite(activeMatch.cleanId);
+          syncWatchFavButton(activeMatch.cleanId);
+        }
+      });
+    }
+
     // Hero Spotlight Carousel Switcher
     if (heroPrevBtn) {
       heroPrevBtn.addEventListener('click', () => {
@@ -613,7 +831,8 @@
     // Player Actions
     if (theaterBtn) {
       theaterBtn.addEventListener('click', () => {
-        playerSection.classList.toggle('theater-mode');
+        const playerCard = document.getElementById('player-card');
+        if (playerCard) playerCard.classList.toggle('theater-mode');
       });
     }
 
@@ -663,8 +882,8 @@
         e.preventDefault();
         searchInput?.focus();
       }
-      if (e.key === 'Escape' && playerSection && !playerSection.classList.contains('hidden')) {
-        closePlayer();
+      if (e.key === 'Escape' && watchView && !watchView.classList.contains('hidden')) {
+        closeWatchView(true);
       }
     });
   }
@@ -797,13 +1016,62 @@
   // ─── Master View Renderers ──────────────────────────────────────────────────
   function renderAllSections() {
     queueRender(() => {
+      updateCategoryBanner();
       renderHeroSpotlight();
       renderQuickStreams();
-      renderLiveCarousel();
-      renderUpcomingCarousel();
-      renderNetworksCarousel();
+      renderLiveGrid();
+      renderUpcomingGrid();
+      renderNetworksGrid();
       renderCatalogGrid();
     });
+  }
+
+  function updateCategoryBanner() {
+    if (!categoryHeaderBanner) return;
+
+    if (activeCategory === 'all') {
+      categoryHeaderBanner.classList.add('hidden');
+      if (heroSpotlight) heroSpotlight.classList.remove('hidden');
+      return;
+    }
+
+    categoryHeaderBanner.classList.remove('hidden');
+    if (heroSpotlight) heroSpotlight.classList.add('hidden');
+
+    const catIcons = {
+      football: '⚽',
+      basketball: '🏀',
+      tennis: '🎾',
+      cricket: '🏏',
+      motorsport: '🏎️',
+      mma: '🥊',
+      hockey: '🏒',
+      networks: '📺'
+    };
+
+    const catNames = {
+      football: 'Football',
+      basketball: 'Basketball',
+      tennis: 'Tennis',
+      cricket: 'Cricket',
+      motorsport: 'Motorsport & F1',
+      mma: 'Combat & MMA / UFC',
+      hockey: 'Ice Hockey',
+      networks: '24/7 Sports TV'
+    };
+
+    const catMatches = allMatches.filter(m => {
+      if (activeCategory === 'networks') return m.is247 || m.category === 'networks';
+      return m.category.includes(activeCategory);
+    });
+
+    const liveCount = catMatches.filter(m => m.isLive).length;
+
+    if (catBannerIcon) catBannerIcon.textContent = catIcons[activeCategory] || '🏆';
+    if (catBannerTitle) catBannerTitle.textContent = `${catNames[activeCategory] || activeCategory.toUpperCase()} Fixtures`;
+    if (catBannerDesc) catBannerDesc.textContent = `All live streams and upcoming ${catNames[activeCategory] || activeCategory} match schedules`;
+    if (catLiveStat) catLiveStat.textContent = `● ${liveCount} Live Now`;
+    if (catTotalStat) catTotalStat.textContent = `${catMatches.length} Total Matches`;
   }
 
   function renderHeroSpotlight() {
@@ -811,7 +1079,9 @@
     const m = featuredMatches[heroIndex] || featuredMatches[0];
 
     if (heroBg) {
-      heroBg.style.backgroundImage = `url('${m.poster}')`;
+      const smartPoster = createSmartThumbnailSvg(m);
+      const displayPoster = m.poster && !m.poster.includes('placeholder') ? m.poster : smartPoster;
+      heroBg.style.backgroundImage = `url('${displayPoster}')`;
     }
     if (heroStatusPill) {
       heroStatusPill.textContent = m.isLive ? '● LIVE BROADCAST' : 'UPCOMING FIXTURE';
@@ -823,13 +1093,13 @@
     if (heroQualityTag) heroQualityTag.textContent = `${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}`;
     if (heroDesc) {
       heroDesc.textContent = m.isLive
-        ? 'Broadcasting live now. Intelligent multi-server auto-failover active.'
+        ? 'Broadcasting live now. Multi-server instant failover active.'
         : `Scheduled fixture kick-off at ${formatKickoffTime(m.date)}. Stream sources will be online prior to kickoff.`;
     }
 
     if (heroFavoriteBtn) {
       const isFav = favorites.includes(m.cleanId);
-      heroFavoriteBtn.style.color = isFav ? 'var(--accent-cyan)' : '#ffffff';
+      heroFavoriteBtn.style.color = isFav ? '#f59e0b' : '#ffffff';
     }
   }
 
@@ -846,90 +1116,120 @@
       return;
     }
 
-    quickStreamsList.innerHTML = liveMatches.map(m => `
-      <div class="quick-item-card" 
-           onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
-           ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
-           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
-        <img class="quick-item-poster" src="${escapeHtml(m.poster)}" alt="" loading="lazy" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
-        <div class="quick-item-info">
-          <span class="quick-item-title">${escapeHtml(m.title)}</span>
-          <span class="quick-item-meta">${escapeHtml(m.league || m.category.toUpperCase())}</span>
+    quickStreamsList.innerHTML = liveMatches.map(m => {
+      const smartPoster = createSmartThumbnailSvg(m);
+      const displayPoster = m.poster && !m.poster.includes('placeholder') ? m.poster : smartPoster;
+      return `
+        <div class="quick-item-card" 
+             onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
+             ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
+             onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+          <img class="quick-item-poster" src="${escapeHtml(displayPoster)}" alt="" loading="lazy" onerror="this.onerror=null; this.src='${smartPoster}';">
+          <div class="quick-item-info">
+            <span class="quick-item-title">${escapeHtml(m.title)}</span>
+            <span class="quick-item-meta">${escapeHtml(m.league || m.category.toUpperCase())}</span>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
-  function renderLiveCarousel() {
+  function renderLiveGrid() {
     if (!liveStreamsGrid) return;
-    const list = allMatches.filter(m => m.isLive && !m.is247).slice(0, 16);
+    let list = allMatches.filter(m => m.isLive && !m.is247);
+    if (activeCategory !== 'all') {
+      list = list.filter(m => m.category.includes(activeCategory));
+    }
+    const sliced = list.slice(0, 12);
 
     if (liveCountBadge) {
       liveCountBadge.textContent = `${list.length} On Air`;
     }
 
-    if (!list.length) {
-      liveStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem;">No sports broadcast live at this second. Check upcoming fixtures below.</p>';
+    if (!sliced.length) {
+      liveStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem; grid-column:1/-1;">No live events broadcast right now. See upcoming fixtures below.</p>';
       return;
     }
 
-    liveStreamsGrid.innerHTML = list.map(m => renderStreamCardHtml(m)).join('');
+    liveStreamsGrid.innerHTML = sliced.map(m => renderStreamCardHtml(m)).join('');
   }
 
-  function renderUpcomingCarousel() {
+  function renderUpcomingGrid() {
     if (!upcomingStreamsGrid) return;
-    const list = allMatches.filter(m => !m.isLive && !m.is247).slice(0, 16);
+    let list = allMatches.filter(m => !m.isLive && !m.is247);
+    if (activeCategory !== 'all') {
+      list = list.filter(m => m.category.includes(activeCategory));
+    }
+    const sliced = list.slice(0, 12);
 
     if (upcomingCountBadge) {
       upcomingCountBadge.textContent = `${list.length} Matches`;
     }
 
-    if (!list.length) {
-      upcomingStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem;">All current fixtures are broadcast live.</p>';
+    if (!sliced.length) {
+      upcomingStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem; grid-column:1/-1;">All fixtures are currently broadcasting live.</p>';
       return;
     }
 
-    upcomingStreamsGrid.innerHTML = list.map(m => renderStreamCardHtml(m)).join('');
+    upcomingStreamsGrid.innerHTML = sliced.map(m => renderStreamCardHtml(m)).join('');
   }
 
-  function renderNetworksCarousel() {
+  function renderNetworksGrid() {
     if (!networksStreamsGrid) return;
-    const list = allMatches.filter(m => m.is247).slice(0, 16);
+    const list = allMatches.filter(m => m.is247).slice(0, 12);
 
     if (!list.length) {
-      networksStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem;">No 24/7 networks configured.</p>';
+      networksStreamsGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem; grid-column:1/-1;">No 24/7 channels configured.</p>';
       return;
     }
 
     networksStreamsGrid.innerHTML = list.map(m => renderStreamCardHtml(m)).join('');
   }
 
+  // ─── Stream Card HTML (Matches User Screenshot Exactly) ─────────────────────
   function renderStreamCardHtml(m) {
-    const tagHtml = m.isLive
-      ? '<span class="card-live-dot-tag">● LIVE</span>'
-      : (m.is247 ? '<span class="card-sched-tag">📺 24/7 TV</span>' : `<span class="card-sched-tag">${formatKickoffTime(m.date)}</span>`);
+    const isFav = favorites.includes(m.cleanId);
+    const dateFormatted = formatCardDate(m);
+    const smartPoster = createSmartThumbnailSvg(m);
+    const displayPoster = m.poster && !m.poster.includes('placeholder') ? m.poster : smartPoster;
 
     return `
       <div class="stream-card" 
+           data-clean-id="${escapeHtml(m.cleanId)}"
            onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
            ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
            onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
-        <img class="stream-card-backdrop" src="${escapeHtml(m.poster)}" alt="${escapeHtml(m.title)}" loading="lazy" decoding="async" onerror="this.src='${buildApiUrl('/img/placeholder', { text: m.category, color: '0a0d14' })}';">
-        <div class="stream-card-top-tags">
-          <span class="card-cat-tag">${escapeHtml(m.category.toUpperCase())}</span>
-          ${tagHtml}
-        </div>
-        <div class="stream-card-overlay">
-          <div class="card-info">
-            <h4 class="card-match-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</h4>
-            <span class="card-match-meta">${escapeHtml(m.league || m.category.toUpperCase())} &bull; ${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
+        
+        <div class="stream-card-media">
+          <img class="stream-card-backdrop" 
+               src="${escapeHtml(displayPoster)}" 
+               alt="${escapeHtml(m.title)}" 
+               loading="lazy" 
+               decoding="async" 
+               onerror="this.onerror=null; this.src='${smartPoster}';">
+          
+          <div class="stream-card-top-tags">
+            <span class="card-date-tag ${m.isLive ? 'live' : ''}">${dateFormatted}</span>
+            <button class="card-star-btn ${isFav ? 'active' : ''}" 
+                    title="${isFav ? 'Remove Favorite' : 'Save Favorite'}" 
+                    aria-label="Favorite"
+                    onclick="event.stopPropagation(); window.STREAM_NARO.toggleFavorite('${escapeHtml(m.cleanId)}');">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </button>
           </div>
-          <button class="card-play-btn" title="Watch Match" aria-label="Play">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </button>
         </div>
+
+        <div class="stream-card-body">
+          <h4 class="card-match-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</h4>
+          <div class="card-match-meta">
+            <span>${escapeHtml(m.league || m.category.toUpperCase())}</span>
+            <span class="card-meta-dot">&bull;</span>
+            <span>${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
+          </div>
+        </div>
+
       </div>
     `;
   }
@@ -998,8 +1298,6 @@
     }
 
     const slice = list.slice(0, displayedCount);
-    
-    // Use DocumentFragment for batch DOM insertion (faster than innerHTML for large lists)
     const fragment = document.createDocumentFragment();
     slice.forEach(m => {
       const wrapper = document.createElement('div');
@@ -1049,22 +1347,35 @@
     return [];
   }
 
-  // ─── Intelligent Stream Selection & Anti-Lag Engine ─────────────────────────
+  // ─── Dedicated Watch Stream Page View (Zero Sliders, Pure Server 1, 2) ───────
   async function handleWatchStream(cleanId, title, league = 'Sports') {
-    if (!playerSection) return;
-
     activeMatch = { cleanId, title, league };
-    playerSection.classList.remove('hidden');
+
+    // 1. Switch views: hide home view, show dedicated watch page
+    if (homeView) homeView.classList.add('hidden');
+    if (watchView) watchView.classList.remove('hidden');
+
+    // 2. Clean URL update without reload: /watch?id=cleanId
+    try {
+      window.history.pushState(null, '', `/watch?id=${encodeURIComponent(cleanId)}`);
+    } catch (_) {}
+
+    // 3. Update Match Title & Meta
     if (playingTitle) playingTitle.textContent = title;
     if (playerLeagueTag) playerLeagueTag.textContent = league;
     if (playerStatusTag) playerStatusTag.textContent = '● CONNECTING';
-    if (playerEngineTag) playerEngineTag.textContent = 'Turbo Select';
+    if (playerEngineTag) playerEngineTag.textContent = 'Server 1';
+    syncWatchFavButton(cleanId);
+
+    // 4. Populate Watch Page Quick Streams (Live Now, No Slider!)
+    renderWatchQuickStreams(cleanId);
+
+    // 5. Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     showPlayerOverlay(true, 'Connecting to ultra-fast stream server...');
     if (overlayRetryBtn) overlayRetryBtn.classList.add('hidden');
-    if (serverPillButtons) serverPillButtons.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">Connecting...</span>';
-
-    playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (serverPillButtons) serverPillButtons.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">Connecting servers...</span>';
 
     try {
       let streams = [];
@@ -1094,7 +1405,7 @@
         return;
       }
 
-      // Parse and rank candidates
+      // Parse candidates — PURE NUMBERED SERVERS: Server 1, Server 2, Server 3 (Zero provider names!)
       currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx)));
       activeCandidateIndex = 0;
       fallbackAttemptCount = 0;
@@ -1112,16 +1423,68 @@
     }
   }
 
+  function closeWatchView(updateUrl = true) {
+    teardownArtPlayer();
+    if (embedFrame) {
+      embedFrame.removeAttribute('src');
+      embedFrame.classList.add('hidden');
+    }
+    if (watchView) watchView.classList.add('hidden');
+    if (homeView) homeView.classList.remove('hidden');
+
+    if (updateUrl) {
+      const dest = activeCategory !== 'all' ? `/${activeCategory}` : '/';
+      try {
+        window.history.pushState(null, '', dest);
+      } catch (_) {}
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function syncWatchFavButton(cleanId) {
+    if (!watchFavBtn) return;
+    const isFav = favorites.includes(cleanId);
+    watchFavBtn.style.color = isFav ? '#f59e0b' : 'var(--text-main)';
+    const span = watchFavBtn.querySelector('span');
+    if (span) span.textContent = isFav ? 'Favorited' : 'Favorite';
+  }
+
+  function renderWatchQuickStreams(currentCleanId) {
+    if (!watchQuickGrid) return;
+    const liveMatches = allMatches.filter(m => m.isLive && m.cleanId !== currentCleanId);
+    if (watchQuickCounter) {
+      watchQuickCounter.textContent = `${liveMatches.length} Live`;
+    }
+
+    if (!liveMatches.length) {
+      watchQuickGrid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim); padding:1rem; grid-column:1/-1;">No other live broadcasts right now.</p>';
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    liveMatches.slice(0, 8).forEach(m => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = renderStreamCardHtml(m);
+      while (wrapper.firstChild) {
+        fragment.appendChild(wrapper.firstChild);
+      }
+    });
+    watchQuickGrid.innerHTML = '';
+    watchQuickGrid.appendChild(fragment);
+  }
+
+  // ─── Stream Candidate Parser (Strictly Server 1, Server 2, Server 3) ────────
   function parseStreamCandidate(s, index) {
-    const rawName = s.name || s.title || `Server ${index + 1}`;
-    const provider = (s._source || rawName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'stream').slice(0, 16);
+    const serverNum = index + 1;
+    const provider = (s._source || 'stream').slice(0, 16);
 
     // 1. Explicit External Web Embed
     if (s.externalUrl) {
       const resolved = resolveMediaUrl(s.externalUrl);
       return {
         id: index,
-        name: `Server ${index + 1} (${provider})`,
+        name: `Server ${serverNum}`,
         provider: provider,
         type: 'embed',
         url: resolved,
@@ -1139,7 +1502,7 @@
       if (parsed.pathname === '/watch' || raw.includes('/embed/')) {
         return {
           id: index,
-          name: `Server ${index + 1} (${provider})`,
+          name: `Server ${serverNum}`,
           provider: provider,
           type: 'embed',
           url: raw,
@@ -1151,7 +1514,7 @@
         const direct = parsed.searchParams.get('url');
         return {
           id: index,
-          name: `Server ${index + 1} (${provider})`,
+          name: `Server ${serverNum}`,
           provider: provider,
           type: 'hls',
           url: direct,
@@ -1164,7 +1527,7 @@
     // 3. Direct HLS
     return {
       id: index,
-      name: `Server ${index + 1} (${provider})`,
+      name: `Server ${serverNum}`,
       provider: provider,
       type: 'hls',
       url: raw,
@@ -1189,8 +1552,8 @@
     serverPillButtons.innerHTML = currentCandidates.map((c, idx) => `
       <button class="server-pill ${idx === activeCandidateIndex ? 'active' : ''}" 
               onclick="window.STREAM_NARO.selectServer(${idx})" 
-              title="Switch to ${escapeHtml(c.name)}">
-        ${escapeHtml(c.name)}
+              title="Switch to Server ${idx + 1}">
+        Server ${idx + 1}
       </button>
     `).join('');
   }
@@ -1218,7 +1581,7 @@
       playerStatusTag.textContent = candidate.type === 'embed' ? '● WEB STREAM' : '● HLS STREAM';
     }
     if (playerEngineTag) {
-      playerEngineTag.textContent = options.isManual ? 'Manual Selection' : 'Turbo Auto';
+      playerEngineTag.textContent = `Server ${candidate.id + 1}`;
     }
 
     if (candidate.type === 'embed') {
@@ -1475,12 +1838,7 @@
   }
 
   function closePlayer() {
-    teardownArtPlayer();
-    if (embedFrame) {
-      embedFrame.removeAttribute('src');
-      embedFrame.classList.add('hidden');
-    }
-    if (playerSection) playerSection.classList.add('hidden');
+    closeWatchView(true);
   }
 
   function showPlayerOverlay(show, message = 'Loading stream...') {
@@ -1539,7 +1897,9 @@
     prefetch: prefetchStreamSources,
     selectServer: selectServer,
     toggleFavorite: toggleFavorite,
-    navigateToCategory: navigateToCategory
+    navigateToCategory: navigateToCategory,
+    goHome: goHome,
+    closeWatch: closeWatchView
   };
 
   // Legacy fallback alias

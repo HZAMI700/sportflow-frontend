@@ -5,32 +5,34 @@
 
 /* ─── 1. Design Tokens & Theme Variables ─────────────────────────────────── */
 :root {
-  /* Ultra-Dark Fantasy-Black Palette (Default) */
-  --canvas-bg: #050608;
-  --frame-bg: #090b10;
-  --surface-bg: #0f121a;
-  --surface-hover: #151a26;
-  --sidebar-bg: #0a0d14;
-  --card-bg: #0e1118;
-  --card-hover: #141823;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --card-border-hover: rgba(0, 240, 255, 0.35);
+  /* True Obsidian-Black & Carbon Palette (Matching User Screenshot) */
+  --canvas-bg: #07080a;
+  --frame-bg: #0b0c0f;
+  --surface-bg: #121317;
+  --surface-hover: #191a20;
+  --sidebar-bg: #090a0d;
+  --card-bg: #111216;
+  --card-hover: #17181f;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-border-hover: rgba(255, 255, 255, 0.22);
 
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
   --border-focus: #00f0ff;
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #ffffff;
+  --text-muted: #8e95a5;
+  --text-dim: #646b7b;
 
-  /* STREAM NARO Signature Cyan Accent */
+  /* STREAM NARO Signature Accents */
   --accent-cyan: #00f0ff;
   --accent-cyan-hover: #38bdf8;
   --accent-cyan-dim: #0284c7;
   --accent-cyan-subtle: rgba(0, 240, 255, 0.1);
   --accent-cyan-glow: rgba(0, 240, 255, 0.25);
 
+  --accent-amber: #f59e0b;
+  --accent-amber-glow: rgba(245, 158, 11, 0.3);
   --accent-live-red: #ef4444;
   --accent-live-pulse: rgba(239, 68, 68, 0.5);
 
@@ -40,10 +42,10 @@
   --radius-md: 12px;
   --radius-sm: 8px;
 
-  --shadow-frame: 0 20px 50px -10px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 240, 255, 0.3);
-  --shadow-dock: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-frame: 0 20px 50px -10px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.18);
+  --shadow-dock: 0 12px 30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.09);
 
   --transition-micro: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -578,7 +580,100 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── 8. Cinema Pro Video Player Section ─────────────────────────────────── */
+/* ─── 8. Dedicated Watch Stream Page View ───────────────────────────────── */
+.watch-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeInWatch 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.watch-page-container.hidden {
+  display: none;
+}
+
+@keyframes fadeInWatch {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.watch-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.btn-watch-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+  transition: var(--transition-micro);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-watch-back:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  transform: translateX(-3px);
+}
+
+.watch-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 220px;
+}
+
+.watch-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.watch-match-heading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+  line-height: 1.25;
+}
+
+.watch-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.watch-quick-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.quick-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* Cinema Player Card */
 .cinema-player-card {
   background: var(--card-bg);
   border: 1px solid var(--border-subtle);
@@ -586,10 +681,6 @@ body {
   overflow: hidden;
   box-shadow: var(--shadow-card);
   transition: var(--transition-smooth);
-}
-
-.cinema-player-card.hidden {
-  display: none;
 }
 
 .cinema-player-card.theater-mode {
@@ -602,100 +693,6 @@ body {
   border-radius: 0;
   border: none;
   background: #000000;
-}
-
-.cinema-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid var(--border-subtle);
-  background: rgba(9, 11, 16, 0.6);
-}
-
-.cinema-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.cinema-pill-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.badge-live-dot {
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-capsule);
-}
-
-.badge-cyan {
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: var(--accent-cyan-subtle);
-  color: var(--accent-cyan);
-  border: 1px solid var(--card-border-hover);
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-capsule);
-}
-
-.badge-subtle {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-dim);
-  background: var(--surface-bg);
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-capsule);
-}
-
-.cinema-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.cinema-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cinema-btn {
-  background: var(--surface-bg);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-family: inherit;
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: var(--transition-micro);
-}
-
-.cinema-btn:hover {
-  color: var(--text-main);
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
-}
-
-.cinema-close {
-  font-size: 1.2rem;
-  padding: 0.2rem 0.6rem;
-  line-height: 1;
-}
-
-.cinema-close:hover {
-  color: #ef4444;
 }
 
 .cinema-viewport {
@@ -1147,54 +1144,124 @@ body {
   transform: translateX(2px);
 }
 
-/* Horizontal Cards Carousel (Clean, Zero-Scrollbar) */
-.stream-cards-carousel {
+/* ─── 9.5. Dynamic Category Page Header Banner ──────────────────────────── */
+.category-header-card {
   display: flex;
-  gap: 1.1rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.stream-cards-carousel::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.stream-cards-carousel > .stream-card {
-  flex: 0 0 280px;
-  scroll-snap-align: start;
-}
-
-/* Stream Card */
-.stream-card {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--card-bg);
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(18, 19, 23, 0.95) 0%, rgba(10, 11, 14, 0.95) 100%);
   border: 1px solid var(--border-subtle);
-  cursor: pointer;
-  transition: var(--transition-micro);
+  border-left: 4px solid var(--accent-cyan);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 0.5rem;
   box-shadow: var(--shadow-card);
+}
+
+.category-header-card.hidden {
+  display: none;
+}
+
+.category-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.category-hero-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.category-info-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.category-banner-heading {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.category-banner-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.category-stats-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cat-stat-live {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-capsule);
+}
+
+.cat-stat-total {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-capsule);
+}
+
+/* ─── 10. Responsive Quick Streams Grid (No Slider / Arrow Clutter) ─────── */
+.quick-streams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ─── 10.1. Stream Card (Exact Match with User Screenshot) ──────────────── */
+.stream-card {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   contain: layout style paint;
+  border-radius: var(--radius-md);
+  outline: none;
 }
 
 .stream-card:hover {
-  transform: translateY(-3px) translateZ(0);
-  border-color: var(--card-border-hover);
-  box-shadow: var(--shadow-card-hover);
-  will-change: transform;
+  transform: translateY(-4px) translateZ(0);
+}
+
+.stream-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #14151a;
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.stream-card:hover .stream-card-media {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
 }
 
 .stream-card-backdrop {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #0a0d14;
+  background: #0d0e12;
   transition: transform 0.35s ease;
 }
 
@@ -1204,9 +1271,9 @@ body {
 
 .stream-card-top-tags {
   position: absolute;
-  top: 0.65rem;
-  left: 0.65rem;
-  right: 0.65rem;
+  top: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1214,100 +1281,96 @@ body {
   pointer-events: none;
 }
 
-.card-cat-tag {
-  font-size: 0.65rem;
+.card-date-tag {
+  font-size: 0.7rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(9, 11, 16, 0.85);
-  backdrop-filter: blur(6px);
-  color: var(--accent-cyan);
-  border: 1px solid var(--border-subtle);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  background: rgba(12, 14, 18, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-capsule);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-.card-live-dot-tag {
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: rgba(239, 68, 68, 0.9);
+.card-date-tag.live {
+  background: rgba(239, 68, 68, 0.95);
   color: #ffffff;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
 }
 
-.card-sched-tag {
-  font-size: 0.65rem;
-  font-weight: 600;
-  background: rgba(9, 11, 16, 0.85);
-  backdrop-filter: blur(6px);
-  color: #cbd5e1;
-  border: 1px solid var(--border-subtle);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-}
-
-.stream-card-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1.5rem 0.85rem 0.85rem;
-  background: linear-gradient(0deg, rgba(5, 6, 8, 0.95) 0%, rgba(5, 6, 8, 0.6) 65%, transparent 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.5rem;
-  z-index: 2;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  overflow: hidden;
-  flex: 1;
-}
-
-.card-match-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-.card-match-meta {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-play-btn {
-  width: 32px;
-  height: 32px;
+.card-star-btn {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--accent-cyan);
-  color: #050608;
-  border: none;
+  background: rgba(245, 158, 11, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(245, 158, 11, 0.5);
+  color: #f59e0b;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px var(--accent-cyan-glow);
-  transform: scale(0.92);
-  transition: var(--transition-micro);
   cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-.stream-card:hover .card-play-btn {
-  transform: scale(1.08);
-  background: var(--accent-cyan-hover);
+.card-star-btn:hover {
+  background: #f59e0b;
+  color: #050608;
+  border-color: #f59e0b;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.card-star-btn.active {
+  background: #f59e0b;
+  color: #050608;
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.stream-card-body {
+  padding: 0.65rem 0.2rem 0.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-match-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.1px;
+}
+
+.stream-card:hover .card-match-title {
+  color: var(--accent-cyan);
+}
+
+.card-match-meta {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card-meta-dot {
+  color: var(--text-dim);
 }
 
 /* ─── 11. Full Catalog Grid ──────────────────────────────────────────────── */
