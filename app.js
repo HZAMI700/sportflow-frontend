@@ -444,7 +444,9 @@
   }
 
   // ─── DOM Elements ───────────────────────────────────────────────────────────
-  let searchInput, clearSearchBtn, themeToggleBtn, themeIconSun, themeIconMoon;
+  let searchInput, clearSearchBtn, searchPopover, searchPopoverResults, searchPopoverCount;
+  let searchHighlightedIndex = -1;
+  let themeToggleBtn, themeIconSun, themeIconMoon;
   let dockThemeBtn, dockThemeIconSun, dockThemeIconMoon, liveSyncPill, syncText;
   let quickStreamsList, quickCountPill;
   let heroSpotlight, heroBg, heroStatusPill, heroTitle, heroLeagueTag, heroTimeTag, heroQualityTag, heroDesc;
@@ -501,6 +503,9 @@
   function cacheDomElements() {
     searchInput = document.getElementById('search-input');
     clearSearchBtn = document.getElementById('clear-search-btn');
+    searchPopover = document.getElementById('search-popover');
+    searchPopoverResults = document.getElementById('search-popover-results');
+    searchPopoverCount = document.getElementById('search-popover-count');
     themeToggleBtn = document.getElementById('theme-toggle-btn');
     themeIconSun = document.getElementById('theme-icon-sun');
     themeIconMoon = document.getElementById('theme-icon-moon');
@@ -664,6 +669,7 @@
     if (watchView && !watchView.classList.contains('hidden')) {
       closeWatchView(false);
     }
+    if (searchPopover) searchPopover.classList.add('hidden');
 
     const routeInfo = ROUTE_CATEGORY_MAP[slug];
     if (routeInfo) {
@@ -686,6 +692,7 @@
     if (watchView && !watchView.classList.contains('hidden')) {
       closeWatchView(false);
     }
+    if (searchPopover) searchPopover.classList.add('hidden');
     activeCategory = 'all';
     activeTab = 'all';
     currentSearch = '';
@@ -725,22 +732,221 @@
     });
   }
 
+
+  // ─── Smart Search Engine (Fuzzy, Multi-Token, Alias & Live Scoring) ──────────
+  const SPORT_ALIASES = {
+    football: ['soccer', 'futbol', 'footy', 'epl', 'champions league', 'ucl', 'uefa', 'premier league', 'laliga', 'serie a', 'bundesliga', 'ligue 1', 'europa', 'world cup'],
+    basketball: ['nba', 'wnba', 'bball', 'hoops', 'euroleague', 'ncaa', 'fiba'],
+    motorsport: ['f1', 'formula 1', 'formula1', 'nascar', 'motogp', 'rally', 'indycar', 'racing', 'grand prix', 'truck playoff'],
+    mma: ['ufc', 'boxing', 'boxe', 'wwe', 'tna', 'bellator', 'combat', 'fight', 'fight night', 'knockout'],
+    hockey: ['nhl', 'ice hockey', 'del', 'khl', 'stanley cup'],
+    cricket: ['ipl', 't20', 'odi', 'test cricket', 'bbl', 'ashes'],
+    american_football: ['nfl', 'cfl', 'super bowl', 'touchdown'],
+    baseball: ['mlb', 'world series', 'home run'],
+    tennis: ['atp', 'wta', 'wimbledon', 'us open', 'roland garros', 'australian open', 'grand slam'],
+    networks: ['tv', 'channel', '24/7', 'broadcast', 'live tv', 'stream', 'news']
+  };
+
+  function smartSearchScore(match, query) {
+    if (!query) return 1;
+    const cleanQuery = query.toLowerCase().trim();
+    if (!cleanQuery) return 1;
+
+    const title = (match.title || '').toLowerCase();
+    const category = (match.category || '').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    const league = (match.league || '').toLowerCase();
+
+    // Exact title match gets highest score
+    if (title === cleanQuery) return 1000;
+    if (title.startsWith(cleanQuery)) return 500;
+    if (title.includes(cleanQuery)) return 300 + (match.isLive ? 50 : 0);
+
+    const tokens = cleanQuery.split(/\s+/).filter(Boolean);
+    let allTokensMatched = true;
+    let score = 100;
+
+    for (const token of tokens) {
+      const inTitle = title.includes(token);
+      const inLeague = league.includes(token);
+      const inCat = category === token || category.startsWith(token);
+      
+      let inAlias = false;
+      for (const [sport, aliases] of Object.entries(SPORT_ALIASES)) {
+        if (category === sport && aliases.some(a => a === token || a.startsWith(token) || (token.length >= 3 && a.includes(token)))) {
+          inAlias = true;
+          break;
+        }
+      }
+
+      if (inTitle) {
+        score += 45;
+      } else if (inLeague) {
+        score += 30;
+      } else if (inCat) {
+        score += 20;
+      } else if (inAlias) {
+        score += 15;
+      } else {
+        allTokensMatched = false;
+        break;
+      }
+    }
+
+    if (allTokensMatched) {
+      if (match.isLive) score += 35;
+      return score;
+    }
+    return 0;
+  }
+
+  function highlightMatches(text, query) {
+    if (!query) return escapeHtml(text);
+    const tokens = query.trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return escapeHtml(text);
+
+    let escaped = escapeHtml(text);
+    tokens.forEach(token => {
+      const clean = token.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\  // ─── Event Listeners ────────────────────────────────────────────────────────');
+      if (clean && clean.length >= 2) {
+        const regex = new RegExp(`(${clean})`, 'gi');
+        escaped = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+      }
+    });
+    return escaped;
+  }
+
+  function renderSearchPopover(query) {
+    if (!searchPopover || !searchPopoverResults) return;
+
+    if (!query) {
+      searchPopover.classList.add('hidden');
+      searchHighlightedIndex = -1;
+      return;
+    }
+
+    const matched = allMatches
+      .filter(m => smartSearchScore(m, query) > 0)
+      .sort((a, b) => smartSearchScore(b, query) - smartSearchScore(a, query));
+
+    searchHighlightedIndex = -1;
+
+    if (searchPopoverCount) {
+      searchPopoverCount.textContent = `${matched.length} ${matched.length === 1 ? 'Match' : 'Matches'} Found`;
+    }
+
+    if (!matched.length) {
+      searchPopoverResults.innerHTML = `
+        <div class="search-popover-empty">
+          <p>No fixtures found for "${escapeHtml(query)}"</p>
+          <p>Try searching "Football", "NBA", "UFC", "F1", or a team name.</p>
+        </div>
+      `;
+      searchPopover.classList.remove('hidden');
+      return;
+    }
+
+    const topResults = matched.slice(0, 8);
+    searchPopoverResults.innerHTML = topResults.map((m, idx) => {
+      const smartPoster = createSmartThumbnailSvg(m);
+      const displayPoster = m.poster && !m.poster.includes('placeholder') ? m.poster : smartPoster;
+      const highlightedTitle = highlightMatches(m.title, query);
+      const statusHtml = m.isLive
+        ? '<span class="search-badge-live">● LIVE</span>'
+        : `<span style="font-size:0.7rem; color:var(--text-dim);">${escapeHtml(formatCardDate(m))}</span>`;
+
+      return `
+        <div class="search-result-item" 
+             data-index="${idx}"
+             data-clean-id="${escapeHtml(m.cleanId)}"
+             onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
+             onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}'); document.getElementById('search-popover')?.classList.add('hidden');">
+          <img class="search-result-thumb" src="${escapeHtml(displayPoster)}" alt="" loading="lazy" onerror="this.onerror=null; this.src='${smartPoster}';">
+          <div class="search-result-info">
+            <span class="search-result-title">${highlightedTitle}</span>
+            <div class="search-result-meta">
+              ${statusHtml}
+              <span>&bull;</span>
+              <span>${escapeHtml(m.league || m.category.toUpperCase())}</span>
+              <span>&bull;</span>
+              <span>${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    searchPopover.classList.remove('hidden');
+  }
+
+  function handleSearchKeydown(e) {
+    if (!searchPopover || searchPopover.classList.contains('hidden')) {
+      if (e.key === 'Escape' && searchInput) {
+        searchInput.blur();
+      }
+      return;
+    }
+
+    const items = searchPopoverResults?.querySelectorAll('.search-result-item') || [];
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      searchHighlightedIndex = (searchHighlightedIndex + 1) % items.length;
+      updatePopoverHighlight(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      searchHighlightedIndex = (searchHighlightedIndex - 1 + items.length) % items.length;
+      updatePopoverHighlight(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchHighlightedIndex >= 0 && items[searchHighlightedIndex]) {
+        items[searchHighlightedIndex].click();
+      } else if (items.length > 0) {
+        items[0].click();
+      } else {
+        searchPopover.classList.add('hidden');
+        document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      searchPopover.classList.add('hidden');
+      searchInput?.blur();
+    }
+  }
+
+  function updatePopoverHighlight(items) {
+    items.forEach((el, idx) => {
+      el.classList.toggle('highlighted', idx === searchHighlightedIndex);
+      if (idx === searchHighlightedIndex) {
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
   // ─── Event Listeners ────────────────────────────────────────────────────────
   function initEventListeners() {
     if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
     if (dockThemeBtn) dockThemeBtn.addEventListener('click', toggleTheme);
 
-    // Search Input (debounced for performance)
+    // Smart Search Input (Instant Live Popover + Debounced Background Grid)
     if (searchInput) {
-      const debouncedSearch = debounce(() => {
+      const debouncedCatalogSearch = debounce(() => {
         renderCatalogGrid();
-      }, 150);
+      }, 180);
 
       searchInput.addEventListener('input', (e) => {
         currentSearch = e.target.value.trim().toLowerCase();
         if (clearSearchBtn) clearSearchBtn.classList.toggle('hidden', !currentSearch);
-        debouncedSearch();
+        renderSearchPopover(currentSearch);
+        debouncedCatalogSearch();
       });
+
+      searchInput.addEventListener('focus', () => {
+        if (currentSearch) {
+          renderSearchPopover(currentSearch);
+        }
+      });
+
+      searchInput.addEventListener('keydown', handleSearchKeydown);
     }
 
     if (clearSearchBtn) {
@@ -748,9 +954,19 @@
         if (searchInput) searchInput.value = '';
         currentSearch = '';
         clearSearchBtn.classList.add('hidden');
+        if (searchPopover) searchPopover.classList.add('hidden');
         renderCatalogGrid();
       });
     }
+
+    // Dismiss search popover on clicks outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-capsule')) {
+        if (searchPopover && !searchPopover.classList.contains('hidden')) {
+          searchPopover.classList.add('hidden');
+        }
+      }
+    });
 
     // Category Pills Navigation
     document.querySelectorAll('#top-category-pills .top-cat-pill').forEach(btn => {
@@ -1364,24 +1580,21 @@
       });
     }
 
-    // Search Filter
+    // Smart Search Multi-Token Ranking
     if (currentSearch) {
-      list = list.filter(m =>
-        m.title.toLowerCase().includes(currentSearch) ||
-        m.category.includes(currentSearch) ||
-        (m.league && m.league.toLowerCase().includes(currentSearch))
-      );
-    }
-
-    // Sorting
-    if (currentSort === 'time-asc') {
-      list.sort((a, b) => (a.date || Infinity) - (b.date || Infinity));
-    } else if (currentSort === 'popular') {
-      list.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
-    } else if (currentSort === 'title') {
-      list.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (currentSort === 'sources') {
-      list.sort((a, b) => (b.sourcesCount || 1) - (a.sourcesCount || 1));
+      list = list.filter(m => smartSearchScore(m, currentSearch) > 0);
+      list.sort((a, b) => smartSearchScore(b, currentSearch) - smartSearchScore(a, currentSearch));
+    } else {
+      // Sorting
+      if (currentSort === 'time-asc') {
+        list.sort((a, b) => (a.date || Infinity) - (b.date || Infinity));
+      } else if (currentSort === 'popular') {
+        list.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
+      } else if (currentSort === 'title') {
+        list.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (currentSort === 'sources') {
+        list.sort((a, b) => (b.sourcesCount || 1) - (a.sourcesCount || 1));
+      }
     }
 
     if (catalogCountPill) {
@@ -1459,6 +1672,8 @@
     activeMatch = { cleanId, title, league };
 
     // 1. Switch views: hide home view, show dedicated watch page
+    if (searchPopover) searchPopover.classList.add('hidden');
+    if (searchInput) searchInput.blur();
     if (homeView) homeView.classList.add('hidden');
     if (watchView) watchView.classList.remove('hidden');
 

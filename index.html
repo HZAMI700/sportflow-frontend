@@ -85,6 +85,15 @@
           <input type="text" id="search-input" placeholder="Search matches, clubs, leagues... (Press '/')" autocomplete="off" aria-label="Search live sports">
           <span class="search-key-hint" aria-hidden="true">/</span>
           <button id="clear-search-btn" class="clear-btn hidden" aria-label="Clear search">&times;</button>
+
+          <!-- Smart Live Search Popover -->
+          <div id="search-popover" class="search-popover hidden" role="listbox" aria-label="Live search suggestions">
+            <div class="search-popover-header">
+              <span id="search-popover-count" class="popover-count">Live Matches Found</span>
+              <span class="search-popover-esc">ESC to close</span>
+            </div>
+            <div id="search-popover-results" class="search-popover-results"></div>
+          </div>
         </div>
 
         <!-- Top Category Scroll Pills -->
