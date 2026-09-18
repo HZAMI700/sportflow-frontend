@@ -175,7 +175,7 @@
 
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
   const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
-  const STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v1';
+  const STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v2';
   const STORAGE_THEME_KEY = 'streamnaro_theme';
   const STORAGE_FAVORITES_KEY = 'streamnaro_favorites';
   const MAX_RETRY_FALLBACKS = 4;
@@ -329,6 +329,44 @@
     const month = d.toLocaleDateString('en-US', { month: 'short' });
     const day = d.getDate();
     return `${month} ${day}`;
+  }
+
+  function formatCategoryLabel(cat) {
+    if (!cat) return 'Sports';
+    const c = String(cat).toLowerCase().trim();
+    const map = {
+      american_football: 'American Football',
+      football: 'Football',
+      basketball: 'Basketball',
+      motorsport: 'Motorsport',
+      cricket: 'Cricket',
+      tennis: 'Tennis',
+      rugby: 'Rugby',
+      baseball: 'Baseball',
+      hockey: 'Ice Hockey',
+      golf: 'Golf',
+      darts: 'Darts',
+      mma: 'MMA & Combat',
+      boxing: 'Boxing',
+      networks: '24/7 TV',
+      college: 'College Sports'
+    };
+    if (map[c]) return map[c];
+    return c.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+  }
+
+  function isValidMatchItem(item) {
+    if (!item) return false;
+    const rawTitle = String(item.name || item.title || '').trim();
+    const cleanTitle = rawTitle.replace(/^(🔴 LIVE:|⏱️|📺)\s*/i, '').trim();
+    if (!cleanTitle || cleanTitle.toLowerCase() === 'vs' || cleanTitle.toLowerCase() === 'vs.' || cleanTitle.length < 3) {
+      return false;
+    }
+    const lower = cleanTitle.toLowerCase();
+    if ((lower === 'vs' || lower === 'v' || lower.startsWith('vs ') || lower.endsWith(' vs')) && cleanTitle.length <= 4) {
+      return false;
+    }
+    return true;
   }
 
   function createSmartThumbnailSvg(m) {
@@ -866,7 +904,7 @@
             <div class="search-result-meta">
               ${statusHtml}
               <span>&bull;</span>
-              <span>${escapeHtml(m.league || m.category.toUpperCase())}</span>
+              <span>${escapeHtml(m.league || formatCategoryLabel(m.category))}</span>
               <span>&bull;</span>
               <span>${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
             </div>
@@ -1140,7 +1178,7 @@
       if (raw) {
         const cached = JSON.parse(raw);
         if (Array.isArray(cached) && cached.length > 0) {
-          allMatches = cached;
+          allMatches = cached.filter(isValidMatchItem);
           extractFeaturedMatches();
           renderAllSections();
           if (syncText) syncText.textContent = `Cached (${allMatches.length})`;
@@ -1151,7 +1189,7 @@
 
     // Fallback to built-in seed for 0ms instant display if cache is empty
     if (Array.isArray(BUILTIN_SEEDED_MATCHES) && BUILTIN_SEEDED_MATCHES.length > 0) {
-      allMatches = BUILTIN_SEEDED_MATCHES.map(m => ({ ...m }));
+      allMatches = BUILTIN_SEEDED_MATCHES.filter(isValidMatchItem).map(m => ({ ...m }));
       extractFeaturedMatches();
       renderAllSections();
       if (syncText) syncText.textContent = 'Syncing...';
@@ -1181,8 +1219,11 @@
   function processCatalogItems(rawItems, sourceLabel = 'Live') {
     if (!Array.isArray(rawItems) || rawItems.length === 0) return false;
 
+    const validItems = rawItems.filter(isValidMatchItem);
+    if (validItems.length === 0) return false;
+
     const now = Date.now();
-    allMatches = rawItems.map(item => {
+    allMatches = validItems.map(item => {
       const rawId = String(item.id || '');
       const cleanId = rawId.replace(/^nuvio_sport_/, '');
       const title = (item.name || item.title || 'Sports Event').replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, '');
@@ -1390,7 +1431,7 @@
       heroStatusPill.style.color = m.isLive ? '#ef4444' : 'var(--text-dim)';
     }
     if (heroTitle) heroTitle.textContent = m.title;
-    if (heroLeagueTag) heroLeagueTag.textContent = m.league || m.category.toUpperCase();
+    if (heroLeagueTag) heroLeagueTag.textContent = m.league || formatCategoryLabel(m.category);
     if (heroTimeTag) heroTimeTag.textContent = formatKickoffTime(m.date);
     if (heroQualityTag) heroQualityTag.textContent = `${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}`;
     if (heroDesc) {
@@ -1434,7 +1475,7 @@
           <img class="quick-item-poster" src="${escapeHtml(displayPoster)}" alt="" loading="lazy" onerror="this.onerror=null; this.src='${smartPoster}';">
           <div class="quick-item-info">
             <span class="quick-item-title">${escapeHtml(m.title)}</span>
-            <span class="quick-item-meta">${escapeHtml(m.league || m.category.toUpperCase())}</span>
+            <span class="quick-item-meta">${escapeHtml(m.league || formatCategoryLabel(m.category))}</span>
           </div>
         </div>
       `;
@@ -1541,9 +1582,9 @@
         <div class="stream-card-body">
           <h4 class="card-match-title" title="${escapeHtml(m.title)}">${escapeHtml(m.title)}</h4>
           <div class="card-match-meta">
-            <span>${escapeHtml(m.league || m.category.toUpperCase())}</span>
+            <span class="card-meta-cat" title="${escapeHtml(m.league || formatCategoryLabel(m.category))}">${escapeHtml(m.league || formatCategoryLabel(m.category))}</span>
             <span class="card-meta-dot">&bull;</span>
-            <span>${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
+            <span class="card-meta-servers">${m.sourcesCount} Server${m.sourcesCount === 1 ? '' : 's'}</span>
           </div>
         </div>
 
