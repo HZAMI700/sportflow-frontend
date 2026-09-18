@@ -1,13 +1,11 @@
 {
-  "outputDirectory": ".",
-  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/backend/:path*",
       "destination": "https://ahudwgrmu9.preview.c35.airoapp.ai/:path*?airoShareToken=At3udpbq8UOL&preview=1"
     },
     {
-      "source": "/((?!api/|.*\\.(?:json|js|css|png|jpg|jpeg|svg|ico|webp|woff2?|ttf)).*)",
+      "source": "/((?!api/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ],

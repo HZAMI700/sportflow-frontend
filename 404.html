@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>STREAM NARO — Premium Live Sports Streaming</title>
+  
+  <!-- Security: Block pop-unders, ad scripts, unwanted navigations -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' https: data: blob:;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' https: data: blob:;
+    media-src 'self' https: blob:;
+    frame-src https:;
+    connect-src 'self' https: wss:;
+    child-src 'self' https: blob:;
+  ">
+  <meta name="referrer" content="no-referrer">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- SEO & Social Meta -->
+  <meta name="description" content="STREAM NARO delivers live sports streaming, real-time match coverage, and 24/7 sports networks with intelligent multi-server auto-recovery.">
+  <meta name="theme-color" content="#050608">
+  <meta property="og:title" content="STREAM NARO — Premium Live Sports Streaming">
+  <meta property="og:description" content="Watch live football, basketball, tennis, F1, combat sports, and 24/7 sports channels with intelligent stream auto-recovery.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="STREAM NARO">
+
+  <!-- Stream Naro SVG Favicon (Dual-beam Cyan Signal Beacon) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='naroG' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300f0ff'/%3E%3Cstop offset='100%25' stop-color='%230ea5e9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%23090b10'/%3E%3Cpath d='M8 24V8l6 8v8l-6-8z' fill='url(%23naroG)'/%3E%3Cpath d='M18 24V16l6 8V8l-6 8z' fill='%2300f0ff' opacity='0.85'/%3E%3Ccircle cx='24' cy='8' r='2' fill='%2300f0ff'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23090b10'/%3E%3Cpath d='M45 135V45l35 45v45l-35-45z' fill='%2300f0ff'/%3E%3Cpath d='M100 135V90l35 45V45l-35 45z' fill='%230ea5e9'/%3E%3Ccircle cx='135' cy='45' r='10' fill='%2300f0ff'/%3E%3C/svg%3E">
+
+  <!-- Styles & Fonts -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- HLS.js for direct video streaming -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js" fetchpriority="high"></script>
+  <!-- ArtPlayer Pro for streaming controls -->
+  <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js" fetchpriority="high"></script>
+
+  <!-- Preconnect to backend & CDN for faster stream starts -->
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+</head>
+<body class="theme-dark">
+  <div class="app-viewport">
+    <!-- Stream Naro Main Dashboard Shell -->
+    <div class="app-dashboard-frame">
+      
+      <!-- Top Sticky Navigation Bar -->
+      <header class="top-nav-bar" id="main-header">
+        <!-- Mobile Brand & Menu Toggle -->
+        <div class="mobile-brand-row">
+          <div class="brand-logo-mark" id="top-nav-logo" role="button" tabindex="0" title="Go to Home" style="cursor: pointer;">
+            <svg class="brand-icon-svg" viewBox="0 0 32 32" width="28" height="28">
+              <defs>
+                <linearGradient id="naroLogoG" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00f0ff"/>
+                  <stop offset="100%" stop-color="#0ea5e9"/>
+                </linearGradient>
+              </defs>
+              <rect width="32" height="32" rx="7" fill="#0d111a"/>
+              <path d="M8 23V9l6 7v7l-6-7z" fill="url(#naroLogoG)"/>
+              <path d="M18 23v-7l6 7V9l-6 7z" fill="#00f0ff" opacity="0.9"/>
+              <circle cx="24" cy="9" r="2.2" fill="#00f0ff"/>
+            </svg>
+            <div class="brand-text-wrap">
+              <span class="brand-title">STREAM <span class="brand-cyan">NARO</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Capsule -->
+        <div class="search-capsule" role="search">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search matches, clubs, leagues... (Press '/')" autocomplete="off" aria-label="Search live sports">
+          <span class="search-key-hint" aria-hidden="true">/</span>
+          <button id="clear-search-btn" class="clear-btn hidden" aria-label="Clear search">&times;</button>
+
+          <!-- Smart Live Search Popover -->
+          <div id="search-popover" class="search-popover hidden" role="listbox" aria-label="Live search suggestions">
+            <div class="search-popover-header">
+              <span id="search-popover-count" class="popover-count">Live Matches Found</span>
+              <span class="search-popover-esc">ESC to close</span>
+            </div>
+            <div id="search-popover-results" class="search-popover-results"></div>
+          </div>
+        </div>
+
+        <!-- Top Category Scroll Pills -->
+        <nav class="top-category-scroll" id="top-category-pills" aria-label="Sport categories">
+          <button class="top-cat-pill active" data-category="all" data-slug="">All Sports</button>
+          <button class="top-cat-pill" data-category="football" data-slug="football">Football</button>
+          <button class="top-cat-pill" data-category="basketball" data-slug="basketball">Basketball</button>
+          <button class="top-cat-pill" data-category="tennis" data-slug="tennis">Tennis</button>
+          <button class="top-cat-pill" data-category="cricket" data-slug="cricket">Cricket</button>
+          <button class="top-cat-pill" data-category="motorsport" data-slug="motorsport">F1 &amp; Motor</button>
+          <button class="top-cat-pill" data-category="mma" data-slug="ufc-streams">Combat / MMA</button>
+          <button class="top-cat-pill" data-category="hockey" data-slug="hockey">Hockey</button>
+          <button class="top-cat-pill" data-category="networks" data-slug="247-tv">24/7 TV</button>
+        </nav>
+
+        <!-- Top Actions Bar -->
+        <div class="top-actions">
+          <!-- Live Radar Sync Indicator -->
+          <div class="live-sync-pill" id="live-sync-pill" title="Live stream catalog sync status">
+            <span class="radar-dot"></span>
+            <span id="sync-text">Live Sync</span>
+          </div>
+
+          <!-- Theme Toggle (Dark / Light) -->
+          <button class="icon-circle-btn theme-toggle" id="theme-toggle-btn" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+            <svg id="theme-icon-sun" class="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4.5" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b"></circle>
+              <line x1="12" y1="1.5" x2="12" y2="4.5" stroke="#f59e0b"></line>
+              <line x1="12" y1="19.5" x2="12" y2="22.5" stroke="#f59e0b"></line>
+              <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" stroke="#f59e0b"></line>
+              <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" stroke="#f59e0b"></line>
+              <line x1="1.5" y1="12" x2="4.5" y2="12" stroke="#f59e0b"></line>
+              <line x1="19.5" y1="12" x2="22.5" y2="12" stroke="#f59e0b"></line>
+              <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" stroke="#f59e0b"></line>
+              <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" stroke="#f59e0b"></line>
+            </svg>
+            <svg id="theme-icon-moon" class="theme-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="rgba(0, 240, 255, 0.2)" stroke="#00f0ff"></path>
+              <circle cx="17.5" cy="8.5" r="1.2" fill="#00f0ff" stroke="none"></circle>
+              <circle cx="19" cy="13" r="0.8" fill="#00f0ff" stroke="none"></circle>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Layout Body (Sidebar + Content Stream) -->
+      <div class="dashboard-body">
+        
+        <!-- Left Navigation Sidebar -->
+        <aside class="app-sidebar" aria-label="Primary navigation">
+          <!-- Stream Naro Brand Identity -->
+          <div class="sidebar-brand" id="sidebar-logo" role="button" tabindex="0" title="Go to Home" style="cursor: pointer;">
+            <div class="brand-badge-icon">
+              <svg viewBox="0 0 32 32" width="28" height="28">
+                <rect width="32" height="32" rx="7" fill="#0d111a"/>
+                <path d="M8 23V9l6 7v7l-6-7z" fill="url(#naroLogoG)"/>
+                <path d="M18 23v-7l6 7V9l-6 7z" fill="#00f0ff" opacity="0.9"/>
+                <circle cx="24" cy="9" r="2.2" fill="#00f0ff"/>
+              </svg>
+            </div>
+            <div class="brand-titles">
+              <h1 class="brand-name">STREAM <span class="brand-cyan">NARO</span></h1>
+              <span class="brand-sub">SPORTS PLATFORM</span>
+            </div>
+          </div>
+
+          <!-- Primary Navigation Links -->
+          <nav class="sidebar-nav">
+            <a href="#home" class="nav-item active" data-tab="all">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Explore</span>
+            </a>
+            <a href="#live" class="nav-item" data-tab="live">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+              </svg>
+              <span>Live Now</span>
+              <span class="nav-live-dot"></span>
+            </a>
+            <a href="#favorites" class="nav-item" data-tab="favorites">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>Favorites</span>
+            </a>
+            <a href="#networks" class="nav-item" data-tab="networks">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                <polyline points="17 2 12 7 7 2"></polyline>
+              </svg>
+              <span>24/7 TV</span>
+            </a>
+            <a href="#schedule" class="nav-item" data-tab="upcoming">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Upcoming</span>
+            </a>
+          </nav>
+
+          <!-- Quick Streams / On-Air Drawer -->
+          <div class="sidebar-quick-streams">
+            <div class="quick-streams-header">
+              <h3>Quick Streams</h3>
+              <span class="quick-count" id="quick-count-pill">Live</span>
+            </div>
+            <div class="quick-streams-list" id="quick-streams-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Stream Content Area -->
+        <main class="dashboard-main" id="main-content">
+          
+          <!-- DEDICATED WATCH STREAM PAGE (Opens when user clicks any match) -->
+          <div id="watch-view" class="watch-page-container hidden">
+            <!-- Watch Navigation & Match Header -->
+            <div class="watch-nav-header">
+              <button id="watch-back-btn" class="btn-watch-back" title="Back to All Matches" aria-label="Back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>Back to Matches</span>
+              </button>
+
+              <div class="watch-meta-group">
+                <div class="watch-tag-row">
+                  <span id="player-status-tag" class="badge-live-dot">● CONNECTING</span>
+                  <span id="player-league-tag" class="badge-cyan">SPORTS</span>
+                  <span id="player-engine-tag" class="badge-subtle">Server 1</span>
+                </div>
+                <h1 id="playing-title" class="watch-match-heading">Match Stream</h1>
+              </div>
+
+              <div class="watch-header-actions">
+                <button id="watch-fav-btn" class="cinema-btn" title="Add to Favorites" aria-label="Favorite">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  <span>Favorite</span>
+                </button>
+                <button id="theater-btn" class="cinema-btn" title="Toggle Theater View" aria-label="Toggle Theater View">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>Theater</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Cinema Pro Video Player Viewport -->
+            <div class="cinema-player-card" id="player-card">
+              <div class="cinema-viewport" id="cinema-viewport">
+                <!-- ArtPlayer Pro Container -->
+                <div id="artplayer-container" class="artplayer-app"></div>
+                
+                <!-- Web Embed Iframe for external web streams -->
+                <iframe id="embed-frame" class="embed-frame hidden" 
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" 
+                  referrerpolicy="no-referrer" 
+                  allowfullscreen 
+                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"></iframe>
+
+                <!-- Player Loading, Server Recovery & Status Overlay -->
+                <div id="player-overlay" class="player-overlay hidden">
+                  <div class="spinner-naro"></div>
+                  <p id="overlay-message">Intelligent stream engine resolving servers...</p>
+                  <button id="overlay-retry-btn" class="overlay-action-btn hidden">Retry Streams</button>
+                </div>
+              </div>
+
+              <!-- Stream Server Candidates Bar (Pure Server 1, Server 2, Server 3) -->
+              <div class="cinema-servers-bar">
+                <div class="servers-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="cyan-icon">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Available Servers:</span>
+                </div>
+                <div class="server-pill-buttons" id="server-pill-buttons">
+                  <!-- Dynamically populated: Server 1, Server 2, Server 3... -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Watch Page Quick Streams Section (Live Now, No Slider!) -->
+            <section class="watch-quick-section" id="watch-quick-section">
+              <div class="row-header">
+                <div class="row-title-box">
+                  <span class="live-pulse-beacon"></span>
+                  <h2 class="row-heading">Quick Streams — Live Now</h2>
+                  <span class="row-live-counter" id="watch-quick-counter">Live</span>
+                </div>
+                <span class="quick-subtitle">Click any stream to switch instantly</span>
+              </div>
+              <div class="quick-streams-grid" id="watch-quick-grid">
+                <!-- Populated dynamically with live matches in a clean responsive grid -->
+              </div>
+            </section>
+            
+            <!-- Mobile Dock Clearance Spacer -->
+            <div class="mobile-dock-spacer" aria-hidden="true"></div>
+          </div>
+
+          <!-- HOME & CATEGORY BROWSING VIEW -->
+          <div id="home-view" class="home-page-container">
+            
+            <!-- Hero Spotlight Banner -->
+            <section id="hero-spotlight" class="hero-spotlight" aria-label="Featured Match">
+              <div class="hero-backdrop" id="hero-bg"></div>
+              <div class="hero-gradient-overlay"></div>
+              
+              <div class="hero-content">
+                <!-- Top Badge Row -->
+                <div class="hero-tag-row">
+                  <span class="hero-trending-badge">
+                    <span class="cyan-pulse"></span> FEATURED BROADCAST
+                  </span>
+                  <span id="hero-status-pill" class="hero-live-pill">● LIVE BROADCAST</span>
+                </div>
+
+                <!-- Main Titles & Match Info -->
+                <h2 class="hero-match-title" id="hero-title">Syncing Top Fixtures...</h2>
+                <div class="hero-meta-row" id="hero-meta">
+                  <span id="hero-league-tag">Sports League</span>
+                  <span class="meta-dot">&bull;</span>
+                  <span id="hero-time-tag">Live Stream</span>
+                  <span class="meta-dot">&bull;</span>
+                  <span id="hero-quality-tag">HD Stream</span>
+                </div>
+                <p class="hero-description" id="hero-desc">
+                  High-performance sports stream. Intelligent multi-server auto-failover with instant live playback.
+                </p>
+
+                <!-- Hero Call to Actions -->
+                <div class="hero-action-buttons">
+                  <button id="hero-watch-btn" class="btn-hero-watch" aria-label="Watch Stream">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>Watch Stream</span>
+                  </button>
+                  <button id="hero-favorite-btn" class="btn-hero-circle" title="Save to Favorites" aria-label="Save to Favorites">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Hero Carousel Up / Down Match Switcher -->
+              <div class="hero-carousel-controls">
+                <button class="hero-arrow-btn" id="hero-prev-btn" title="Previous Match" aria-label="Previous Match">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                  </svg>
+                </button>
+                <button class="hero-arrow-btn" id="hero-next-btn" title="Next Match" aria-label="Next Match">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </section>
+
+            <!-- Dynamic Dedicated Category Page Banner -->
+            <section id="category-header-banner" class="category-header-card hidden">
+              <div class="category-header-left">
+                <span class="category-hero-icon" id="cat-banner-icon">🏆</span>
+                <div class="category-info-wrap">
+                  <h2 class="category-banner-heading" id="cat-banner-title">Category Streams</h2>
+                  <p class="category-banner-desc" id="cat-banner-desc">Live broadcasts &amp; upcoming fixtures</p>
+                </div>
+              </div>
+              <div class="category-stats-wrap">
+                <span class="cat-stat-live" id="cat-live-stat">● 0 Live Now</span>
+                <span class="cat-stat-total" id="cat-total-stat">0 Matches</span>
+              </div>
+            </section>
+
+            <!-- Section 1: "LIVE NOW" (Responsive Grid, No Slider!) -->
+            <section class="content-row-section" id="live-section">
+              <div class="row-header">
+                <div class="row-title-box">
+                  <span class="live-pulse-beacon"></span>
+                  <h3 class="row-heading" id="live-section-heading">Live Now</h3>
+                  <span class="row-live-counter" id="live-count-badge">On Air</span>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-live">View all &rarr;</a>
+              </div>
+              <div class="quick-streams-grid" id="live-streams-grid">
+                <!-- Rendered dynamically as a responsive grid, no slider! -->
+              </div>
+            </section>
+
+            <!-- Section 2: "Upcoming Fixtures Today" -->
+            <section class="content-row-section" id="upcoming-section">
+              <div class="row-header">
+                <div class="row-title-box">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="subtle-icon">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                  </svg>
+                  <h3 class="row-heading">Upcoming Fixtures</h3>
+                  <span class="row-badge-pill" id="upcoming-count-badge">Today</span>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-upcoming">View all &rarr;</a>
+              </div>
+              <div class="quick-streams-grid" id="upcoming-streams-grid">
+                <!-- Rendered dynamically as a responsive grid, no slider! -->
+              </div>
+            </section>
+
+            <!-- Section 3: "24/7 Sports TV Networks" -->
+            <section class="content-row-section" id="networks-section">
+              <div class="row-header">
+                <div class="row-title-box">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="subtle-icon">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                  </svg>
+                  <h3 class="row-heading">24/7 Sports Channels</h3>
+                  <span class="row-badge-pill">Non-Stop</span>
+                </div>
+                <a href="#catalog-section" class="row-see-all" id="see-all-networks">View all &rarr;</a>
+              </div>
+              <div class="quick-streams-grid" id="networks-streams-grid">
+                <!-- Rendered dynamically as a responsive grid -->
+              </div>
+            </section>
+
+            <!-- Section 4: All Fixtures & Category Results (Filter Grid) -->
+            <section class="content-row-section" id="catalog-section">
+              <div class="row-header">
+                <div class="row-title-box">
+                  <h3 class="row-heading" id="catalog-heading">All Sports Fixtures</h3>
+                  <span class="row-badge-pill" id="catalog-count-pill">Catalog</span>
+                </div>
+                <!-- Sort Selector -->
+                <div class="sort-selector-capsule">
+                  <label for="sort-select">Sort:</label>
+                  <select id="sort-select">
+                    <option value="time-asc">Kickoff (Soonest)</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="title">Title (A-Z)</option>
+                    <option value="sources">Most Servers</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Matches Grid -->
+              <div class="catalog-grid" id="matches-grid">
+                <!-- Populated dynamically -->
+              </div>
+
+              <!-- Load More Pagination -->
+              <div id="load-more-container" class="load-more-wrapper hidden">
+                <button id="load-more-btn" class="btn-load-more">Load More Matches (+24)</button>
+              </div>
+            </section>
+
+            <!-- Mobile Dock Clearance Spacer -->
+            <div class="mobile-dock-spacer" aria-hidden="true"></div>
+          </div>
+
+        </main>
+      </div>
+
+    </div>
+
+    <!-- Floating Mobile Bottom Dock Navigation -->
+    <nav class="floating-bottom-dock" aria-label="Mobile quick dock">
+      <button class="dock-btn active" id="dock-home" data-tab="all" title="Explore" aria-label="Explore">
+        <span class="dock-icon-circle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+          </svg>
+        </span>
+      </button>
+      <button class="dock-btn" id="dock-live" data-tab="live" title="Live Now" aria-label="Live Now">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-favorites" data-tab="favorites" title="Favorites" aria-label="Favorites">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-refresh" title="Sync Streams" aria-label="Sync Streams">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-networks" data-tab="networks" title="24/7 Channels" aria-label="24/7 Channels">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+          <polyline points="17 2 12 7 7 2"></polyline>
+        </svg>
+      </button>
+      <button class="dock-btn" id="dock-theme" title="Switch Theme" aria-label="Switch Theme">
+        <svg id="dock-theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4.5" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b"></circle>
+          <line x1="12" y1="1.5" x2="12" y2="4.5" stroke="#f59e0b"></line>
+          <line x1="12" y1="19.5" x2="12" y2="22.5" stroke="#f59e0b"></line>
+          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" stroke="#f59e0b"></line>
+          <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" stroke="#f59e0b"></line>
+          <line x1="1.5" y1="12" x2="4.5" y2="12" stroke="#f59e0b"></line>
+          <line x1="19.5" y1="12" x2="22.5" y2="12" stroke="#f59e0b"></line>
+          <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" stroke="#f59e0b"></line>
+          <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" stroke="#f59e0b"></line>
+        </svg>
+        <svg id="dock-theme-icon-moon" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="rgba(0, 240, 255, 0.2)" stroke="#00f0ff"></path>
+          <circle cx="17.5" cy="8.5" r="1.2" fill="#00f0ff" stroke="none"></circle>
+          <circle cx="19" cy="13" r="0.8" fill="#00f0ff" stroke="none"></circle>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
