@@ -1,6 +1,6 @@
-# ⚡ STREAM NARO — Premium Live Sports Streaming Platform
+# ⚡ StreamZone — Premium Live Sports Streaming Platform
 
-**STREAM NARO** is a production-grade sports streaming web application designed with an ultra-dark fantasy-black aesthetic, precision cyan/teal accents, responsive multi-sport filtering, and an intelligent auto-recovery stream playback engine.
+**StreamZone** is a production-grade sports streaming web application designed with an ultra-dark fantasy-black aesthetic, precision cyan/teal accents, responsive multi-sport filtering, and an intelligent auto-recovery stream playback engine.
 
 ---
 
@@ -12,7 +12,7 @@
 - **Seamless Auto-Failover**: If a stream server encounters a network block or decode error, the engine automatically displays a subtle status indicator (*"Switching to backup source..."*) and recovers to the next eligible candidate.
 - **CORS Relay Fallback**: Automatically falls back from direct HLS to reverse-proxied manifest relay if cross-origin playback restrictions occur.
 
-### 2. STREAM NARO Design System
+### 2. StreamZone Design System
 - **Fantasy-Black Palette**: Near-black canvas (`#050608`), layered black surfaces (`#090b10`, `#0f121a`), and crisp borders (`rgba(255, 255, 255, 0.07)`).
 - **Cyan/Teal Signature Accent**: Precision accents (`#00f0ff` / `#06b6d4`) for live beacons, focus states, and primary actions.
 - **Micro-Interactions**: Hardware-accelerated CSS `transform` and `opacity` transitions with full support for `prefers-reduced-motion`.
@@ -23,7 +23,7 @@
 - **Secure Reverse Proxy**: Production deployments route through `/api/backend` via `vercel.json` rewrites, keeping origin endpoints and tokens private.
 
 ### 4. 0ms Cold Start Caching
-- **Stale-While-Revalidate (SWR)**: Instantly loads recent match catalogs from `localStorage` (`streamnaro_cached_matches_v1`), completely eliminating cold-boot loading delays.
+- **Stale-While-Revalidate (SWR)**: Instantly loads recent match catalogs from `localStorage` (`streamzone_cached_matches_v2`), completely eliminating cold-boot loading delays.
 - **Silent Background Sync**: Silently queries the backend for updated fixtures and server availability, maintaining a non-intrusive live sync indicator (`● Live (Synced)`).
 
 ---

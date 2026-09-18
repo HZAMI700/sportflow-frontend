@@ -1,5 +1,5 @@
 /* ==========================================================================
-   STREAM NARO — PRODUCTION DESIGN SYSTEM
+   StreamZone — PRODUCTION DESIGN SYSTEM
    Theme: Fantasy-Black / Deep Space with Precision Cyan/Teal Accents
    ========================================================================== */
 
@@ -24,7 +24,7 @@
   --text-muted: #8e95a5;
   --text-dim: #646b7b;
 
-  /* STREAM NARO Signature Accents */
+  /* StreamZone Signature Accents */
   --accent-cyan: #00f0ff;
   --accent-cyan-hover: #38bdf8;
   --accent-cyan-dim: #0284c7;
@@ -1243,6 +1243,201 @@ body {
   background: var(--accent-cyan);
   color: #050608;
   border-color: var(--accent-cyan);
+}
+
+/* ─── 9.5. Enhanced Category Header Card Banner (Matches User Design) ────── */
+.category-header-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.35rem 2rem 1.35rem 2.2rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #0d121c 0%, #090c13 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(0, 240, 255, 0.08);
+  overflow: hidden;
+  min-height: 90px;
+}
+
+[data-theme="light"] .category-header-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.08);
+}
+
+.category-header-card.hidden {
+  display: none !important;
+}
+
+/* Electric Cyan Vertical Accent Bar on far left edge */
+.category-banner-accent-bar {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 5px;
+  background: linear-gradient(180deg, #00f0ff 0%, #0284c7 100%);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.7), 0 0 24px rgba(0, 240, 255, 0.3);
+}
+
+.category-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  z-index: 2;
+}
+
+.category-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: var(--transition-smooth);
+}
+
+[data-theme="light"] .category-icon-box {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.category-icon-box:hover {
+  transform: scale(1.05);
+  border-color: var(--accent-cyan);
+}
+
+.category-hero-icon {
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+}
+
+.category-info-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.category-banner-heading {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.category-banner-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.category-stats-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* Glass Live Pill */
+.cat-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1.15rem;
+  border-radius: var(--radius-capsule);
+  backdrop-filter: blur(10px);
+  transition: var(--transition-micro);
+}
+
+[data-theme="light"] .cat-live-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.cat-live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: pulse-live 1.8s infinite;
+}
+
+.cat-live-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #f87171;
+  text-transform: uppercase;
+}
+
+/* Vertical Divider */
+.cat-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .cat-stat-divider {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Total Matches Group */
+.cat-count-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.cat-count-number {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.cat-count-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Responsive adjustment for Mobile */
+@media (max-width: 640px) {
+  .category-header-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.2rem 1.2rem 1.2rem 1.5rem;
+    gap: 1rem;
+  }
+  .category-banner-accent-bar {
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+  }
+  .category-banner-heading {
+    font-size: 1.28rem;
+  }
+  .category-stats-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 /* ─── 10. Content Row Sections & Stream Cards ────────────────────────────── */

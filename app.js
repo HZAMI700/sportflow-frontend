@@ -1,5 +1,5 @@
 /**
- * app.js — STREAM NARO Production Application Engine
+ * app.js — StreamZone Production Application Engine
  *
  * Core Subsystems:
  *   1. Intelligent Stream Selection & Auto-Recovery Engine (Anti-Lag, Pre-Caching)
@@ -175,9 +175,12 @@
 
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
   const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
-  const STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v2';
-  const STORAGE_THEME_KEY = 'streamnaro_theme';
-  const STORAGE_FAVORITES_KEY = 'streamnaro_favorites';
+  const STORAGE_CACHE_KEY = 'streamzone_cached_matches_v2';
+  const STORAGE_THEME_KEY = 'streamzone_theme';
+  const STORAGE_FAVORITES_KEY = 'streamzone_favorites';
+  const LEGACY_STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v2';
+  const LEGACY_STORAGE_THEME_KEY = 'streamnaro_theme';
+  const LEGACY_STORAGE_FAVORITES_KEY = 'streamnaro_favorites';
   const MAX_RETRY_FALLBACKS = 4;
 
   // Resolve API Base without exposing controls or tokens in client UI
@@ -276,7 +279,7 @@
 
   let favorites = [];
   try {
-    favorites = JSON.parse(localStorage.getItem(STORAGE_FAVORITES_KEY) || '[]');
+    favorites = JSON.parse(localStorage.getItem(STORAGE_FAVORITES_KEY) || localStorage.getItem(LEGACY_STORAGE_FAVORITES_KEY) || '[]');
   } catch (_) {
     favorites = [];
   }
@@ -295,24 +298,24 @@
 
   // ─── Category Route Mapping ──────────────────────────────────────────────────
   const ROUTE_CATEGORY_MAP = {
-    'ufc-streams': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
-    'ufc': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
-    'mma': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — STREAM NARO' },
-    'football': { category: 'football', tab: 'all', title: 'Live Football Streams — STREAM NARO' },
-    'soccer': { category: 'football', tab: 'all', title: 'Live Football Streams — STREAM NARO' },
-    'basketball': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — STREAM NARO' },
-    'nba': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — STREAM NARO' },
-    'tennis': { category: 'tennis', tab: 'all', title: 'Live Tennis Streams — STREAM NARO' },
-    'motorsport': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — STREAM NARO' },
-    'f1': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — STREAM NARO' },
-    'cricket': { category: 'cricket', tab: 'all', title: 'Live Cricket Streams — STREAM NARO' },
-    'hockey': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — STREAM NARO' },
-    'nhl': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — STREAM NARO' },
-    '247-tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — STREAM NARO' },
-    'tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — STREAM NARO' },
-    'live': { category: 'all', tab: 'live', title: 'Live Now Sports Broadcasts — STREAM NARO' },
-    'schedule': { category: 'all', tab: 'upcoming', title: 'Upcoming Sports Schedule — STREAM NARO' },
-    'favorites': { category: 'all', tab: 'favorites', title: 'Your Favorite Streams — STREAM NARO' }
+    'ufc-streams': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — StreamZone' },
+    'ufc': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — StreamZone' },
+    'mma': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — StreamZone' },
+    'football': { category: 'football', tab: 'all', title: 'Live Football Streams — StreamZone' },
+    'soccer': { category: 'football', tab: 'all', title: 'Live Football Streams — StreamZone' },
+    'basketball': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — StreamZone' },
+    'nba': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — StreamZone' },
+    'tennis': { category: 'tennis', tab: 'all', title: 'Live Tennis Streams — StreamZone' },
+    'motorsport': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — StreamZone' },
+    'f1': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — StreamZone' },
+    'cricket': { category: 'cricket', tab: 'all', title: 'Live Cricket Streams — StreamZone' },
+    'hockey': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — StreamZone' },
+    'nhl': { category: 'hockey', tab: 'all', title: 'Live Hockey & NHL Streams — StreamZone' },
+    '247-tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — StreamZone' },
+    'tv': { category: 'networks', tab: 'networks', title: '24/7 Sports TV Channels — StreamZone' },
+    'live': { category: 'all', tab: 'live', title: 'Live Now Sports Broadcasts — StreamZone' },
+    'schedule': { category: 'all', tab: 'upcoming', title: 'Upcoming Sports Schedule — StreamZone' },
+    'favorites': { category: 'all', tab: 'favorites', title: 'Your Favorite Streams — StreamZone' }
   };
 
   // ─── Smart Match Thumbnail Generator (Cinema-Grade SVG Fallback) ────────────
@@ -353,6 +356,44 @@
     };
     if (map[c]) return map[c];
     return c.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+  }
+
+  // Pure category matcher that guarantees no cross-sport pollution (e.g. American Football in Soccer)
+  function isMatchInCategory(match, targetCat) {
+    if (!match || !targetCat) return false;
+    if (targetCat === 'all') return true;
+    const mCat = (match.category || '').toLowerCase().trim();
+
+    if (targetCat === 'networks') {
+      return match.is247 === true || mCat === 'networks' || mCat === 'tv';
+    }
+    // Specific sports must not include 24/7 channels unless requested
+    if (targetCat === 'football' || targetCat === 'soccer') {
+      // Must NOT match american football
+      return (mCat === 'football' || mCat === 'soccer') && !mCat.includes('american') && !mCat.includes('nfl');
+    }
+    if (targetCat === 'american_football' || targetCat === 'nfl') {
+      return mCat === 'american_football' || mCat === 'nfl';
+    }
+    if (targetCat === 'basketball' || targetCat === 'nba') {
+      return mCat === 'basketball' || mCat === 'nba' || mCat === 'wnba';
+    }
+    if (targetCat === 'mma' || targetCat === 'ufc') {
+      return mCat === 'mma' || mCat === 'ufc' || mCat === 'boxing' || mCat === 'fighting';
+    }
+    if (targetCat === 'motorsport' || targetCat === 'f1') {
+      return mCat === 'motorsport' || mCat === 'f1' || mCat === 'racing' || mCat === 'nascar';
+    }
+    if (targetCat === 'tennis') {
+      return mCat === 'tennis';
+    }
+    if (targetCat === 'cricket') {
+      return mCat === 'cricket';
+    }
+    if (targetCat === 'hockey' || targetCat === 'nhl') {
+      return mCat === 'hockey' || mCat === 'nhl';
+    }
+    return mCat === targetCat || mCat.startsWith(targetCat);
   }
 
   function isValidMatchItem(item) {
@@ -497,6 +538,7 @@
   let serverPillButtons;
   let liveStreamsGrid, liveCountBadge, upcomingStreamsGrid, upcomingCountBadge;
   let networksStreamsGrid, matchesGrid, catalogHeading, catalogCountPill, sortSelect;
+  let liveSection, upcomingSection, networksSection, catalogSection;
   let loadMoreContainer, loadMoreBtn, toastContainer;
 
   // ─── Initialization ─────────────────────────────────────────────────────────
@@ -611,6 +653,11 @@
     loadMoreContainer = document.getElementById('load-more-container');
     loadMoreBtn = document.getElementById('load-more-btn');
     toastContainer = document.getElementById('toast-container');
+
+    liveSection = document.getElementById('live-section');
+    upcomingSection = document.getElementById('upcoming-section');
+    networksSection = document.getElementById('networks-section');
+    catalogSection = document.getElementById('catalog-section');
   }
 
   // ─── Theme Management ────────────────────────────────────────────────────────
@@ -689,7 +736,7 @@
     } else {
       activeCategory = 'all';
       activeTab = 'all';
-      document.title = 'STREAM NARO — Premium Live Sports Streaming';
+      document.title = 'StreamZone — Premium Live Sports Streaming';
       syncCategoryPillActive('all');
       syncSidebarActive();
       syncDockActive();
@@ -716,7 +763,7 @@
         window.history.pushState(null, '', `/${slug}`);
       } catch (_) {}
     } else {
-      document.title = 'STREAM NARO — Premium Live Sports Streaming';
+      document.title = 'StreamZone — Premium Live Sports Streaming';
       try {
         window.history.pushState(null, '', '/');
       } catch (_) {}
@@ -743,7 +790,7 @@
     try {
       window.history.pushState(null, '', '/');
     } catch (_) {}
-    document.title = 'STREAM NARO — Premium Live Sports Streaming';
+    document.title = 'StreamZone — Premium Live Sports Streaming';
     renderAllSections();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1362,7 +1409,9 @@
   function renderAllSections() {
     queueRender(() => {
       updateCategoryBanner();
-      renderHeroSpotlight();
+      if (activeCategory === 'all') {
+        renderHeroSpotlight();
+      }
       renderQuickStreams();
       renderLiveGrid();
       renderUpcomingGrid();
@@ -1380,6 +1429,7 @@
       return;
     }
 
+    // Inside category view: hide top hero spotlight card completely and display enhanced category banner
     categoryHeaderBanner.classList.remove('hidden');
     if (heroSpotlight) heroSpotlight.classList.add('hidden');
 
@@ -1400,23 +1450,35 @@
       tennis: 'Tennis',
       cricket: 'Cricket',
       motorsport: 'Motorsport & F1',
-      mma: 'Combat & MMA / UFC',
+      mma: 'Combat Sports & UFC',
       hockey: 'Ice Hockey',
       networks: '24/7 Sports TV'
     };
 
-    const catMatches = allMatches.filter(m => {
-      if (activeCategory === 'networks') return m.is247 || m.category === 'networks';
-      return m.category.includes(activeCategory);
-    });
+    const catDescs = {
+      football: 'All live streams and upcoming matches in one place',
+      basketball: 'NBA, EuroLeague, and global live basketball streams',
+      tennis: 'ATP, WTA, and Grand Slam live championship matches',
+      cricket: 'IPL, ICC, and international live cricket streams',
+      motorsport: 'Formula 1, MotoGP, NASCAR, and rally racing streams',
+      mma: 'UFC, MMA, Boxing, and PPV combat sports fixtures',
+      hockey: 'NHL, international hockey, and championship streams',
+      networks: 'Continuous sports network broadcasts live around the clock'
+    };
 
-    const liveCount = catMatches.filter(m => m.isLive).length;
+    const catMatches = allMatches.filter(m => isMatchInCategory(m, activeCategory));
+    const liveCount = catMatches.filter(m => m.isLive && !m.is247).length;
 
     if (catBannerIcon) catBannerIcon.textContent = catIcons[activeCategory] || '🏆';
     if (catBannerTitle) catBannerTitle.textContent = `${catNames[activeCategory] || activeCategory.toUpperCase()} Fixtures`;
-    if (catBannerDesc) catBannerDesc.textContent = `All live streams and upcoming ${catNames[activeCategory] || activeCategory} match schedules`;
-    if (catLiveStat) catLiveStat.textContent = `● ${liveCount} Live Now`;
-    if (catTotalStat) catTotalStat.textContent = `${catMatches.length} Total Matches`;
+    if (catBannerDesc) catBannerDesc.textContent = catDescs[activeCategory] || `All live streams and upcoming ${catNames[activeCategory] || activeCategory} match schedules`;
+    
+    if (catLiveStat) {
+      catLiveStat.textContent = liveCount > 0 ? `${liveCount} LIVE MATCHES` : 'LIVE MATCHES';
+    }
+    if (catTotalStat) {
+      catTotalStat.textContent = String(catMatches.length);
+    }
   }
 
   function renderHeroSpotlight() {
@@ -1455,25 +1517,29 @@
       quickStreamsList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-dim); padding:0.5rem;">Connecting live streams...</p>';
       return;
     }
-    const liveMatches = allMatches.filter(m => m.isLive).slice(0, 8);
+    let liveMatches = allMatches.filter(m => m.isLive && !m.is247);
+    if (activeCategory !== 'all') {
+      liveMatches = liveMatches.filter(m => isMatchInCategory(m, activeCategory));
+    }
+    const sliced = liveMatches.slice(0, 8);
 
     if (quickCountPill) {
       quickCountPill.textContent = `${liveMatches.length} Live`;
     }
 
-    if (!liveMatches.length) {
+    if (!sliced.length) {
       quickStreamsList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-dim); padding:0.5rem;">No live matches right now.</p>';
       return;
     }
 
-    quickStreamsList.innerHTML = liveMatches.map(m => {
+    quickStreamsList.innerHTML = sliced.map(m => {
       const smartPoster = createSmartThumbnailSvg(m);
       const displayPoster = m.poster && !m.poster.includes('placeholder') ? m.poster : smartPoster;
       return `
         <div class="quick-item-card" 
-             onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
-             ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
-             onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+             onmouseenter="window.STREAMZONE.prefetch('${escapeHtml(m.cleanId)}')" 
+             ontouchstart="window.STREAMZONE.prefetch('${escapeHtml(m.cleanId)}')"
+             onclick="window.STREAMZONE.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
           <img class="quick-item-poster" src="${escapeHtml(displayPoster)}" alt="" loading="lazy" onerror="this.onerror=null; this.src='${smartPoster}';">
           <div class="quick-item-info">
             <span class="quick-item-title">${escapeHtml(m.title)}</span>
@@ -1485,16 +1551,25 @@
   }
 
   function renderLiveGrid() {
-    if (!liveStreamsGrid) return;
+    if (!liveStreamsGrid || !liveSection) return;
     if (allMatches.length === 0) {
+      liveSection.classList.remove('hidden');
       if (liveCountBadge) liveCountBadge.textContent = 'Syncing...';
       liveStreamsGrid.innerHTML = renderSkeletonCards(4);
       return;
     }
     let list = allMatches.filter(m => m.isLive && !m.is247);
     if (activeCategory !== 'all') {
-      list = list.filter(m => m.category.includes(activeCategory));
+      list = list.filter(m => isMatchInCategory(m, activeCategory));
     }
+
+    // Hide live section completely if current category has zero live matches
+    if (activeCategory !== 'all' && list.length === 0) {
+      liveSection.classList.add('hidden');
+      return;
+    }
+
+    liveSection.classList.remove('hidden');
     const sliced = list.slice(0, 12);
 
     if (liveCountBadge) {
@@ -1510,16 +1585,25 @@
   }
 
   function renderUpcomingGrid() {
-    if (!upcomingStreamsGrid) return;
+    if (!upcomingStreamsGrid || !upcomingSection) return;
     if (allMatches.length === 0) {
+      upcomingSection.classList.remove('hidden');
       if (upcomingCountBadge) upcomingCountBadge.textContent = 'Syncing...';
       upcomingStreamsGrid.innerHTML = renderSkeletonCards(4);
       return;
     }
     let list = allMatches.filter(m => !m.isLive && !m.is247);
     if (activeCategory !== 'all') {
-      list = list.filter(m => m.category.includes(activeCategory));
+      list = list.filter(m => isMatchInCategory(m, activeCategory));
     }
+
+    // Hide upcoming section if no matches found in category
+    if (activeCategory !== 'all' && list.length === 0) {
+      upcomingSection.classList.add('hidden');
+      return;
+    }
+
+    upcomingSection.classList.remove('hidden');
     const sliced = list.slice(0, 12);
 
     if (upcomingCountBadge) {
@@ -1535,6 +1619,15 @@
   }
 
   function renderNetworksGrid() {
+    if (!networksSection) return;
+
+    // In specific sport category, completely hide the 24/7 channels section
+    if (activeCategory !== 'all' && activeCategory !== 'networks') {
+      networksSection.classList.add('hidden');
+      return;
+    }
+
+    networksSection.classList.remove('hidden');
     if (!networksStreamsGrid) return;
     const list = allMatches.filter(m => m.is247).slice(0, 12);
 
@@ -1556,9 +1649,9 @@
     return `
       <div class="stream-card" 
            data-clean-id="${escapeHtml(m.cleanId)}"
-           onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
-           ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
-           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}')">
+           onmouseenter="window.STREAMZONE.prefetch('${escapeHtml(m.cleanId)}')" 
+           ontouchstart="window.STREAMZONE.prefetch('${escapeHtml(m.cleanId)}')"
+           onclick="window.STREAMZONE.watch('${escapeHtml(m.cleanId)}')">
         
         <div class="stream-card-media">
           <img class="stream-card-backdrop" 
@@ -1573,7 +1666,7 @@
             <button class="card-star-btn ${isFav ? 'active' : ''}" 
                     title="${isFav ? 'Remove Favorite' : 'Save Favorite'}" 
                     aria-label="Favorite"
-                    onclick="event.stopPropagation(); window.STREAM_NARO.toggleFavorite('${escapeHtml(m.cleanId)}');">
+                    onclick="event.stopPropagation(); window.STREAMZONE.toggleFavorite('${escapeHtml(m.cleanId)}');">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
@@ -1615,12 +1708,9 @@
       list = list.filter(m => favorites.includes(m.cleanId));
     }
 
-    // Category Filter
+    // Category Filter (Strict sport matching)
     if (activeCategory !== 'all') {
-      list = list.filter(m => {
-        if (activeCategory === 'networks') return m.is247 || m.category === 'networks';
-        return m.category.includes(activeCategory);
-      });
+      list = list.filter(m => isMatchInCategory(m, activeCategory));
     }
 
     // Smart Search Multi-Token Ranking
@@ -1644,9 +1734,19 @@
       catalogCountPill.textContent = `${list.length} Matches`;
     }
     if (catalogHeading) {
+      const catNames = {
+        football: 'Football',
+        basketball: 'Basketball',
+        tennis: 'Tennis',
+        cricket: 'Cricket',
+        motorsport: 'Motorsport & F1',
+        mma: 'Combat Sports & UFC',
+        hockey: 'Ice Hockey',
+        networks: '24/7 TV Channels'
+      };
       catalogHeading.textContent = activeCategory !== 'all'
-        ? `${activeCategory.toUpperCase()} Fixtures`
-        : (activeTab === 'live' ? 'Live Matches' : 'All Fixtures');
+        ? `${catNames[activeCategory] || activeCategory.toUpperCase()} Fixtures`
+        : (activeTab === 'live' ? 'Live Matches' : (activeTab === 'upcoming' ? 'Upcoming Fixtures' : (activeTab === 'networks' ? '24/7 Sports TV' : (activeTab === 'favorites' ? 'Favorite Streams' : 'All Sports Fixtures'))));
     }
 
     if (!list.length) {
@@ -2410,7 +2510,7 @@
   }
 
   // ─── Public API for Inline DOM Handlers ─────────────────────────────────────
-  window.STREAM_NARO = {
+  window.STREAMZONE = {
     watch: handleWatchStream,
     prefetch: prefetchStreamSources,
     selectServer: selectServer,
@@ -2420,7 +2520,8 @@
     closeWatch: closeWatchView
   };
 
-  // Legacy fallback alias
+  // Backwards-compatible alias for existing markup and legacy integrations
+  window.STREAM_NARO = window.STREAMZONE;
   window.handleWatchClick = handleWatchStream;
 
 })();
