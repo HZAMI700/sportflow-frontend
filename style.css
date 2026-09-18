@@ -2179,3 +2179,26 @@ body {
 .skeleton-line.meta {
   width: 45%;
 }
+
+/* ─── 18. ArtPlayer Mini Player & Close Button Hardening ─────────────────── */
+.art-mini-close,
+.art-icon-close,
+.art-mini-header-close {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  opacity: 0.9 !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+}
+
+.art-mini-close:hover,
+.art-icon-close:hover {
+  opacity: 1 !important;
+  transform: scale(1.15) !important;
+}
+
+.art-video-player.art-mini {
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px var(--border-subtle) !important;
+}

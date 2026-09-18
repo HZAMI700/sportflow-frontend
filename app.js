@@ -844,10 +844,12 @@
 
     let escaped = escapeHtml(text);
     tokens.forEach(token => {
-      const clean = token.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\  // ─── Event Listeners ────────────────────────────────────────────────────────');
+      const clean = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (clean && clean.length >= 2) {
-        const regex = new RegExp(`(${clean})`, 'gi');
-        escaped = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+        try {
+          const regex = new RegExp(`(${clean})`, 'gi');
+          escaped = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+        } catch (_) {}
       }
     });
     return escaped;
@@ -897,7 +899,7 @@
              data-index="${idx}"
              data-clean-id="${escapeHtml(m.cleanId)}"
              onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
-             onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}'); document.getElementById('search-popover')?.classList.add('hidden');">
+             onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}'); document.getElementById('search-popover')?.classList.add('hidden');">
           <img class="search-result-thumb" src="${escapeHtml(displayPoster)}" alt="" loading="lazy" onerror="this.onerror=null; this.src='${smartPoster}';">
           <div class="search-result-info">
             <span class="search-result-title">${highlightedTitle}</span>
@@ -1556,7 +1558,7 @@
            data-clean-id="${escapeHtml(m.cleanId)}"
            onmouseenter="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')" 
            ontouchstart="window.STREAM_NARO.prefetch('${escapeHtml(m.cleanId)}')"
-           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}', '${escapeHtml(m.title.replace(/'/g, "\\'"))}', '${escapeHtml((m.league || m.category).replace(/'/g, "\\'"))}')">
+           onclick="window.STREAM_NARO.watch('${escapeHtml(m.cleanId)}')">
         
         <div class="stream-card-media">
           <img class="stream-card-backdrop" 
@@ -1709,7 +1711,17 @@
   }
 
   // ─── Dedicated Watch Stream Page View (Zero Sliders, Pure Server 1, 2) ───────
-  async function handleWatchStream(cleanId, title, league = 'Sports') {
+  async function handleWatchStream(cleanId, title, league) {
+    if (!title || !league) {
+      const found = allMatches.find(m => m.cleanId === cleanId);
+      if (found) {
+        if (!title) title = found.title;
+        if (!league) league = found.league || formatCategoryLabel(found.category);
+      }
+    }
+    title = title || 'Live Sports';
+    league = league || 'Sports';
+
     activeMatch = { cleanId, title, league };
 
     // 1. Switch views: hide home view, show dedicated watch page
@@ -2237,11 +2249,18 @@
         aspectRatio: true,
         miniProgressBar: true,
         autoSize: true,
-        autoMini: true
+        autoMini: false
       });
 
       artInstance.on('ready', () => {
         showPlayerOverlay(false);
+      });
+
+      // Ensure mini player can always be dismissed immediately by the user
+      artInstance.on('mini', (state) => {
+        if (!state && artInstance) {
+          try { artInstance.option.autoMini = false; } catch (_) {}
+        }
       });
 
       // Quick Stall Watchdog (6 seconds without forward progress)
@@ -2318,6 +2337,23 @@
       artInstance = null;
     }
   }
+
+  // Global click interception for ArtPlayer mini-player close button ('x')
+  document.addEventListener('click', (e) => {
+    const closeBtn = e.target.closest && e.target.closest('.art-mini-close, .art-icon-close, [data-art="mini-close"]');
+    if (closeBtn && artInstance) {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        artInstance.mini = false;
+        artInstance.option.autoMini = false;
+      } catch (_) {}
+      const miniEl = document.querySelector('.art-mini, .art-video-player.art-mini');
+      if (miniEl) {
+        miniEl.classList.remove('art-mini');
+      }
+    }
+  }, true);
 
   function closePlayer() {
     closeWatchView(true);
