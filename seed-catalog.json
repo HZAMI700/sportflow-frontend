@@ -4,14 +4,14 @@
     "type": "tv",
     "name": "📺 NFL Streams Schedule",
     "genres": [
-      "BASKETBALL"
+      "AMERICAN_FOOTBALL"
     ],
     "poster": "http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316",
     "posterShape": "landscape",
     "background": "http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316",
     "logo": null,
     "releaseInfo": "24/7",
-    "description": "📅 Category: BASKETBALL\n⏰ Status: 24/7 Live Network",
+    "description": "📅 Category: AMERICAN_FOOTBALL\n⏰ Status: 24/7 Live Network",
     "cast": [],
     "league": null,
     "date": null,

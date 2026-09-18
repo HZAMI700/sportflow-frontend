@@ -1060,6 +1060,10 @@ body {
   background: #0b0e16;
 }
 
+.hero-spotlight.hidden {
+  display: none !important;
+}
+
 .hero-backdrop {
   position: absolute;
   top: 0;
@@ -1445,6 +1449,15 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.content-row-section.hidden {
+  display: none !important;
+}
+
+/* Universal Hidden Utility */
+.hidden {
+  display: none !important;
 }
 
 .row-header {

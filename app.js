@@ -171,7 +171,7 @@
   }
 
   // ─── Instant 0ms Cold-Start Built-in Catalog Seed ────────────────────────
-  const BUILTIN_SEEDED_MATCHES = [{"id":"nuvio_sport_spk_ppv-nfl-network","cleanId":"spk_ppv-nfl-network","title":"NFL Network","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmQggAxqWwgqIGMBokQIUiETqpwkHphaRSmSClYQF9bMXKaU6SnIRQYQSKbZ6YQsCS5HIXJuThdhOScCYHhyN2AXSSA.webp&text=NFL%20Network&color=0369a1"},{"id":"nuvio_sport_sf_rb-salzburg-vs-levski-sofia","cleanId":"sf_rb-salzburg-vs-levski-sofia","title":"RB Salzburg @ Levski Sofia","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VHC1mE%2BIbiB0h9IFCEQ6ShkDALAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp&text=RB%20Salzburg%0Avs%0ALevski%20Sofia&color=10b981"},{"id":"nuvio_sport_sf_tsg-hoffenheim-vs-ofi-crete","cleanId":"sf_tsg-hoffenheim-vs-ofi-crete","title":"TSG Hoffenheim @ OFI Crete","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VGJRApiMgAwhuIPiBPGUIRMZImjBYEgp9hs%2BijArtbd%2BXpZZ2plowdzFRCCA.webp&text=TSG%20Hoffenheim%0Avs%0AOFI%20Crete&color=10b981"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"basketball","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_sf_connecticut-sun-vs-atlanta-dream","cleanId":"sf_connecticut-sun-vs-atlanta-dream","title":"Atlanta Dream vs Connecticut Sun","category":"basketball","league":"WNBA","date":1789687800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rNCDKJeKSCG4gpm-SBSmQFiMYlMkFPsNn1dKlFzBaiWWW6a0wHmKiEEA.webp&text=Connecticut%20Sun%0Avs%0AAtlanta%20Dream&color=f97316"},{"id":"nuvio_sport_sf_washington-mystics-vs-chicago-sky","cleanId":"sf_washington-mystics-vs-chicago-sky","title":"Chicago Sky vs Washington Mystics","category":"basketball","league":"WNBA","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aEChACwdECS0huIKXsMbzIEBGMaCwJBT7DZ9FGBUou78vSyzPTLRg7mKiEEA.webp&text=Washington%20Mystics%0Avs%0AChicago%20Sky&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_live-event_2026-truck-playoff-at-bristol-live-stream","cleanId":"spk_live-event_2026-truck-playoff-at-bristol-live-stream","title":"2026 Truck Playoff at Bristol","category":"motorsport","league":"","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=2026%20Truck%20Playoff%20at%20Bristol&color=ef4444"},{"id":"nuvio_sport_spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","cleanId":"spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","title":"Nascar Cup Series 2026 - Bass Pro Shops Night Race","category":"motorsport","league":"","date":1789807500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=Nascar%20Cup%20Series%202026%0A-%0ABass%20Pro%20Shops%20Night%20Race&color=ef4444"},{"id":"nuvio_sport_spk_ppv-tna-impact","cleanId":"spk_ppv-tna-impact","title":"TNA Impact","category":"mma","league":"","date":1789693200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IAMYgQwKiBJSQWUqRCyschSmwTVM3cODxgEZcJAwQKOXqtlE60eRMChIptnphCwJLnFahMG5OEwMyLQJDciDjZQggA.webp&text=TNA%20Impact&color=dc2626"},{"id":"nuvio_sport_spk_ppv-wwe-friday-night-smackdown","cleanId":"spk_ppv-wwe-friday-night-smackdown","title":"WWE Friday Night Smackdown","category":"mma","league":"","date":1789776000000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE5MZRAGMQ0rCBgiQVacBqJEKELNnjSIRCU1yRweCpAal0idkV6U5CKDCDjBbPTCFgSXBPtDnVkdhUno3UzBnYEcyCCA.webp&text=WWE%20Friday%20Night%20Smackdown&color=dc2626"},{"id":"nuvio_sport_spk_live-event_john-hedges-vs-pat-brown-live-stream","cleanId":"spk_live-event_john-hedges-vs-pat-brown-live-stream","title":"John Hedges vs Pat Brown","category":"mma","league":"","date":1789840800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=John%20Hedges%0Avs%0APat%20Brown&color=dc2626"},{"id":"nuvio_sport_spk_ppv-fox-cricket","cleanId":"spk_ppv-fox-cricket","title":"Fox Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMhGA0SIYVOCIQpcSBoQVKbMEnr1AYy01hIGFNXKUIS9JUlN-MIJFMt9wsCS49moY9aS5Mk0CBXJHbVJtIA.webp&text=Fox%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_admin-willow-cricket","cleanId":"spk_admin-willow-cricket","title":"Willow Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ2C4%2BcBjYAUwRQFYxi8xg61rLoATdMFSCiUME-YAE5gFbLnrlGUGtB5lBFRvPqVgSWMEJ58fBJCGlxo%2BBP5zgEIA.webp&text=Willow%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_england-cricket-vs-sri-lanka-cricket-2524747","cleanId":"spk_england-cricket-vs-sri-lanka-cricket-2524747","title":"England Cricket vs Sri Lanka Cricket","category":"cricket","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rMNhAhgABkggIIbiD5aQiUyVzWcCpkgp9hs%2BijAqUXd%2BXpZZnploNUXoQoA.webp&text=England%20Cricket%0Avs%0ASri%20Lanka%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_eisb-ren-berlin-vs-straubing-tigers-2518140","cleanId":"spk_eisb-ren-berlin-vs-straubing-tigers-2518140","title":"Eisbären Berlin vs Straubing Tigers","category":"hockey","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLGDIhgMtCAghuIPiBLH9IGCCmWQiKQWBIKfYbPopNbFF03l6WLI%2BTLRgXvSiEEA.webp&text=Eisb%C3%A4ren%20Berlin%0Avs%0AStraubing%20Tigers&color=06b6d4"},{"id":"nuvio_sport_spk_schwenninger-vs-frankfurt-lowen-hockey-433611","cleanId":"spk_schwenninger-vs-frankfurt-lowen-hockey-433611","title":"Schwenninger vs Frankfurt Lowen","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohsi%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Schwenninger%0Avs%0AFrankfurt%20Lowen&color=06b6d4"},{"id":"nuvio_sport_spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","cleanId":"spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","title":"Krefeld Pinguine vs Bremerhaven","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohs8%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Krefeld%20Pinguine%0Avs%0ABremerhaven&color=06b6d4"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"basketball","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_ppv-fox-league","cleanId":"spk_ppv-fox-league","title":"Fox League","category":"rugby","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmUQQQKEInjAqICNlIgliDWqziQWYCpolxwRAGMT%2B6cOVre5FQKEimqlOULAkuM%2B6FhuThVhUnoCU3IAg1CIIA.webp&text=Fox%20League&color=8b5cf6"},{"id":"nuvio_sport_wf_23_6Rktf6TF","cleanId":"wf_23_6Rktf6TF","title":"DP WORLD TOUR: BMW PGA Championship (United Kingdom)","category":"golf","league":"","date":1789624800000,"isLive":true,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fapi.watchfooty.st%2Fapi%2Fv1%2Fposter%2FPFZfk5TG26PM1L9mqMVZjaeMMtx9SYrBmuZMVRqRHDjwbw9vRtBQ66x7Yqptm4Cy7Tm87sYV9jsEXCEcV8SBey9Bd7ncM1Hoi1X1czAxEMKuxXQChtBgzBpBpTRKoPN74UBfo2nYsRYZWKP6BaxVqDZyzwwmuwKUw3rrpvfhTgfPVViCPw2EgyGp6ibh6Tnrgce7T2Laij4MoGFtnix9i33geRgwMyFQiAPejCCAWWj7Ux5vmoHmi19oRFRhqJnKG1p2LZCT4RuVkLufvspbD3cikTzyngMXQpaKwTQa3dZ1fhwQT&text=GOLF&color=22c55e"},{"id":"nuvio_sport_sf_milwaukee-brewers-vs-pittsburgh-pirates","cleanId":"sf_milwaukee-brewers-vs-pittsburgh-pirates","title":"Brewers @ Pirates","category":"baseball","league":"MLB","date":1789662900000,"isLive":false,"is247":false,"popular":true,"sourcesCount":4,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLKRBQSIPiH3dd%2B4yi0hEMXLgLAkFPsNn0UYFSi6vy9DaPdNaYK5iohBAA.webp&text=Milwaukee%20Brewers%0Avs%0APittsburgh%20Pirates&color=f43f5e"}];
+  const BUILTIN_SEEDED_MATCHES = [{"id":"nuvio_sport_spk_ppv-nfl-network","cleanId":"spk_ppv-nfl-network","title":"NFL Network","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmQggAxqWwgqIGMBokQIUiETqpwkHphaRSmSClYQF9bMXKaU6SnIRQYQSKbZ6YQsCS5HIXJuThdhOScCYHhyN2AXSSA.webp&text=NFL%20Network&color=0369a1"},{"id":"nuvio_sport_sf_rb-salzburg-vs-levski-sofia","cleanId":"sf_rb-salzburg-vs-levski-sofia","title":"RB Salzburg @ Levski Sofia","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VHC1mE%2BIbiB0h9IFCEQ6ShkDALAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp&text=RB%20Salzburg%0Avs%0ALevski%20Sofia&color=10b981"},{"id":"nuvio_sport_sf_tsg-hoffenheim-vs-ofi-crete","cleanId":"sf_tsg-hoffenheim-vs-ofi-crete","title":"TSG Hoffenheim @ OFI Crete","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VGJRApiMgAwhuIPiBPGUIRMZImjBYEgp9hs%2BijArtbd%2BXpZZ2plowdzFRCCA.webp&text=TSG%20Hoffenheim%0Avs%0AOFI%20Crete&color=10b981"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_sf_connecticut-sun-vs-atlanta-dream","cleanId":"sf_connecticut-sun-vs-atlanta-dream","title":"Atlanta Dream vs Connecticut Sun","category":"basketball","league":"WNBA","date":1789687800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rNCDKJeKSCG4gpm-SBSmQFiMYlMkFPsNn1dKlFzBaiWWW6a0wHmKiEEA.webp&text=Connecticut%20Sun%0Avs%0AAtlanta%20Dream&color=f97316"},{"id":"nuvio_sport_sf_washington-mystics-vs-chicago-sky","cleanId":"sf_washington-mystics-vs-chicago-sky","title":"Chicago Sky vs Washington Mystics","category":"basketball","league":"WNBA","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aEChACwdECS0huIKXsMbzIEBGMaCwJBT7DZ9FGBUou78vSyzPTLRg7mKiEEA.webp&text=Washington%20Mystics%0Avs%0AChicago%20Sky&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_live-event_2026-truck-playoff-at-bristol-live-stream","cleanId":"spk_live-event_2026-truck-playoff-at-bristol-live-stream","title":"2026 Truck Playoff at Bristol","category":"motorsport","league":"","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=2026%20Truck%20Playoff%20at%20Bristol&color=ef4444"},{"id":"nuvio_sport_spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","cleanId":"spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","title":"Nascar Cup Series 2026 - Bass Pro Shops Night Race","category":"motorsport","league":"","date":1789807500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=Nascar%20Cup%20Series%202026%0A-%0ABass%20Pro%20Shops%20Night%20Race&color=ef4444"},{"id":"nuvio_sport_spk_ppv-tna-impact","cleanId":"spk_ppv-tna-impact","title":"TNA Impact","category":"mma","league":"","date":1789693200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IAMYgQwKiBJSQWUqRCyschSmwTVM3cODxgEZcJAwQKOXqtlE60eRMChIptnphCwJLnFahMG5OEwMyLQJDciDjZQggA.webp&text=TNA%20Impact&color=dc2626"},{"id":"nuvio_sport_spk_ppv-wwe-friday-night-smackdown","cleanId":"spk_ppv-wwe-friday-night-smackdown","title":"WWE Friday Night Smackdown","category":"mma","league":"","date":1789776000000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE5MZRAGMQ0rCBgiQVacBqJEKELNnjSIRCU1yRweCpAal0idkV6U5CKDCDjBbPTCFgSXBPtDnVkdhUno3UzBnYEcyCCA.webp&text=WWE%20Friday%20Night%20Smackdown&color=dc2626"},{"id":"nuvio_sport_spk_live-event_john-hedges-vs-pat-brown-live-stream","cleanId":"spk_live-event_john-hedges-vs-pat-brown-live-stream","title":"John Hedges vs Pat Brown","category":"mma","league":"","date":1789840800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=John%20Hedges%0Avs%0APat%20Brown&color=dc2626"},{"id":"nuvio_sport_spk_ppv-fox-cricket","cleanId":"spk_ppv-fox-cricket","title":"Fox Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMhGA0SIYVOCIQpcSBoQVKbMEnr1AYy01hIGFNXKUIS9JUlN-MIJFMt9wsCS49moY9aS5Mk0CBXJHbVJtIA.webp&text=Fox%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_admin-willow-cricket","cleanId":"spk_admin-willow-cricket","title":"Willow Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ2C4%2BcBjYAUwRQFYxi8xg61rLoATdMFSCiUME-YAE5gFbLnrlGUGtB5lBFRvPqVgSWMEJ58fBJCGlxo%2BBP5zgEIA.webp&text=Willow%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_england-cricket-vs-sri-lanka-cricket-2524747","cleanId":"spk_england-cricket-vs-sri-lanka-cricket-2524747","title":"England Cricket vs Sri Lanka Cricket","category":"cricket","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rMNhAhgABkggIIbiD5aQiUyVzWcCpkgp9hs%2BijAqUXd%2BXpZZnploNUXoQoA.webp&text=England%20Cricket%0Avs%0ASri%20Lanka%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_eisb-ren-berlin-vs-straubing-tigers-2518140","cleanId":"spk_eisb-ren-berlin-vs-straubing-tigers-2518140","title":"Eisbären Berlin vs Straubing Tigers","category":"hockey","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLGDIhgMtCAghuIPiBLH9IGCCmWQiKQWBIKfYbPopNbFF03l6WLI%2BTLRgXvSiEEA.webp&text=Eisb%C3%A4ren%20Berlin%0Avs%0AStraubing%20Tigers&color=06b6d4"},{"id":"nuvio_sport_spk_schwenninger-vs-frankfurt-lowen-hockey-433611","cleanId":"spk_schwenninger-vs-frankfurt-lowen-hockey-433611","title":"Schwenninger vs Frankfurt Lowen","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohsi%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Schwenninger%0Avs%0AFrankfurt%20Lowen&color=06b6d4"},{"id":"nuvio_sport_spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","cleanId":"spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","title":"Krefeld Pinguine vs Bremerhaven","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohs8%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Krefeld%20Pinguine%0Avs%0ABremerhaven&color=06b6d4"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_ppv-fox-league","cleanId":"spk_ppv-fox-league","title":"Fox League","category":"rugby","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmUQQQKEInjAqICNlIgliDWqziQWYCpolxwRAGMT%2B6cOVre5FQKEimqlOULAkuM%2B6FhuThVhUnoCU3IAg1CIIA.webp&text=Fox%20League&color=8b5cf6"},{"id":"nuvio_sport_wf_23_6Rktf6TF","cleanId":"wf_23_6Rktf6TF","title":"DP WORLD TOUR: BMW PGA Championship (United Kingdom)","category":"golf","league":"","date":1789624800000,"isLive":true,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fapi.watchfooty.st%2Fapi%2Fv1%2Fposter%2FPFZfk5TG26PM1L9mqMVZjaeMMtx9SYrBmuZMVRqRHDjwbw9vRtBQ66x7Yqptm4Cy7Tm87sYV9jsEXCEcV8SBey9Bd7ncM1Hoi1X1czAxEMKuxXQChtBgzBpBpTRKoPN74UBfo2nYsRYZWKP6BaxVqDZyzwwmuwKUw3rrpvfhTgfPVViCPw2EgyGp6ibh6Tnrgce7T2Laij4MoGFtnix9i33geRgwMyFQiAPejCCAWWj7Ux5vmoHmi19oRFRhqJnKG1p2LZCT4RuVkLufvspbD3cikTzyngMXQpaKwTQa3dZ1fhwQT&text=GOLF&color=22c55e"},{"id":"nuvio_sport_sf_milwaukee-brewers-vs-pittsburgh-pirates","cleanId":"sf_milwaukee-brewers-vs-pittsburgh-pirates","title":"Brewers @ Pirates","category":"baseball","league":"MLB","date":1789662900000,"isLive":false,"is247":false,"popular":true,"sourcesCount":4,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLKRBQSIPiH3dd%2B4yi0hEMXLgLAkFPsNn0UYFSi6vy9DaPdNaYK5iohBAA.webp&text=Milwaukee%20Brewers%0Avs%0APittsburgh%20Pirates&color=f43f5e"}];
 
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
   const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
@@ -297,6 +297,7 @@
   const providerHealthScores = new Map();
 
   // ─── Category Route Mapping ──────────────────────────────────────────────────
+  // ─── Category Route Mapping ──────────────────────────────────────────────────
   const ROUTE_CATEGORY_MAP = {
     'ufc-streams': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — StreamZone' },
     'ufc': { category: 'mma', tab: 'all', title: 'Live UFC & MMA Streams — StreamZone' },
@@ -305,6 +306,10 @@
     'soccer': { category: 'football', tab: 'all', title: 'Live Football Streams — StreamZone' },
     'basketball': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — StreamZone' },
     'nba': { category: 'basketball', tab: 'all', title: 'Live Basketball & NBA Streams — StreamZone' },
+    'american-football': { category: 'american_football', tab: 'all', title: 'Live NFL & American Football Streams — StreamZone' },
+    'nfl': { category: 'american_football', tab: 'all', title: 'Live NFL & American Football Streams — StreamZone' },
+    'baseball': { category: 'baseball', tab: 'all', title: 'Live Baseball & MLB Streams — StreamZone' },
+    'mlb': { category: 'baseball', tab: 'all', title: 'Live Baseball & MLB Streams — StreamZone' },
     'tennis': { category: 'tennis', tab: 'all', title: 'Live Tennis Streams — StreamZone' },
     'motorsport': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — StreamZone' },
     'f1': { category: 'motorsport', tab: 'all', title: 'Live F1 & Motorsport Streams — StreamZone' },
@@ -358,31 +363,166 @@
     return c.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
   }
 
-  // Pure category matcher that guarantees no cross-sport pollution (e.g. American Football in Soccer)
+  // Robust Sport Category Normalizer (Prevents cross-sport contamination)
+  function normalizeSportCategory(item) {
+    if (!item) return 'other';
+    const rawCat = String((item.genres && item.genres[0]) || item.category || '').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    const title = String(item.name || item.title || '').toLowerCase();
+    const cleanId = String(item.cleanId || item.id || '').toLowerCase();
+    const league = String(item.league || '').toLowerCase();
+
+    // 1. AMERICAN FOOTBALL (NFL, NCAA football) — Priority check before football/soccer or basketball!
+    if (
+      title.includes('nfl') || cleanId.includes('nfl') ||
+      league.includes('nfl') || league.includes('ncaa division 1 football') ||
+      league.includes('college football') || league.includes('american football') ||
+      rawCat === 'american_football'
+    ) {
+      return 'american_football';
+    }
+
+    // 2. BASKETBALL (NBA, WNBA, EuroLeague, NCAA basketball)
+    if (
+      title.includes('nba') || cleanId.includes('nba') ||
+      title.includes('wnba') || cleanId.includes('wnba') ||
+      league.includes('nba') || league.includes('wnba') ||
+      league.includes('euroleague') || league.includes('eurocup') ||
+      league.includes('ncaa division 1 basketball') || league.includes('college basketball') ||
+      league.includes('basketball') ||
+      (rawCat === 'basketball' && !title.includes('nfl') && !cleanId.includes('nfl'))
+    ) {
+      return 'basketball';
+    }
+
+    // 3. COMBAT / MMA / UFC / BOXING / WWE
+    if (
+      title.includes('ufc') || cleanId.includes('ufc') ||
+      title.includes('mma') || cleanId.includes('mma') ||
+      title.includes('boxing') || league.includes('boxing') ||
+      title.includes('wwe') || cleanId.includes('wwe') ||
+      title.includes('tna') || cleanId.includes('tna') ||
+      league.includes('ufc') || league.includes('mma') ||
+      rawCat === 'mma' || rawCat === 'boxing'
+    ) {
+      return 'mma';
+    }
+
+    // 4. MOTORSPORT / F1 / NASCAR / MOTOGP
+    if (
+      title.includes('f1') || cleanId.includes('f1') ||
+      title.includes('formula 1') || league.includes('formula 1') ||
+      title.includes('nascar') || league.includes('nascar') ||
+      title.includes('motogp') || league.includes('motogp') ||
+      title.includes('rally') || league.includes('rally') ||
+      rawCat === 'motorsport' || rawCat === 'racing'
+    ) {
+      return 'motorsport';
+    }
+
+    // 5. TENNIS (ATP, WTA, Grand Slams)
+    if (
+      title.includes('tennis') || cleanId.includes('tennis') ||
+      league.includes('atp') || league.includes('wta') ||
+      league.includes('wimbledon') || league.includes('us open') ||
+      rawCat === 'tennis'
+    ) {
+      return 'tennis';
+    }
+
+    // 6. CRICKET (IPL, ICC, Big Bash)
+    if (
+      title.includes('cricket') || cleanId.includes('cricket') ||
+      league.includes('cricket') || league.includes('ipl') ||
+      league.includes('icc') || rawCat === 'cricket'
+    ) {
+      return 'cricket';
+    }
+
+    // 7. ICE HOCKEY (NHL, DEL)
+    if (
+      title.includes('nhl') || cleanId.includes('nhl') ||
+      title.includes('hockey') || league.includes('nhl') ||
+      rawCat === 'hockey'
+    ) {
+      return 'hockey';
+    }
+
+    // 8. BASEBALL (MLB)
+    if (
+      title.includes('mlb') || cleanId.includes('mlb') ||
+      title.includes('baseball') || league.includes('mlb') ||
+      rawCat === 'baseball'
+    ) {
+      return 'baseball';
+    }
+
+    // 9. RUGBY
+    if (
+      title.includes('rugby') || cleanId.includes('rugby') ||
+      league.includes('rugby') || rawCat === 'rugby'
+    ) {
+      return 'rugby';
+    }
+
+    // 10. DARTS
+    if (title.includes('darts') || cleanId.includes('darts') || rawCat === 'darts') {
+      return 'darts';
+    }
+
+    // 11. GOLF
+    if (title.includes('golf') || cleanId.includes('golf') || league.includes('pga') || league.includes('dp world tour') || rawCat === 'golf') {
+      return 'golf';
+    }
+
+    // 12. 24/7 TV / NETWORKS
+    if (item.is247 || rawCat === 'networks' || rawCat === 'tv' || title.includes('24/7') || cleanId.includes('247')) {
+      return 'networks';
+    }
+
+    // 13. SOCCER / FOOTBALL (Association Football)
+    if (
+      rawCat === 'football' || rawCat === 'soccer' ||
+      league.includes('premier league') || league.includes('la liga') ||
+      league.includes('serie a') || league.includes('bundesliga') ||
+      league.includes('ligue 1') || league.includes('champions league') ||
+      league.includes('europa') || league.includes('fifa') ||
+      league.includes('uefa') || league.includes('copa') ||
+      league.includes('mls') || league.includes('fa cup') ||
+      league.includes('carabao') || league.includes('eredivisie') ||
+      league.includes('brasileirao') || league.includes('primeira liga')
+    ) {
+      return 'football';
+    }
+
+    return rawCat || 'other';
+  }
+
+  // Pure category matcher that guarantees no cross-sport pollution (e.g. American Football in Soccer or Basketball)
   function isMatchInCategory(match, targetCat) {
     if (!match || !targetCat) return false;
     if (targetCat === 'all') return true;
-    const mCat = (match.category || '').toLowerCase().trim();
+    const mCat = (match.category || normalizeSportCategory(match)).toLowerCase().trim();
 
     if (targetCat === 'networks') {
       return match.is247 === true || mCat === 'networks' || mCat === 'tv';
     }
-    // Specific sports must not include 24/7 channels unless requested
     if (targetCat === 'football' || targetCat === 'soccer') {
-      // Must NOT match american football
       return (mCat === 'football' || mCat === 'soccer') && !mCat.includes('american') && !mCat.includes('nfl');
     }
     if (targetCat === 'american_football' || targetCat === 'nfl') {
       return mCat === 'american_football' || mCat === 'nfl';
     }
     if (targetCat === 'basketball' || targetCat === 'nba') {
-      return mCat === 'basketball' || mCat === 'nba' || mCat === 'wnba';
+      return (mCat === 'basketball' || mCat === 'nba' || mCat === 'wnba') && !mCat.includes('american') && !mCat.includes('nfl');
     }
     if (targetCat === 'mma' || targetCat === 'ufc') {
-      return mCat === 'mma' || mCat === 'ufc' || mCat === 'boxing' || mCat === 'fighting';
+      return mCat === 'mma' || mCat === 'ufc' || mCat === 'boxing' || mCat === 'fighting' || mCat === 'wwe' || mCat === 'tna';
     }
     if (targetCat === 'motorsport' || targetCat === 'f1') {
-      return mCat === 'motorsport' || mCat === 'f1' || mCat === 'racing' || mCat === 'nascar';
+      return mCat === 'motorsport' || mCat === 'f1' || mCat === 'racing' || mCat === 'nascar' || mCat === 'motogp';
+    }
+    if (targetCat === 'baseball' || targetCat === 'mlb') {
+      return mCat === 'baseball' || mCat === 'mlb';
     }
     if (targetCat === 'tennis') {
       return mCat === 'tennis';
@@ -392,6 +532,15 @@
     }
     if (targetCat === 'hockey' || targetCat === 'nhl') {
       return mCat === 'hockey' || mCat === 'nhl';
+    }
+    if (targetCat === 'rugby') {
+      return mCat === 'rugby';
+    }
+    if (targetCat === 'darts') {
+      return mCat === 'darts';
+    }
+    if (targetCat === 'golf') {
+      return mCat === 'golf';
     }
     return mCat === targetCat || mCat.startsWith(targetCat);
   }
@@ -748,8 +897,19 @@
 
   function navigateToCategory(category, slug = '') {
     activeCategory = category;
+    activeTab = 'all';
     displayedCount = pageLimit;
     syncCategoryPillActive(category);
+
+    if (heroSpotlight) {
+      if (category !== 'all') {
+        heroSpotlight.classList.add('hidden');
+        heroSpotlight.style.display = 'none';
+      } else {
+        heroSpotlight.classList.remove('hidden');
+        heroSpotlight.style.display = '';
+      }
+    }
 
     if (watchView && !watchView.classList.contains('hidden')) {
       closeWatchView(false);
@@ -761,6 +921,11 @@
       document.title = routeInfo.title;
       try {
         window.history.pushState(null, '', `/${slug}`);
+      } catch (_) {}
+    } else if (category !== 'all') {
+      document.title = `Live ${formatCategoryLabel(category)} Streams — StreamZone`;
+      try {
+        window.history.pushState(null, '', `/${slug || category}`);
       } catch (_) {}
     } else {
       document.title = 'StreamZone — Premium Live Sports Streaming';
@@ -787,6 +952,10 @@
     syncSidebarActive();
     syncDockActive();
     displayedCount = pageLimit;
+    if (heroSpotlight) {
+      heroSpotlight.classList.remove('hidden');
+      heroSpotlight.style.display = '';
+    }
     try {
       window.history.pushState(null, '', '/');
     } catch (_) {}
@@ -1227,7 +1396,10 @@
       if (raw) {
         const cached = JSON.parse(raw);
         if (Array.isArray(cached) && cached.length > 0) {
-          allMatches = cached.filter(isValidMatchItem);
+          allMatches = cached.filter(isValidMatchItem).map(m => ({
+            ...m,
+            category: normalizeSportCategory(m)
+          }));
           extractFeaturedMatches();
           renderAllSections();
           if (syncText) syncText.textContent = `Cached (${allMatches.length})`;
@@ -1238,7 +1410,10 @@
 
     // Fallback to built-in seed for 0ms instant display if cache is empty
     if (Array.isArray(BUILTIN_SEEDED_MATCHES) && BUILTIN_SEEDED_MATCHES.length > 0) {
-      allMatches = BUILTIN_SEEDED_MATCHES.filter(isValidMatchItem).map(m => ({ ...m }));
+      allMatches = BUILTIN_SEEDED_MATCHES.filter(isValidMatchItem).map(m => ({
+        ...m,
+        category: normalizeSportCategory(m)
+      }));
       extractFeaturedMatches();
       renderAllSections();
       if (syncText) syncText.textContent = 'Syncing...';
@@ -1276,8 +1451,8 @@
       const rawId = String(item.id || '');
       const cleanId = rawId.replace(/^nuvio_sport_/, '');
       const title = (item.name || item.title || 'Sports Event').replace(/^🔴 LIVE:\s*/i, '').replace(/^⏱️\s*/i, '').replace(/^📺\s*/i, '');
-      const category = ((item.genres && item.genres[0]) || item.category || 'sports').toLowerCase().replace(/[^a-z0-9_]/g, '');
-      const is247 = item.is247 || category === 'networks' || (!item.date && !item.released);
+      const category = normalizeSportCategory(item);
+      const is247 = item.is247 || category === 'networks' || (!item.date && !item.released && category !== 'american_football' && category !== 'basketball');
 
       let dateTimestamp = null;
       if (item.date) {
@@ -1409,9 +1584,7 @@
   function renderAllSections() {
     queueRender(() => {
       updateCategoryBanner();
-      if (activeCategory === 'all') {
-        renderHeroSpotlight();
-      }
+      renderHeroSpotlight();
       renderQuickStreams();
       renderLiveGrid();
       renderUpcomingGrid();
@@ -1425,17 +1598,27 @@
 
     if (activeCategory === 'all') {
       categoryHeaderBanner.classList.add('hidden');
-      if (heroSpotlight) heroSpotlight.classList.remove('hidden');
+      categoryHeaderBanner.style.display = 'none';
+      if (heroSpotlight) {
+        heroSpotlight.classList.remove('hidden');
+        heroSpotlight.style.display = '';
+      }
       return;
     }
 
     // Inside category view: hide top hero spotlight card completely and display enhanced category banner
     categoryHeaderBanner.classList.remove('hidden');
-    if (heroSpotlight) heroSpotlight.classList.add('hidden');
+    categoryHeaderBanner.style.display = '';
+    if (heroSpotlight) {
+      heroSpotlight.classList.add('hidden');
+      heroSpotlight.style.display = 'none';
+    }
 
     const catIcons = {
       football: '⚽',
       basketball: '🏀',
+      american_football: '🏈',
+      baseball: '⚾',
       tennis: '🎾',
       cricket: '🏏',
       motorsport: '🏎️',
@@ -1447,6 +1630,8 @@
     const catNames = {
       football: 'Football',
       basketball: 'Basketball',
+      american_football: 'NFL & American Football',
+      baseball: 'Baseball & MLB',
       tennis: 'Tennis',
       cricket: 'Cricket',
       motorsport: 'Motorsport & F1',
@@ -1457,7 +1642,9 @@
 
     const catDescs = {
       football: 'All live streams and upcoming matches in one place',
-      basketball: 'NBA, EuroLeague, and global live basketball streams',
+      basketball: 'NBA, WNBA, EuroLeague, and global live basketball streams',
+      american_football: 'NFL games, RedZone, and college football live streams',
+      baseball: 'MLB games, World Series, and live baseball streams',
       tennis: 'ATP, WTA, and Grand Slam live championship matches',
       cricket: 'IPL, ICC, and international live cricket streams',
       motorsport: 'Formula 1, MotoGP, NASCAR, and rally racing streams',
@@ -1482,6 +1669,15 @@
   }
 
   function renderHeroSpotlight() {
+    if (!heroSpotlight) return;
+    if (activeCategory !== 'all') {
+      heroSpotlight.classList.add('hidden');
+      heroSpotlight.style.display = 'none';
+      return;
+    }
+    heroSpotlight.classList.remove('hidden');
+    heroSpotlight.style.display = '';
+
     if (!featuredMatches.length || !heroTitle) return;
     const m = featuredMatches[heroIndex] || featuredMatches[0];
 
@@ -1554,6 +1750,7 @@
     if (!liveStreamsGrid || !liveSection) return;
     if (allMatches.length === 0) {
       liveSection.classList.remove('hidden');
+      liveSection.style.display = '';
       if (liveCountBadge) liveCountBadge.textContent = 'Syncing...';
       liveStreamsGrid.innerHTML = renderSkeletonCards(4);
       return;
@@ -1566,10 +1763,12 @@
     // Hide live section completely if current category has zero live matches
     if (activeCategory !== 'all' && list.length === 0) {
       liveSection.classList.add('hidden');
+      liveSection.style.display = 'none';
       return;
     }
 
     liveSection.classList.remove('hidden');
+    liveSection.style.display = '';
     const sliced = list.slice(0, 12);
 
     if (liveCountBadge) {
@@ -1588,6 +1787,7 @@
     if (!upcomingStreamsGrid || !upcomingSection) return;
     if (allMatches.length === 0) {
       upcomingSection.classList.remove('hidden');
+      upcomingSection.style.display = '';
       if (upcomingCountBadge) upcomingCountBadge.textContent = 'Syncing...';
       upcomingStreamsGrid.innerHTML = renderSkeletonCards(4);
       return;
@@ -1600,10 +1800,12 @@
     // Hide upcoming section if no matches found in category
     if (activeCategory !== 'all' && list.length === 0) {
       upcomingSection.classList.add('hidden');
+      upcomingSection.style.display = 'none';
       return;
     }
 
     upcomingSection.classList.remove('hidden');
+    upcomingSection.style.display = '';
     const sliced = list.slice(0, 12);
 
     if (upcomingCountBadge) {
@@ -1624,10 +1826,12 @@
     // In specific sport category, completely hide the 24/7 channels section
     if (activeCategory !== 'all' && activeCategory !== 'networks') {
       networksSection.classList.add('hidden');
+      networksSection.style.display = 'none';
       return;
     }
 
     networksSection.classList.remove('hidden');
+    networksSection.style.display = '';
     if (!networksStreamsGrid) return;
     const list = allMatches.filter(m => m.is247).slice(0, 12);
 
@@ -1737,6 +1941,8 @@
       const catNames = {
         football: 'Football',
         basketball: 'Basketball',
+        american_football: 'NFL & American Football',
+        baseball: 'Baseball & MLB',
         tennis: 'Tennis',
         cricket: 'Cricket',
         motorsport: 'Motorsport & F1',
