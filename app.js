@@ -1727,7 +1727,7 @@
     if (playingTitle) playingTitle.textContent = title;
     if (playerLeagueTag) playerLeagueTag.textContent = league;
     if (playerStatusTag) playerStatusTag.textContent = '● CONNECTING';
-    if (playerEngineTag) playerEngineTag.textContent = 'Server 1';
+    if (playerEngineTag) playerEngineTag.textContent = 'Connecting...';
     syncWatchFavButton(cleanId);
 
     // 4. Populate Watch Page Quick Streams (Live Now, No Slider!)
@@ -1768,8 +1768,8 @@
         return;
       }
 
-      // Parse candidates — PURE NUMBERED SERVERS: Server 1, Server 2, Server 3 (Zero provider names!)
-      currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx)));
+      // Parse candidates — Real Source Names: Streamed.pk, WatchFooty, StreamFree, etc.
+      currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx, streams)));
       activeCandidateIndex = 0;
       fallbackAttemptCount = 0;
 
@@ -1837,10 +1837,101 @@
     watchQuickGrid.appendChild(fragment);
   }
 
-  // ─── Stream Candidate Parser (Strictly Server 1, Server 2, Server 3) ────────
-  function parseStreamCandidate(s, index) {
-    const serverNum = index + 1;
-    const provider = (s._source || 'stream').slice(0, 16);
+  // ─── Real Source Name Resolution (Streamed.pk, WatchFooty, StreamFree, etc.) ─
+  const SOURCE_DISPLAY_MAP = {
+    streamedpk: 'Streamed.pk',
+    'streamed.pk': 'Streamed.pk',
+    watchfooty: 'WatchFooty',
+    streamfree: 'StreamFree',
+    timstreams: 'TimStreams',
+    cdnlive: 'CDNLiveTV',
+    sportyhunter: 'SportyHunter',
+    streamsports: 'StreamSports99',
+    streamsports99: 'StreamSports99',
+    streamic: 'Streamic',
+    embedindia: 'EmbedIndia',
+    embedst: 'Embed.st',
+    'embed.st': 'Embed.st',
+    'iptv-org': 'Direct IPTV',
+    iptv: 'Direct IPTV'
+  };
+
+  function detectRealSourceName(s) {
+    if (!s) return null;
+    const rawSource = (s._source || '').toLowerCase().trim();
+    if (rawSource && SOURCE_DISPLAY_MAP[rawSource]) {
+      return SOURCE_DISPLAY_MAP[rawSource];
+    }
+
+    const titleLower = (s.title || '').toLowerCase();
+    const urlLower = `${s.url || ''} ${s.externalUrl || ''}`.toLowerCase();
+
+    if (rawSource.includes('streamed') || titleLower.includes('streamed') || urlLower.includes('streamed')) return 'Streamed.pk';
+    if (rawSource.includes('watchfooty') || titleLower.includes('watchfooty') || urlLower.includes('watchfooty')) return 'WatchFooty';
+    if (rawSource.includes('streamfree') || titleLower.includes('streamfree') || urlLower.includes('streamfree')) return 'StreamFree';
+    if (rawSource.includes('timstreams') || titleLower.includes('timstreams') || urlLower.includes('timst')) return 'TimStreams';
+    if (rawSource.includes('cdnlive') || titleLower.includes('cdnlive') || urlLower.includes('cdnlive')) return 'CDNLiveTV';
+    if (rawSource.includes('sporty') || titleLower.includes('sporty') || urlLower.includes('sporty')) return 'SportyHunter';
+    if (rawSource.includes('streamsports') || titleLower.includes('streamsports') || urlLower.includes('streamsports')) return 'StreamSports99';
+    if (rawSource.includes('streamic') || titleLower.includes('streamic') || urlLower.includes('streamic')) return 'Streamic';
+    if (rawSource.includes('embedindia') || titleLower.includes('embedindia') || urlLower.includes('embedindia')) return 'EmbedIndia';
+    if (rawSource.includes('embedst') || titleLower.includes('embedst') || urlLower.includes('embed.st')) return 'Embed.st';
+    if (rawSource.includes('iptv') || titleLower.includes('iptv') || titleLower.includes('24/7') || urlLower.includes('iptv')) return 'Direct IPTV';
+
+    if (rawSource && rawSource !== 'stream' && rawSource !== 'admin') {
+      return rawSource.charAt(0).toUpperCase() + rawSource.slice(1);
+    }
+    return null;
+  }
+
+  function extractChannelOrLanguage(s) {
+    if (!s || !s.title) return '';
+    const firstLine = s.title.split('\n')[0];
+    if (firstLine.includes('| 📺')) {
+      return firstLine.split('| 📺')[1].trim();
+    }
+    if (firstLine.includes('📺')) {
+      const parts = firstLine.split('📺');
+      const cand = parts[parts.length - 1].trim();
+      if (cand && !cand.toLowerCase().startsWith('quality')) return cand;
+    }
+    const match = firstLine.match(/\(([^)]+)\)/);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+    return '';
+  }
+
+  function resolveCandidateName(s, index, allStreams = []) {
+    const baseSource = detectRealSourceName(s) || `Server ${index + 1}`;
+    const channelTag = extractChannelOrLanguage(s);
+
+    const sameSourceStreams = allStreams.filter(other => {
+      const otherBase = detectRealSourceName(other) || '';
+      return otherBase === baseSource;
+    });
+
+    const isShared = sameSourceStreams.length > 1;
+    const indexInSource = sameSourceStreams.indexOf(s) + 1;
+
+    if (channelTag) {
+      const cleanTag = channelTag.replace(new RegExp(baseSource, 'gi'), '').trim();
+      if (cleanTag) {
+        return `${baseSource} (${cleanTag})`;
+      }
+    }
+
+    if (isShared) {
+      return `${baseSource} ${indexInSource || (index + 1)}`;
+    }
+
+    return baseSource;
+  }
+
+  // ─── Stream Candidate Parser (Real Source Names: Streamed.pk, WatchFooty, etc.)
+  function parseStreamCandidate(s, index, allStreams = []) {
+    const candidateName = resolveCandidateName(s, index, allStreams);
+    const provider = (s._source || detectRealSourceName(s) || 'stream').slice(0, 16);
 
     let raw = s.url || '';
     raw = resolveMediaUrl(raw);
@@ -1864,7 +1955,7 @@
 
       return {
         id: index,
-        name: `Server ${serverNum}`,
+        name: candidateName,
         provider: provider,
         type: 'hls',
         url: directUrl,
@@ -1886,7 +1977,7 @@
     if (isCleanPlayer) {
       return {
         id: index,
-        name: `Server ${serverNum}`,
+        name: candidateName,
         provider: provider,
         type: 'player',
         url: candidateUrl,
@@ -1902,7 +1993,7 @@
 
     return {
       id: index,
-      name: `Server ${serverNum}`,
+      name: candidateName,
       provider: provider,
       type: 'player',
       url: cleanProxied,
@@ -1928,8 +2019,8 @@
     serverPillButtons.innerHTML = currentCandidates.map((c, idx) => `
       <button class="server-pill ${idx === activeCandidateIndex ? 'active' : ''}" 
               onclick="window.STREAM_NARO.selectServer(${idx})" 
-              title="Switch to Server ${idx + 1}">
-        Server ${idx + 1}
+              title="Switch to ${escapeHtml(c.name)}">
+        ${escapeHtml(c.name)}
       </button>
     `).join('');
   }
@@ -1957,7 +2048,7 @@
       playerStatusTag.textContent = candidate.type === 'hls' ? '● HLS STREAM' : '● CLEAN PLAYER';
     }
     if (playerEngineTag) {
-      playerEngineTag.textContent = `Server ${candidate.id + 1}`;
+      playerEngineTag.textContent = candidate.name;
     }
 
     if (candidate.type === 'hls') {
