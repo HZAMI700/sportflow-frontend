@@ -1842,60 +1842,72 @@
     const serverNum = index + 1;
     const provider = (s._source || 'stream').slice(0, 16);
 
-    // 1. Explicit External Web Embed
-    if (s.externalUrl) {
-      const resolved = resolveMediaUrl(s.externalUrl);
+    let raw = s.url || '';
+    raw = resolveMediaUrl(raw);
+
+    let ext = s.externalUrl || '';
+    if (ext) ext = resolveMediaUrl(ext);
+
+    // 1. Direct HLS streams (either raw .m3u8 or proxied through /api/manifest)
+    if (raw && (raw.includes('.m3u8') || raw.includes('/api/manifest'))) {
+      let directUrl = raw;
+      let manifestProxyUrl = raw;
+      try {
+        const parsed = new URL(raw, window.location.origin);
+        if (parsed.pathname === '/api/manifest' && parsed.searchParams.has('url')) {
+          directUrl = parsed.searchParams.get('url');
+          manifestProxyUrl = raw;
+        } else if (!raw.includes('/api/manifest')) {
+          manifestProxyUrl = buildApiUrl('/api/manifest', { url: raw });
+        }
+      } catch (_) {}
+
       return {
         id: index,
         name: `Server ${serverNum}`,
         provider: provider,
-        type: 'embed',
-        url: resolved,
-        proxyUrl: resolved,
-        isExternal: true
+        type: 'hls',
+        url: directUrl,
+        proxyUrl: manifestProxyUrl,
+        isExternal: false
       };
     }
 
-    let raw = s.url || '';
-    raw = resolveMediaUrl(raw);
-
-    // 2. Relative /watch or /embed
+    // 2. Clean Player Proxy or Internal Embed (/api/clean-player or /watch)
+    const candidateUrl = ext || raw;
+    let isCleanPlayer = false;
     try {
-      const parsed = new URL(raw, window.location.origin);
-      if (parsed.pathname === '/watch' || raw.includes('/embed/')) {
-        return {
-          id: index,
-          name: `Server ${serverNum}`,
-          provider: provider,
-          type: 'embed',
-          url: raw,
-          proxyUrl: raw,
-          isExternal: true
-        };
-      }
-      if (parsed.pathname === '/api/manifest' && parsed.searchParams.has('url')) {
-        const direct = parsed.searchParams.get('url');
-        return {
-          id: index,
-          name: `Server ${serverNum}`,
-          provider: provider,
-          type: 'hls',
-          url: direct,
-          proxyUrl: raw,
-          isExternal: false
-        };
+      const parsed = new URL(candidateUrl, window.location.origin);
+      if (parsed.pathname === '/api/clean-player' || parsed.pathname === '/watch' || candidateUrl.includes('/api/clean-player')) {
+        isCleanPlayer = true;
       }
     } catch (_) {}
 
-    // 3. Direct HLS
+    if (isCleanPlayer) {
+      return {
+        id: index,
+        name: `Server ${serverNum}`,
+        provider: provider,
+        type: 'player',
+        url: candidateUrl,
+        proxyUrl: candidateUrl,
+        isExternal: false
+      };
+    }
+
+    // 3. Fallback Embed (if third-party URL was not pre-wrapped, route through /api/clean-player)
+    const cleanProxied = candidateUrl.startsWith('http')
+      ? buildApiUrl('/api/clean-player', { url: candidateUrl })
+      : candidateUrl;
+
     return {
       id: index,
       name: `Server ${serverNum}`,
       provider: provider,
-      type: 'hls',
-      url: raw,
-      proxyUrl: buildApiUrl('/api/manifest', { url: raw }),
-      isExternal: false
+      type: 'player',
+      url: cleanProxied,
+      proxyUrl: cleanProxied,
+      isExternal: true
     };
   }
 
@@ -1905,6 +1917,7 @@
       const scoreB = providerHealthScores.get(b.provider) || 0;
 
       if (scoreA !== scoreB) return scoreB - scoreA;
+      // Direct native HLS is top priority (ArtPlayer, 0 iframes, 0 popunders)
       if (a.type !== b.type) return a.type === 'hls' ? -1 : 1;
       return 0;
     });
@@ -1941,16 +1954,16 @@
     clearStallWatchdog();
 
     if (playerStatusTag) {
-      playerStatusTag.textContent = candidate.type === 'embed' ? '● WEB STREAM' : '● HLS STREAM';
+      playerStatusTag.textContent = candidate.type === 'hls' ? '● HLS STREAM' : '● CLEAN PLAYER';
     }
     if (playerEngineTag) {
       playerEngineTag.textContent = `Server ${candidate.id + 1}`;
     }
 
-    if (candidate.type === 'embed') {
-      playEmbedStream(candidate);
-    } else {
+    if (candidate.type === 'hls') {
       playHlsStream(candidate, options.useProxy || false);
+    } else {
+      playEmbedStream(candidate);
     }
   }
 
@@ -1959,6 +1972,19 @@
     if (artplayerContainer) artplayerContainer.classList.add('hidden');
     if (embedFrame) {
       embedFrame.classList.remove('hidden');
+
+      // Iframe error & load failure listeners for auto-recovery
+      embedFrame.onload = () => {
+        showPlayerOverlay(false);
+        clearStallWatchdog();
+        recordServerSuccess(candidate.provider);
+      };
+      embedFrame.onerror = () => {
+        console.warn('[StreamEngine] Embed frame failed to load');
+        recordServerFailure(candidate.provider);
+        triggerAutoFallback('Clean player frame error');
+      };
+
       embedFrame.src = candidate.url;
     }
 
@@ -1989,9 +2015,11 @@
       }, 5000);
     }
 
+    // Watchdog for embed streams to trigger auto-fallback if frozen
     stallWatchdogTimer = setTimeout(() => {
       console.warn('[StreamEngine] Embed watchdog notice');
-    }, 12000);
+      triggerAutoFallback('Stream initialization timeout');
+    }, 8500);
   }
 
   // ─── Anti-Lag Tuned HLS Playback ───────────────────────────────────────────
