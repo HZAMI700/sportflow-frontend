@@ -83,6 +83,37 @@
   --shadow-dock: 0 10px 25px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
+/* Light Mode Explicit High-Contrast Rules for Stream Cards & Text */
+[data-theme="light"] .card-match-title,
+body.theme-light .card-match-title {
+  color: #090d16 !important;
+}
+
+[data-theme="light"] .card-match-meta,
+body.theme-light .card-match-meta {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .card-meta-dot,
+body.theme-light .card-meta-dot {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .watch-match-heading,
+body.theme-light .watch-match-heading {
+  color: #090d16;
+}
+
+[data-theme="light"] .category-banner-heading,
+body.theme-light .category-banner-heading {
+  color: #090d16;
+}
+
+[data-theme="light"] .search-result-title,
+body.theme-light .search-result-title {
+  color: #090d16;
+}
+
 /* ─── 2. Global Reset & Base Typography ──────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -363,7 +394,7 @@ body {
 .search-result-title {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -826,7 +857,7 @@ body {
 .watch-match-heading {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   letter-spacing: -0.2px;
   line-height: 1.25;
 }
@@ -1361,7 +1392,7 @@ body {
 .category-banner-heading {
   font-size: 1.45rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   letter-spacing: -0.3px;
 }
 
@@ -1428,12 +1459,12 @@ body {
   background: #14151a;
   border: 1px solid var(--border-subtle);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-card);
 }
 
 .stream-card:hover .stream-card-media {
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  border-color: var(--card-border-hover);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .stream-card-backdrop {
@@ -1522,7 +1553,7 @@ body {
 .card-match-title {
   font-size: 0.94rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-main);
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
