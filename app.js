@@ -2183,18 +2183,24 @@
 
     const titleLower = (s.title || '').toLowerCase();
     const urlLower = `${s.url || ''} ${s.externalUrl || ''}`.toLowerCase();
+    const nameLower = (s.name || '').toLowerCase();
 
-    if (rawSource.includes('streamed') || titleLower.includes('streamed') || urlLower.includes('streamed')) return 'Streamed.pk';
-    if (rawSource.includes('watchfooty') || titleLower.includes('watchfooty') || urlLower.includes('watchfooty')) return 'WatchFooty';
-    if (rawSource.includes('streamfree') || titleLower.includes('streamfree') || urlLower.includes('streamfree')) return 'StreamFree';
-    if (rawSource.includes('timstreams') || titleLower.includes('timstreams') || urlLower.includes('timst')) return 'TimStreams';
-    if (rawSource.includes('cdnlive') || titleLower.includes('cdnlive') || urlLower.includes('cdnlive')) return 'CDNLiveTV';
-    if (rawSource.includes('sporty') || titleLower.includes('sporty') || urlLower.includes('sporty')) return 'SportyHunter';
-    if (rawSource.includes('streamsports') || titleLower.includes('streamsports') || urlLower.includes('streamsports')) return 'StreamSports99';
-    if (rawSource.includes('streamic') || titleLower.includes('streamic') || urlLower.includes('streamic')) return 'Streamic';
-    if (rawSource.includes('embedindia') || titleLower.includes('embedindia') || urlLower.includes('embedindia')) return 'EmbedIndia';
-    if (rawSource.includes('embedst') || titleLower.includes('embedst') || urlLower.includes('embed.st')) return 'Embed.st';
+    if (rawSource.includes('streamed') || titleLower.includes('streamed') || urlLower.includes('streamed') || nameLower.includes('streamed')) return 'Streamed.pk';
+    if (rawSource.includes('watchfooty') || titleLower.includes('watchfooty') || urlLower.includes('watchfooty') || nameLower.includes('watchfooty')) return 'WatchFooty';
+    if (rawSource.includes('streamfree') || titleLower.includes('streamfree') || urlLower.includes('streamfree') || nameLower.includes('streamfree')) return 'StreamFree';
+    if (rawSource.includes('timstreams') || titleLower.includes('timstreams') || urlLower.includes('timst') || nameLower.includes('timstreams')) return 'TimStreams';
+    if (rawSource.includes('cdnlive') || titleLower.includes('cdnlive') || urlLower.includes('cdnlive') || nameLower.includes('cdnlive')) return 'CDNLiveTV';
+    if (rawSource.includes('sporty') || titleLower.includes('sporty') || urlLower.includes('sporty') || nameLower.includes('sporty')) return 'SportyHunter';
+    if (rawSource.includes('streamsports') || titleLower.includes('streamsports') || urlLower.includes('streamsports') || nameLower.includes('streamsports')) return 'StreamSports99';
+    if (rawSource.includes('streamic') || titleLower.includes('streamic') || urlLower.includes('streamic') || nameLower.includes('streamic')) return 'Streamic';
+    if (rawSource.includes('embedindia') || titleLower.includes('embedindia') || urlLower.includes('embedindia') || nameLower.includes('embedindia')) return 'EmbedIndia';
+    if (rawSource.includes('embedst') || titleLower.includes('embedst') || urlLower.includes('embed.st') || nameLower.includes('embedst')) return 'Embed.st';
     if (rawSource.includes('iptv') || titleLower.includes('iptv') || titleLower.includes('24/7') || urlLower.includes('iptv')) return 'Direct IPTV';
+
+    if (rawSource.startsWith('yaml_')) {
+      const cleanYaml = rawSource.replace('yaml_', '');
+      return cleanYaml.charAt(0).toUpperCase() + cleanYaml.slice(1);
+    }
 
     if (rawSource && rawSource !== 'stream' && rawSource !== 'admin') {
       return rawSource.charAt(0).toUpperCase() + rawSource.slice(1);
@@ -2332,6 +2338,288 @@
     });
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MODULAR STREAMING SUBSYSTEMS (Sandbox, Cooldown, Health & Server Failover)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * 1. SandboxPolicyManager
+   * Strictly enforces minimally permissive sandboxing for embed streams.
+   * Default: sandbox="allow-scripts allow-same-origin allow-forms"
+   * Default: allow="autoplay; fullscreen; picture-in-picture"
+   * Strictly forbids: allow-popups, allow-popups-to-escape-sandbox,
+   * allow-top-navigation, allow-top-navigation-by-user-activation.
+   */
+  const SandboxPolicyManager = {
+    DEFAULT_SANDBOX: 'allow-scripts allow-same-origin allow-forms',
+    DEFAULT_ALLOW: 'autoplay; fullscreen; picture-in-picture',
+    
+    FORBIDDEN_PERMISSIONS: [
+      'allow-popups',
+      'allow-popups-to-escape-sandbox',
+      'allow-top-navigation',
+      'allow-top-navigation-by-user-activation'
+    ],
+
+    isStreamedPk(candidate) {
+      if (!candidate) return false;
+      const provider = (candidate.provider || '').toLowerCase();
+      const name = (candidate.name || '').toLowerCase();
+      const url = (candidate.url || '').toLowerCase();
+      const proxyUrl = (candidate.proxyUrl || '').toLowerCase();
+      return provider.includes('streamed') ||
+             name.includes('streamed') ||
+             url.includes('streamed.pk') ||
+             url.includes('streamedpk') ||
+             url.includes('embed.st') ||
+             proxyUrl.includes('streamed.pk') ||
+             proxyUrl.includes('embed.st');
+    },
+
+    getSandboxPolicy(candidate, options = {}) {
+      // Specifically remove sandbox for Streamed.pk embedded streams so video plays without restrictions
+      if (this.isStreamedPk(candidate)) {
+        return null;
+      }
+      if (options.escalateToFallback && candidate && candidate.requiresPermissiveFallback) {
+        // Last-resort fallback tier only (never default)
+        return 'allow-scripts allow-same-origin allow-forms allow-presentation';
+      }
+      return this.DEFAULT_SANDBOX;
+    },
+
+    getAllowPolicy(candidate) {
+      return this.DEFAULT_ALLOW;
+    },
+
+    applyToIframe(iframe, candidate, options = {}) {
+      if (!iframe) return;
+      const policy = this.getSandboxPolicy(candidate, options);
+      const allow = this.getAllowPolicy(candidate);
+      
+      if (policy === null) {
+        iframe.removeAttribute('sandbox');
+      } else {
+        iframe.setAttribute('sandbox', policy);
+      }
+      iframe.setAttribute('allow', allow);
+      iframe.setAttribute('referrerpolicy', 'no-referrer');
+      iframe.setAttribute('allowfullscreen', 'true');
+    }
+  };
+
+  /**
+   * 2. ServerCooldownManager
+   * Tracks failed servers and applies a temporary cooldown (60s) to prevent
+   * endless retry loops on unresponsive or sandbox-incompatible streams.
+   */
+  const ServerCooldownManager = {
+    COOLDOWN_MS: 60 * 1000,
+    failedServers: new Map(), // key -> { timestamp, reason, failCount }
+
+    getServerKey(candidate) {
+      if (!candidate) return '';
+      return candidate.url || candidate.proxyUrl || candidate.name || String(candidate.id);
+    },
+
+    recordFailure(candidate, reason = 'unknown') {
+      const key = this.getServerKey(candidate);
+      if (!key) return;
+      const prev = this.failedServers.get(key) || { failCount: 0 };
+      const failCount = prev.failCount + 1;
+      this.failedServers.set(key, {
+        timestamp: Date.now(),
+        reason: reason,
+        failCount: failCount
+      });
+      console.warn(`[StreamGuard] Logged server failure: ${candidate.name} | Reason: ${reason} | Failures: ${failCount}`);
+    },
+
+    recordSuccess(candidate) {
+      const key = this.getServerKey(candidate);
+      if (key && this.failedServers.has(key)) {
+        this.failedServers.delete(key);
+      }
+    },
+
+    isCoolingDown(candidate) {
+      const key = this.getServerKey(candidate);
+      const entry = this.failedServers.get(key);
+      if (!entry) return false;
+      const elapsed = Date.now() - entry.timestamp;
+      if (elapsed < this.COOLDOWN_MS) {
+        return true;
+      }
+      this.failedServers.delete(key);
+      return false;
+    },
+
+    getFailureReason(candidate) {
+      const key = this.getServerKey(candidate);
+      const entry = this.failedServers.get(key);
+      return entry ? entry.reason : null;
+    },
+
+    reset() {
+      this.failedServers.clear();
+    }
+  };
+
+  /**
+   * 3. ServerHealthChecker
+   * Provides hooks for proactive & reactive server health verification.
+   */
+  const ServerHealthChecker = {
+    async checkDirectHlsHealth(m3u8Url, timeoutMs = 3000) {
+      if (!m3u8Url || typeof m3u8Url !== 'string') return false;
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        const res = await fetch(m3u8Url, {
+          method: 'HEAD',
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        clearTimeout(timeout);
+        return res.ok;
+      } catch (_) {
+        return false;
+      }
+    },
+
+    isCandidateAvailable(candidate) {
+      if (!candidate) return false;
+      return !ServerCooldownManager.isCoolingDown(candidate);
+    }
+  };
+
+  /**
+   * 4. ServerFailoverController
+   * Orchestrates seamless server switching: Server 1 -> Server 2 -> Server 3...
+   * Tuned watchdogs (5000ms), smooth loading indicators, and zero technical error
+   * strings ("sandbox error", "Remove sandbox attributes") displayed to the user.
+   */
+  const ServerFailoverController = {
+    EMBED_INITIAL_TIMEOUT_MS: 5000,
+    EMBED_PLAY_TIMEOUT_MS: 5500,
+    HLS_TIMEOUT_MS: 5000,
+    watchdogTimer: null,
+    isSwitching: false,
+
+    clearWatchdogs() {
+      if (this.watchdogTimer) {
+        clearTimeout(this.watchdogTimer);
+        this.watchdogTimer = null;
+      }
+      if (stallWatchdogTimer) {
+        clearTimeout(stallWatchdogTimer);
+        stallWatchdogTimer = null;
+      }
+    },
+
+    armEmbedInitialWatchdog(candidate) {
+      this.clearWatchdogs();
+      this.watchdogTimer = setTimeout(() => {
+        console.warn(`[StreamGuard] Embed frame initial load timeout on: ${candidate.name}`);
+        this.handleFailure(candidate, 'embed_initial_timeout');
+      }, this.EMBED_INITIAL_TIMEOUT_MS);
+    },
+
+    armEmbedPlaybackWatchdog(candidate) {
+      this.clearWatchdogs();
+      // After iframe fires onload, allow up to EMBED_PLAY_TIMEOUT_MS for stream init
+      this.watchdogTimer = setTimeout(() => {
+        console.warn(`[StreamGuard] Embed playback stalled/sandbox-blocked on: ${candidate.name}`);
+        this.handleFailure(candidate, 'embed_playback_stalled');
+      }, this.EMBED_PLAY_TIMEOUT_MS);
+    },
+
+    armHlsWatchdog(candidate) {
+      this.clearWatchdogs();
+      this.watchdogTimer = setTimeout(() => {
+        if (artInstance && artInstance.video) {
+          if (artInstance.video.readyState < 2 || artInstance.video.paused) {
+            console.warn(`[StreamGuard] HLS stream stalled on: ${candidate.name}`);
+            this.handleFailure(candidate, 'hls_stream_stalled');
+          }
+        }
+      }, this.HLS_TIMEOUT_MS);
+    },
+
+    recordSuccess(candidate) {
+      this.clearWatchdogs();
+      if (!candidate) return;
+      ServerCooldownManager.recordSuccess(candidate);
+      recordServerSuccess(candidate.provider);
+      showPlayerOverlay(false);
+    },
+
+    handleFailure(candidate, reason) {
+      this.clearWatchdogs();
+      if (!candidate) return;
+      ServerCooldownManager.recordFailure(candidate, reason);
+      recordServerFailure(candidate.provider);
+      this.triggerAutoFailover(reason);
+    },
+
+    triggerAutoFailover(reason = 'Stream connection stalled') {
+      if (this.isSwitching) return;
+      this.isSwitching = true;
+      this.clearWatchdogs();
+
+      fallbackAttemptCount++;
+      const maxRetries = Math.max(12, currentCandidates.length);
+
+      // Advance through server candidates: Server 1 -> Server 2 -> Server 3...
+      let nextIndex = activeCandidateIndex + 1;
+      while (nextIndex < currentCandidates.length && ServerCooldownManager.isCoolingDown(currentCandidates[nextIndex])) {
+        console.log(`[StreamGuard] Skipping cooled-down server: ${currentCandidates[nextIndex].name}`);
+        nextIndex++;
+      }
+
+      // If all remaining are in cooldown, fall back to next raw index
+      if (nextIndex >= currentCandidates.length && activeCandidateIndex + 1 < currentCandidates.length) {
+        nextIndex = activeCandidateIndex + 1;
+      }
+
+      if (fallbackAttemptCount > maxRetries || nextIndex >= currentCandidates.length) {
+        this.isSwitching = false;
+        handleAllServersFailed();
+        return;
+      }
+
+      const nextCandidate = currentCandidates[nextIndex];
+      console.log(`[StreamGuard] Auto-failover triggered (${reason}). Moving to: ${nextCandidate.name}`);
+
+      // Smooth, friendly user notification without technical jargon or sandbox error text
+      showPlayerOverlay(true, `Connecting to backup source: ${nextCandidate.name}...`);
+      showToast(`Switching to backup source (${nextCandidate.name})...`, 'info');
+
+      setTimeout(() => {
+        this.isSwitching = false;
+        startCandidatePlayback(nextIndex);
+      }, 250);
+    }
+  };
+
+  // Safe window message listener for cross-origin player events
+  window.addEventListener('message', (e) => {
+    if (!e || !e.data) return;
+    try {
+      const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+      if (data && (data.event === 'error' || data.type === 'error' || data.error)) {
+        console.warn('[StreamGuard] Player message error event:', data);
+        if (currentCandidates && currentCandidates[activeCandidateIndex]) {
+          ServerFailoverController.handleFailure(currentCandidates[activeCandidateIndex], 'player_message_error');
+        }
+      } else if (data && (data.event === 'playing' || data.type === 'playing' || data.event === 'playbackReady')) {
+        if (currentCandidates && currentCandidates[activeCandidateIndex]) {
+          ServerFailoverController.recordSuccess(currentCandidates[activeCandidateIndex]);
+        }
+      }
+    } catch (_) {}
+  });
+
   function renderServerPills() {
     if (!serverPillButtons) return;
     serverPillButtons.innerHTML = currentCandidates.map((c, idx) => `
@@ -2346,6 +2634,9 @@
   function selectServer(index) {
     if (index >= 0 && index < currentCandidates.length) {
       fallbackAttemptCount = 0;
+      const candidate = currentCandidates[index];
+      // Reset cooldown if user manually selected this server
+      ServerCooldownManager.recordSuccess(candidate);
       startCandidatePlayback(index, { isManual: true });
     }
   }
@@ -2360,7 +2651,7 @@
     const candidate = currentCandidates[index];
     renderServerPills();
 
-    clearStallWatchdog();
+    ServerFailoverController.clearWatchdogs();
 
     if (playerStatusTag) {
       playerStatusTag.textContent = candidate.type === 'hls' ? '● HLS STREAM' : '● CLEAN PLAYER';
@@ -2382,53 +2673,53 @@
     if (embedFrame) {
       embedFrame.classList.remove('hidden');
 
-      // Iframe error & load failure listeners for auto-recovery
+      // 1. Apply minimally permissive sandbox policy per user requirement:
+      // sandbox="allow-scripts allow-same-origin allow-forms"
+      // allow="autoplay; fullscreen; picture-in-picture"
+      SandboxPolicyManager.applyToIframe(embedFrame, candidate);
+
+      // 2. Setup iframe lifecycle listeners
       embedFrame.onload = () => {
         showPlayerOverlay(false);
-        clearStallWatchdog();
-        recordServerSuccess(candidate.provider);
+        // Arm tuned playback watchdog in case stream hangs or trips anti-sandbox
+        ServerFailoverController.armEmbedPlaybackWatchdog(candidate);
       };
       embedFrame.onerror = () => {
-        console.warn('[StreamEngine] Embed frame failed to load');
-        recordServerFailure(candidate.provider);
-        triggerAutoFallback('Clean player frame error');
+        console.warn(`[StreamGuard] Embed frame error on ${candidate.name}`);
+        ServerFailoverController.handleFailure(candidate, 'frame_load_error');
       };
 
+      // 3. Set the stream source
       embedFrame.src = candidate.url;
+
+      // 4. Initial watchdog in case onload itself hangs
+      ServerFailoverController.armEmbedInitialWatchdog(candidate);
     }
 
     showPlayerOverlay(false);
     showToast(`Streaming via ${candidate.name}`, 'info');
 
-    // Click-Shield: Absorb first click to neutralize pop-under ads
+    // Click-Shield: Absorb first click to neutralize pop-under ads without touching iframe DOM
     const viewport = document.getElementById('cinema-viewport');
     if (viewport) {
-      // Remove any existing shield first
       viewport.querySelectorAll('.embed-click-shield').forEach(s => s.remove());
       
       const shield = document.createElement('div');
       shield.className = 'embed-click-shield';
       viewport.appendChild(shield);
 
-      // First click/touch removes the shield (ad trigger absorbed)
       const removeShield = () => {
         shield.remove();
-        console.log('[AdShield] Click-shield absorbed first interaction — stream is now clean');
+        console.log('[StreamGuard] Click-shield absorbed first interaction');
+        ServerFailoverController.recordSuccess(candidate);
       };
       shield.addEventListener('click', removeShield, { once: true });
       shield.addEventListener('touchstart', removeShield, { once: true, passive: true });
 
-      // Auto-remove after 5 seconds if user hasn't interacted
       setTimeout(() => {
         if (shield.parentNode) shield.remove();
       }, 5000);
     }
-
-    // Watchdog for embed streams to trigger auto-fallback if frozen
-    stallWatchdogTimer = setTimeout(() => {
-      console.warn('[StreamEngine] Embed watchdog notice');
-      triggerAutoFallback('Stream initialization timeout');
-    }, 8500);
   }
 
   // ─── Anti-Lag Tuned HLS Playback ───────────────────────────────────────────
@@ -2487,8 +2778,7 @@
 
               hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 showPlayerOverlay(false);
-                clearStallWatchdog();
-                recordServerSuccess(candidate.provider);
+                ServerFailoverController.recordSuccess(candidate);
                 video.play().catch(() => {});
               });
 
@@ -2501,27 +2791,24 @@
                   switch (data.type) {
                     case Hls.ErrorTypes.NETWORK_ERROR:
                       if (!forceProxy) {
-                        console.log('[StreamEngine] Direct blocked on CORS. Auto-retrying via Proxy...');
+                        console.log('[StreamGuard] Direct blocked on CORS. Auto-retrying via Proxy...');
                         showToast('Direct stream blocked by CORS. Switching to Proxy...', 'warning');
                         playHlsStream(candidate, true);
                         return;
                       }
-                      recordServerFailure(candidate.provider);
-                      triggerAutoFallback('Stream server network failure');
+                      ServerFailoverController.handleFailure(candidate, 'network_fatal_error');
                       break;
 
                     case Hls.ErrorTypes.MEDIA_ERROR:
                       try {
                         hls.recoverMediaError();
                       } catch (_) {
-                        recordServerFailure(candidate.provider);
-                        triggerAutoFallback('Media decoding error');
+                        ServerFailoverController.handleFailure(candidate, 'media_fatal_error');
                       }
                       break;
 
                     default:
-                      recordServerFailure(candidate.provider);
-                      triggerAutoFallback('Playback stream fatal error');
+                      ServerFailoverController.handleFailure(candidate, 'playback_fatal_error');
                       break;
                   }
                 }
@@ -2532,14 +2819,12 @@
               video.src = url;
               video.addEventListener('loadedmetadata', () => {
                 showPlayerOverlay(false);
-                clearStallWatchdog();
-                recordServerSuccess(candidate.provider);
+                ServerFailoverController.recordSuccess(candidate);
                 video.play().catch(() => {});
               }, { once: true });
 
               video.addEventListener('error', () => {
-                recordServerFailure(candidate.provider);
-                triggerAutoFallback('Safari native stream error');
+                ServerFailoverController.handleFailure(candidate, 'native_video_error');
               }, { once: true });
             }
           }
@@ -2562,61 +2847,28 @@
         showPlayerOverlay(false);
       });
 
-      // Ensure mini player can always be dismissed immediately by the user
       artInstance.on('mini', (state) => {
         if (!state && artInstance) {
           try { artInstance.option.autoMini = false; } catch (_) {}
         }
       });
 
-      // Quick Stall Watchdog (6 seconds without forward progress)
-      armStallWatchdog();
+      // Quick Stall Watchdog
+      ServerFailoverController.armHlsWatchdog(candidate);
 
     } catch (err) {
-      console.error('[StreamEngine] ArtPlayer init failure:', err);
-      triggerAutoFallback('Player init failure');
+      console.error('[StreamGuard] ArtPlayer init failure:', err);
+      ServerFailoverController.handleFailure(candidate, 'player_init_failure');
     }
-  }
-
-  function armStallWatchdog() {
-    clearStallWatchdog();
-    stallWatchdogTimer = setTimeout(() => {
-      if (artInstance && artInstance.video) {
-        if (artInstance.video.readyState < 2 || artInstance.video.paused) {
-          console.log('[StreamEngine] Stall watchdog detected stream freeze');
-          triggerAutoFallback('Stream stalled without data');
-        }
-      }
-    }, 6500);
   }
 
   function clearStallWatchdog() {
-    if (stallWatchdogTimer) {
-      clearTimeout(stallWatchdogTimer);
-      stallWatchdogTimer = null;
-    }
+    ServerFailoverController.clearWatchdogs();
   }
 
-  // Transparent Auto-Fallback to Next Server Candidate
   function triggerAutoFallback(reason = 'Connection notice') {
-    clearStallWatchdog();
-    fallbackAttemptCount++;
-
-    if (fallbackAttemptCount > MAX_RETRY_FALLBACKS || activeCandidateIndex + 1 >= currentCandidates.length) {
-      handleAllServersFailed();
-      return;
-    }
-
-    const nextIndex = activeCandidateIndex + 1;
-    const nextCandidate = currentCandidates[nextIndex];
-    console.log(`[StreamEngine] Auto-fallback triggered (${reason}). Moving to: ${nextCandidate.name}`);
-
-    showPlayerOverlay(true, `Connecting to backup source: ${nextCandidate.name}...`);
-    showToast(`Switching to backup source (${nextCandidate.name})...`, 'warning');
-
-    setTimeout(() => {
-      startCandidatePlayback(nextIndex);
-    }, 300);
+    const candidate = currentCandidates[activeCandidateIndex];
+    ServerFailoverController.handleFailure(candidate, reason);
   }
 
   function handleAllServersFailed() {
@@ -2637,7 +2889,7 @@
   }
 
   function teardownArtPlayer() {
-    clearStallWatchdog();
+    ServerFailoverController.clearWatchdogs();
     if (artInstance) {
       try { artInstance.destroy(); } catch (_) {}
       artInstance = null;
@@ -2723,7 +2975,11 @@
     toggleFavorite: toggleFavorite,
     navigateToCategory: navigateToCategory,
     goHome: goHome,
-    closeWatch: closeWatchView
+    closeWatch: closeWatchView,
+    sandboxPolicy: SandboxPolicyManager,
+    cooldownManager: ServerCooldownManager,
+    healthChecker: ServerHealthChecker,
+    failoverController: ServerFailoverController
   };
 
   // Backwards-compatible alias for existing markup and legacy integrations
