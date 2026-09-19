@@ -2086,8 +2086,12 @@
         return;
       }
 
-      // Parse candidates — Real Source Names: Streamed.pk, WatchFooty, StreamFree, etc.
-      currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx, streams)));
+      // Parse candidates — PURE NUMBERED SERVERS: Server 1, Server 2, Server 3, Server 4...
+      currentCandidates = rankCandidates(streams.map((s, idx) => parseStreamCandidate(s, idx)));
+      currentCandidates.forEach((c, idx) => {
+        c.id = idx;
+        c.name = `Server ${idx + 1}`;
+      });
       activeCandidateIndex = 0;
       fallbackAttemptCount = 0;
 
@@ -2226,35 +2230,10 @@
     return '';
   }
 
-  function resolveCandidateName(s, index, allStreams = []) {
-    const baseSource = detectRealSourceName(s) || `Server ${index + 1}`;
-    const channelTag = extractChannelOrLanguage(s);
-
-    const sameSourceStreams = allStreams.filter(other => {
-      const otherBase = detectRealSourceName(other) || '';
-      return otherBase === baseSource;
-    });
-
-    const isShared = sameSourceStreams.length > 1;
-    const indexInSource = sameSourceStreams.indexOf(s) + 1;
-
-    if (channelTag) {
-      const cleanTag = channelTag.replace(new RegExp(baseSource, 'gi'), '').trim();
-      if (cleanTag) {
-        return `${baseSource} (${cleanTag})`;
-      }
-    }
-
-    if (isShared) {
-      return `${baseSource} ${indexInSource || (index + 1)}`;
-    }
-
-    return baseSource;
-  }
-
-  // ─── Stream Candidate Parser (Real Source Names: Streamed.pk, WatchFooty, etc.)
-  function parseStreamCandidate(s, index, allStreams = []) {
-    const candidateName = resolveCandidateName(s, index, allStreams);
+  // ─── Stream Candidate Parser (Strictly Server 1, Server 2, Server 3, Server 4) ────────
+  function parseStreamCandidate(s, index) {
+    const serverNum = index + 1;
+    const candidateName = `Server ${serverNum}`;
     const provider = (s._source || detectRealSourceName(s) || 'stream').slice(0, 16);
 
     let raw = s.url || '';
@@ -2591,13 +2570,12 @@
       const nextCandidate = currentCandidates[nextIndex];
       console.log(`[StreamGuard] Auto-failover triggered (${reason}). Moving to: ${nextCandidate.name}`);
 
-      // Smooth, friendly user notification without technical jargon or sandbox error text
-      showPlayerOverlay(true, `Connecting to backup source: ${nextCandidate.name}...`);
-      showToast(`Switching to backup source (${nextCandidate.name})...`, 'info');
+      // Silent auto-failover transition without backup source phrases or server names
+      showPlayerOverlay(true, 'Connecting...');
 
       setTimeout(() => {
         this.isSwitching = false;
-        startCandidatePlayback(nextIndex);
+        startCandidatePlayback(nextIndex, { isAuto: true });
       }, 250);
     }
   };
@@ -2663,11 +2641,11 @@
     if (candidate.type === 'hls') {
       playHlsStream(candidate, options.useProxy || false);
     } else {
-      playEmbedStream(candidate);
+      playEmbedStream(candidate, options);
     }
   }
 
-  function playEmbedStream(candidate) {
+  function playEmbedStream(candidate, options = {}) {
     teardownArtPlayer();
     if (artplayerContainer) artplayerContainer.classList.add('hidden');
     if (embedFrame) {
@@ -2697,7 +2675,9 @@
     }
 
     showPlayerOverlay(false);
-    showToast(`Streaming via ${candidate.name}`, 'info');
+    if (!options.isAuto) {
+      showToast(`Streaming via ${candidate.name}`, 'info');
+    }
 
     // Click-Shield: Absorb first click to neutralize pop-under ads without touching iframe DOM
     const viewport = document.getElementById('cinema-viewport');

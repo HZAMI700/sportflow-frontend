@@ -8,8 +8,7 @@
 
 ### 1. Intelligent Stream Auto-Recovery Engine
 - **Automated Server Candidate Discovery**: Analyzes available server endpoints (`/stream/sports/{id}.json`) without forcing users to manually guess server numbers.
-- **Provider Health & Playback Validation**: Distinguishes between HTTP reachability and actual video stream decodeability. Evaluates Hls.js fatal errors, stalled states, and iframe embed watchdogs.
-- **Seamless Auto-Failover**: If a stream server encounters a network block or decode error, the engine automatically displays a subtle status indicator (*"Switching to backup source..."*) and recovers to the next eligible candidate.
+- **Seamless Auto-Failover**: If a stream server encounters a network block or decode error, the engine silently and smoothly transitions to the next eligible candidate without disruptive popup alerts.
 - **CORS Relay Fallback**: Automatically falls back from direct HLS to reverse-proxied manifest relay if cross-origin playback restrictions occur.
 
 ### 2. StreamZone Design System
