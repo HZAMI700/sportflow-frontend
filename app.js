@@ -171,14 +171,13 @@
   }
 
   // ─── Instant 0ms Cold-Start Built-in Catalog Seed ────────────────────────
-  const BUILTIN_SEEDED_MATCHES = [{"id":"nuvio_sport_spk_ppv-nfl-network","cleanId":"spk_ppv-nfl-network","title":"NFL Network","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmQggAxqWwgqIGMBokQIUiETqpwkHphaRSmSClYQF9bMXKaU6SnIRQYQSKbZ6YQsCS5HIXJuThdhOScCYHhyN2AXSSA.webp&text=NFL%20Network&color=0369a1"},{"id":"nuvio_sport_sf_rb-salzburg-vs-levski-sofia","cleanId":"sf_rb-salzburg-vs-levski-sofia","title":"RB Salzburg @ Levski Sofia","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VHC1mE%2BIbiB0h9IFCEQ6ShkDALAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp&text=RB%20Salzburg%0Avs%0ALevski%20Sofia&color=10b981"},{"id":"nuvio_sport_sf_tsg-hoffenheim-vs-ofi-crete","cleanId":"sf_tsg-hoffenheim-vs-ofi-crete","title":"TSG Hoffenheim @ OFI Crete","category":"football","league":"Europa League","date":1789663500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VGJRApiMgAwhuIPiBPGUIRMZImjBYEgp9hs%2BijArtbd%2BXpZZ2plowdzFRCCA.webp&text=TSG%20Hoffenheim%0Avs%0AOFI%20Crete&color=10b981"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_sf_connecticut-sun-vs-atlanta-dream","cleanId":"sf_connecticut-sun-vs-atlanta-dream","title":"Atlanta Dream vs Connecticut Sun","category":"basketball","league":"WNBA","date":1789687800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rNCDKJeKSCG4gpm-SBSmQFiMYlMkFPsNn1dKlFzBaiWWW6a0wHmKiEEA.webp&text=Connecticut%20Sun%0Avs%0AAtlanta%20Dream&color=f97316"},{"id":"nuvio_sport_sf_washington-mystics-vs-chicago-sky","cleanId":"sf_washington-mystics-vs-chicago-sky","title":"Chicago Sky vs Washington Mystics","category":"basketball","league":"WNBA","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":3,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aEChACwdECS0huIKXsMbzIEBGMaCwJBT7DZ9FGBUou78vSyzPTLRg7mKiEEA.webp&text=Washington%20Mystics%0Avs%0AChicago%20Sky&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_live-event_2026-truck-playoff-at-bristol-live-stream","cleanId":"spk_live-event_2026-truck-playoff-at-bristol-live-stream","title":"2026 Truck Playoff at Bristol","category":"motorsport","league":"","date":1789689600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=2026%20Truck%20Playoff%20at%20Bristol&color=ef4444"},{"id":"nuvio_sport_spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","cleanId":"spk_live-event_nascar-cup-series-2026-bass-pro-shops-night-race-live-stream","title":"Nascar Cup Series 2026 - Bass Pro Shops Night Race","category":"motorsport","league":"","date":1789807500000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=Nascar%20Cup%20Series%202026%0A-%0ABass%20Pro%20Shops%20Night%20Race&color=ef4444"},{"id":"nuvio_sport_spk_ppv-tna-impact","cleanId":"spk_ppv-tna-impact","title":"TNA Impact","category":"mma","league":"","date":1789693200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IAMYgQwKiBJSQWUqRCyschSmwTVM3cODxgEZcJAwQKOXqtlE60eRMChIptnphCwJLnFahMG5OEwMyLQJDciDjZQggA.webp&text=TNA%20Impact&color=dc2626"},{"id":"nuvio_sport_spk_ppv-wwe-friday-night-smackdown","cleanId":"spk_ppv-wwe-friday-night-smackdown","title":"WWE Friday Night Smackdown","category":"mma","league":"","date":1789776000000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE5MZRAGMQ0rCBgiQVacBqJEKELNnjSIRCU1yRweCpAal0idkV6U5CKDCDjBbPTCFgSXBPtDnVkdhUno3UzBnYEcyCCA.webp&text=WWE%20Friday%20Night%20Smackdown&color=dc2626"},{"id":"nuvio_sport_spk_live-event_john-hedges-vs-pat-brown-live-stream","cleanId":"spk_live-event_john-hedges-vs-pat-brown-live-stream","title":"John Hedges vs Pat Brown","category":"mma","league":"","date":1789840800000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=John%20Hedges%0Avs%0APat%20Brown&color=dc2626"},{"id":"nuvio_sport_spk_ppv-fox-cricket","cleanId":"spk_ppv-fox-cricket","title":"Fox Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMhGA0SIYVOCIQpcSBoQVKbMEnr1AYy01hIGFNXKUIS9JUlN-MIJFMt9wsCS49moY9aS5Mk0CBXJHbVJtIA.webp&text=Fox%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_admin-willow-cricket","cleanId":"spk_admin-willow-cricket","title":"Willow Cricket","category":"cricket","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ2C4%2BcBjYAUwRQFYxi8xg61rLoATdMFSCiUME-YAE5gFbLnrlGUGtB5lBFRvPqVgSWMEJ58fBJCGlxo%2BBP5zgEIA.webp&text=Willow%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_england-cricket-vs-sri-lanka-cricket-2524747","cleanId":"spk_england-cricket-vs-sri-lanka-cricket-2524747","title":"England Cricket vs Sri Lanka Cricket","category":"cricket","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rMNhAhgABkggIIbiD5aQiUyVzWcCpkgp9hs%2BijAqUXd%2BXpZZnploNUXoQoA.webp&text=England%20Cricket%0Avs%0ASri%20Lanka%20Cricket&color=0ea5e9"},{"id":"nuvio_sport_spk_eisb-ren-berlin-vs-straubing-tigers-2518140","cleanId":"spk_eisb-ren-berlin-vs-straubing-tigers-2518140","title":"Eisbären Berlin vs Straubing Tigers","category":"hockey","league":"","date":1789666200000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLGDIhgMtCAghuIPiBLH9IGCCmWQiKQWBIKfYbPopNbFF03l6WLI%2BTLRgXvSiEEA.webp&text=Eisb%C3%A4ren%20Berlin%0Avs%0AStraubing%20Tigers&color=06b6d4"},{"id":"nuvio_sport_spk_schwenninger-vs-frankfurt-lowen-hockey-433611","cleanId":"spk_schwenninger-vs-frankfurt-lowen-hockey-433611","title":"Schwenninger vs Frankfurt Lowen","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohsi%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Schwenninger%0Avs%0AFrankfurt%20Lowen&color=06b6d4"},{"id":"nuvio_sport_spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","cleanId":"spk_krefeld-pinguine-vs-bremerhaven-hockey-433614","title":"Krefeld Pinguine vs Bremerhaven","category":"hockey","league":"","date":1789752600000,"isLive":false,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuFgpsCwVgBDQhWYNMATkhQFZgrDh49g773hta1QKWwAAzcwKdJG7EsCdCCohs8%2BuQYBjZsDA94kqlMINWYbW1wQgA&text=Krefeld%20Pinguine%0Avs%0ABremerhaven&color=06b6d4"},{"id":"nuvio_sport_spk_nflstreams_live","cleanId":"spk_nflstreams_live","title":"NFL Streams Schedule","category":"american_football","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img/placeholder?text=NFL%20Streams%20Schedule&color=f97316"},{"id":"nuvio_sport_spk_admin-tennis-channel","cleanId":"spk_admin-tennis-channel","title":"Tennis Channel","category":"tennis","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuBEBDXsQZgdgwwRgBOYAU0hDpqxQFZh5Tg0wmJgATMNTTAWkVqNri0LIinbQ61OvHS5CISiCggGIRPzWq0hNTTV5s2AMb6NNFif4h%2BVFxux5bFLXnk3aASx2PV0%2BLRRNR0hAtjYUBHZQYkk2JjBHEFsaOxytGFZYSWt5YFIVGOVgeTYOMl5AiCA.webp&text=Tennis%20Channel&color=a3e635"},{"id":"nuvio_sport_spk_admin-rally-tv","cleanId":"spk_admin-rally-tv","title":"Rally TV","category":"motorsport","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuMFBWLwBTYCbYAQxSzPzLCWDWB12Hga00quAGNCF0GdCBQhqjEM1Y4AJhixo5YXLCa8uwMAQSRgATkKk8bMFuKGIQA.webp&text=Rally%20TV&color=ef4444"},{"id":"nuvio_sport_spk_ppv-fox-league","cleanId":"spk_ppv-fox-league","title":"Fox League","category":"rugby","league":"","date":null,"isLive":true,"is247":true,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IMmUQQQKEInjAqICNlIgliDWqziQWYCpolxwRAGMT%2B6cOVre5FQKEimqlOULAkuM%2B6FhuThVhUnoCU3IAg1CIIA.webp&text=Fox%20League&color=8b5cf6"},{"id":"nuvio_sport_wf_23_6Rktf6TF","cleanId":"wf_23_6Rktf6TF","title":"DP WORLD TOUR: BMW PGA Championship (United Kingdom)","category":"golf","league":"","date":1789624800000,"isLive":true,"is247":false,"popular":true,"sourcesCount":1,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fapi.watchfooty.st%2Fapi%2Fv1%2Fposter%2FPFZfk5TG26PM1L9mqMVZjaeMMtx9SYrBmuZMVRqRHDjwbw9vRtBQ66x7Yqptm4Cy7Tm87sYV9jsEXCEcV8SBey9Bd7ncM1Hoi1X1czAxEMKuxXQChtBgzBpBpTRKoPN74UBfo2nYsRYZWKP6BaxVqDZyzwwmuwKUw3rrpvfhTgfPVViCPw2EgyGp6ibh6Tnrgce7T2Laij4MoGFtnix9i33geRgwMyFQiAPejCCAWWj7Ux5vmoHmi19oRFRhqJnKG1p2LZCT4RuVkLufvspbD3cikTzyngMXQpaKwTQa3dZ1fhwQT&text=GOLF&color=22c55e"},{"id":"nuvio_sport_sf_milwaukee-brewers-vs-pittsburgh-pirates","cleanId":"sf_milwaukee-brewers-vs-pittsburgh-pirates","title":"Brewers @ Pirates","category":"baseball","league":"MLB","date":1789662900000,"isLive":false,"is247":false,"popular":true,"sourcesCount":4,"poster":"http://100.116.27.184:20010/img?url=https%3A%2F%2Fstreamed.pk%2Fapi%2Fimages%2Fproxy%2FGwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VLKRBQSIPiH3dd%2B4yi0hEMXLgLAkFPsNn0UYFSi6vy9DaPdNaYK5iohBAA.webp&text=Milwaukee%20Brewers%0Avs%0APittsburgh%20Pirates&color=f43f5e"}];
+  const BUILTIN_SEEDED_MATCHES = [{"id":"spk_ppv-inoue-vs-nasukawa-2","cleanId":"spk_ppv-inoue-vs-nasukawa-2","title":"Inoue vs. Nasukawa 2","name":"Inoue vs. Nasukawa 2","category":"fight","league":"","date":1790496000000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"admin","id":"ppv-inoue-vs-nasukawa-2"},{"source":"delta","id":"live-event_takuma-inoue-vs-tenshin-nasukawa-live-stream"},{"source":"golf","id":"1810"}],"sourcesCount":3,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IEKWzAIIGCBQgyiCcPkgAxhuBUQOsjR1yZZLNhBY1F1RJma5+chFBhBIplJTlCwJLnWehF1YnYUlPAmB4chdpSQggA.webp"},{"id":"spk_sydney-kings-vs-illawarra-hawks-2487894","cleanId":"spk_sydney-kings-vs-illawarra-hawks-2487894","title":"Sydney Kings vs Illawarra Hawks","name":"Sydney Kings vs Illawarra Hawks","category":"basketball","league":"","date":1790496000000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"admin","id":"ppv-sydney-kings-vs-illawarra-hawks"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aEAJRyeIGVJDddRkiBggT+iLhAKmSCn2Gz6KMCq1s35elllamtGBuYqIQQA.webp"},{"id":"spk_penrith-panthers-vs-newcastle-knights-2608134","cleanId":"spk_penrith-panthers-vs-newcastle-knights-2608134","title":"Penrith Panthers vs Newcastle Knights","name":"Penrith Panthers vs Newcastle Knights","category":"rugby","league":"","date":1790488800000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"admin","id":"ppv-panthers-vs-knights"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzuAQ1sFKBWSYAU2DFLABM8E9g1gDCFJMd46Tp51jwywYAE50IEiCwgaEYLOHBEKUopDxFckDHGkQC9VRApJqxIcSJtiMmcnL+YQSKbZ6YQsCS4AxsqGPWeRVlAg0wRzkVCCA.webp"},{"id":"spk_adelaide-36ers-vs-cairns-taipans-2487893","cleanId":"spk_adelaide-36ers-vs-cairns-taipans-2487893","title":"Adelaide 36ers vs Cairns Taipans","name":"Adelaide 36ers vs Cairns Taipans","category":"basketball","league":"","date":1790488800000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"admin","id":"ppv-adelaide-36-ers-vs-cairns-taipans"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rZWF6IUIbrpBSDIEiBjGjiELoLAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp"},{"id":"spk_washington-vs-minnesota-2498853","cleanId":"spk_washington-vs-minnesota-2498853","title":"Washington vs Minnesota","name":"Washington vs Minnesota","category":"american-football","league":"","date":1790478000000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"golf","id":"1745"}],"sourcesCount":1,"poster":""},{"id":"spk_san-jose-earthquakes-vs-portland-timbers-2407111","cleanId":"spk_san-jose-earthquakes-vs-portland-timbers-2407111","title":"San Jose Earthquakes vs Portland Timbers","name":"San Jose Earthquakes vs Portland Timbers","category":"football","league":"","date":1790476200000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"delta","id":"live_mls_san-jose-portland-live-streaming-539410320"},{"source":"foxtrot","id":"portland-timbers-v-san-jose-earthquakes-761843"}],"sourcesCount":2,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rJlRIgUIKWCkhuIPiBi7jhkIhwGpBYEgp9hs+ijAqUXD+XpZZXky0YB5iohBAA.webp"},{"id":"spk_vancouver-whitecaps-vs-dc-united-2407110","cleanId":"spk_vancouver-whitecaps-vs-dc-united-2407110","title":"Vancouver Whitecaps vs DC United","name":"Vancouver Whitecaps vs DC United","category":"football","league":"","date":1790476200000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"delta","id":"live_mls_vancouver-dc-united-live-streaming-539410752"},{"source":"foxtrot","id":"d-c-united-v-vancouver-whitecaps-761842"}],"sourcesCount":2,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8aECn7AwYUVh4huIKSD4gI5kFZxmSuAsCQU+w2fRS62mtrvL19oppMtDqi9GFAA.webp"},{"id":"spk_la-galaxy-vs-colorado-rapids-2407109","cleanId":"spk_la-galaxy-vs-colorado-rapids-2407109","title":"LA Galaxy vs Colorado Rapids","name":"LA Galaxy vs Colorado Rapids","category":"football","league":"","date":1790476200000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"delta","id":"live_mls_la-galaxy-colorado-live-streaming-539409888"},{"source":"foxtrot","id":"colorado-rapids-v-la-galaxy-761841"}],"sourcesCount":2,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VcFJB8QSsChDctRw9pIhEEcwYLAkFPsNn0UYFSi6vy9LLPdNaYK5iohBAA.webp"},{"id":"spk_stanford-vs-georgia-tech-2498889","cleanId":"spk_stanford-vs-georgia-tech-2498889","title":"Stanford vs Georgia Tech","name":"Stanford vs Georgia Tech","category":"american-football","league":"","date":1790476200000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"golf","id":"1743"}],"sourcesCount":1,"poster":""},{"id":"spk_nevada-vs-air-force-2498862","cleanId":"spk_nevada-vs-air-force-2498862","title":"Nevada vs Air Force","name":"Nevada vs Air Force","category":"american-football","league":"","date":1790476200000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"golf","id":"1744"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rKBBCimtMCG4gpIFCEQwtpkOb4gFTJBT7DZ9FGBUou78vSyzPOsBg7mKiEEA.webp"},{"id":"spk_arca-west-at-madera-speedway","cleanId":"spk_arca-west-at-madera-speedway","title":"ARCA West at Madera Speedway","name":"ARCA West at Madera Speedway","category":"motor-sports","league":"","date":1790474400000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"arca-west-at-madera-speedway"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzuBEBOEBjAkFaeYMgVmnHHjHxQvODGDTAFMtgATMHNsCoRGQ4B0joQPaSACGIRRF6Lmc4ApjisjWGIbBDnBJGACuKMWTCduXCEA.webp"},{"id":"spk_6-hours-of-fuji-2421041","cleanId":"spk_6-hours-of-fuji-2421041","title":"6 Hours of Fuji","name":"6 Hours of Fuji","category":"motor-sports","league":"","date":1790474400000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"foxtrot","id":"fuji-speedway-race-6-hours-of-fuji-wec-race-6-hours-of-fuji-fuji-speedway"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rbiGkhtZHBr4gYIKbhAaSIFCAMSmSCn2Gz6KMCpRc35ellkemtGBuYqIQQA.webp"},{"id":"spk_vegas-golden-knights-vs-san-jose-sharks-2498542","cleanId":"spk_vegas-golden-knights-vs-san-jose-sharks-2498542","title":"Vegas Golden Knights vs San Jose Sharks","name":"Vegas Golden Knights vs San Jose Sharks","category":"hockey","league":"","date":1790474400000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"admin","id":"ppv-san-jose-sharks-vs-vegas-golden-knights"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8rUaPADeSENxB8QUkDBAoTFnPr4FgSCjdYixKMCpRc35ellkemtGBuYqIQQA.webp"},{"id":"spk_fresno-state-vs-rice-2498888","cleanId":"spk_fresno-state-vs-rice-2498888","title":"Fresno State vs Rice","name":"Fresno State vs Rice","category":"american-football","league":"","date":1790474400000,"isLive":true,"is247":false,"popular":true,"sources":[{"source":"golf","id":"1742"}],"sourcesCount":1,"poster":""},{"id":"spk_seattle-mariners-vs-los-angeles-angels-2608278","cleanId":"spk_seattle-mariners-vs-los-angeles-angels-2608278","title":"Seattle Mariners vs Los Angeles Angels","name":"Seattle Mariners vs Los Angeles Angels","category":"baseball","league":"","date":1790473200000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"angels-v-mariners-401817098"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAY29lBWSUYAUwVmDTAE5p5gJhqDh61hh1OPgBDYLKQRcOJBt15cyAE1LBCETI3BiOzKrzDTyMECk4heILHpC6jEU0ep6WSClhFzGKMKv0c35RtTn78rMBgbuJiEEA.webp"},{"id":"spk_athletics-vs-houston-astros-2608277","cleanId":"spk_athletics-vs-houston-astros-2608277","title":"Athletics vs Houston Astros","name":"Athletics vs Houston Astros","category":"baseball","league":"","date":1790473200000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"astros-v-athletics-401817100"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAY29lBWSUYAUwVmDTAE5p5gJhqDh61hh1OPgBDYLKQRcOJBt15cyAE1LBCETI3BiOzdvzJiyWELt56QKEDBAGIRsyGogj+YEgpYRcxijCqUPD+UbU5Xvb0YB7iYhBAA.webp"},{"id":"spk_real-salt-lake-vs-new-england-revolution-2407108","cleanId":"spk_real-salt-lake-vs-new-england-revolution-2407108","title":"Real Salt Lake vs New England Revolution","name":"Real Salt Lake vs New England Revolution","category":"football","league":"","date":1790472600000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"new-england-revolution-v-real-salt-lake-761840"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VGMBl8w2kJRDcQfIwZMkQiCLhAgCwJBT7DZ9FGBUou78vSyzPTLRg7mKiEEA.webp"},{"id":"spk_9-26-26-ventura-raceway","cleanId":"spk_9-26-26-ventura-raceway","title":"9.26.26 | Ventura Raceway","name":"9.26.26 | Ventura Raceway","category":"motor-sports","league":"","date":1790471700000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"9-26-26-ventura-raceway"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzuBYKwE5oATHBHYNYAVhUuAEMFSBTSGsYlYFgY2DDMKta8csBwVOYusF4t46EHhAxFIQgpV4FdENwUpOq9aCXHKxJlWgs89Qzu66QOxE2cgITkN+UgmbGCoZEAkxWFF+TngwFBA+WzkSJC4UYmk+FQAGejCssEdQHVilGFScjJBs9NhK0Dj3FW9SsT45SGAEsmE+MEtsPqA.webp"},{"id":"spk_san-diego-padres-vs-arizona-diamondbacks-2608276","cleanId":"spk_san-diego-padres-vs-arizona-diamondbacks-2608276","title":"San Diego Padres vs Arizona Diamondbacks","name":"San Diego Padres vs Arizona Diamondbacks","category":"baseball","league":"","date":1790469600000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"diamondbacks-v-padres-401817099"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzrAY29lBWSUYAUwVmDTAE5p5gJhqDh61hh1OPgBDYLKQRcOJBt15cyAE1LBCETI3BiOzdmMSzpIXmB28QWEChAxdICCYvUjLJBSwi5jFGFUoe78o2pzP+KzAYO7iYhBAA.webp"},{"id":"spk_usac-southwest-sprints-at-deuce-of-clubs-raceway","cleanId":"spk_usac-southwest-sprints-at-deuce-of-clubs-raceway","title":"USAC Southwest Sprints at Central Arizona Raceway","name":"USAC Southwest Sprints at Central Arizona Raceway","category":"motor-sports","league":"","date":1790469000000,"isLive":true,"is247":false,"popular":false,"sources":[{"source":"foxtrot","id":"usac-southwest-sprints-at-deuce-of-clubs-raceway"}],"sourcesCount":1,"poster":"https://streamed.pk/api/images/proxy/GwZg7AZpYEZgHCAjAJgCzuBEBOEBjAkFaeYMgVmnHHjHxQvODGDTAFMtgATMHNsCoRGQ4B0joKAgIbMUYhm1Zpg+NgrTse4-i2AywKRrEULgLCXQjABXBUzJhO3LhCA.webp"}];
 
   // ─── Configuration & Storage Keys ──────────────────────────────────────────
-  const INTERNAL_BACKEND_FALLBACK = 'https://ahudwgrmu9.preview.c35.airoapp.ai/?airoShareToken=At3udpbq8UOL&preview=1';
-  const STORAGE_CACHE_KEY = 'streamzone_cached_matches_v2';
+  const STORAGE_CACHE_KEY = 'streamzone_live_catalog_v3';
   const STORAGE_THEME_KEY = 'streamzone_theme';
   const STORAGE_FAVORITES_KEY = 'streamzone_favorites';
-  const LEGACY_STORAGE_CACHE_KEY = 'streamnaro_cached_matches_v2';
+  const LEGACY_STORAGE_CACHE_KEY = 'streamzone_cached_matches_v2';
   const LEGACY_STORAGE_THEME_KEY = 'streamnaro_theme';
   const LEGACY_STORAGE_FAVORITES_KEY = 'streamnaro_favorites';
   const MAX_RETRY_FALLBACKS = 4;
@@ -190,7 +189,7 @@
       !window.location.hostname.includes('localhost') &&
       !window.location.hostname.includes('127.0.0.1');
 
-    return isWebHosted ? '/api/backend' : INTERNAL_BACKEND_FALLBACK;
+    return isWebHosted ? '/api/backend' : 'http://localhost:7000';
   }
 
   const API_BASE = resolveApiBase();
@@ -237,6 +236,23 @@
     const { originAndPath, baseParams, isRelative } = parseApiBase(API_BASE);
     let fixed = url;
 
+    // Upstream image proxy directly from streamed.pk
+    if (fixed.startsWith('/api/images/')) {
+      return `https://streamed.pk${fixed}`;
+    }
+    if (fixed.includes('streamed.pk/api/images/proxy/')) {
+      return fixed;
+    }
+
+    // Unpack nested image proxy urls (e.g. from older /img?url= queries)
+    if (fixed.includes('/img?url=')) {
+      try {
+        const u = new URL(fixed, 'http://localhost');
+        const embedded = u.searchParams.get('url');
+        if (embedded) return resolveMediaUrl(decodeURIComponent(embedded));
+      } catch (_) {}
+    }
+
     const locOrigin = window.location.origin;
     if (locOrigin && fixed.startsWith(locOrigin + '/api/manifest')) {
       fixed = fixed.replace(locOrigin, originAndPath);
@@ -251,16 +267,6 @@
       }
     } else {
       fixed = fixed.replace(/^http:\/\/(?:100\.\d+\.\d+\.\d+:\d+|169\.254\.\d+\.\d+:\d+|localhost:\d+|127\.0\.0\.1:\d+)/, originAndPath);
-    }
-
-    if (fixed.includes('ahudwgrmu9.preview.c35.airoapp.ai')) {
-      try {
-        const u = new URL(fixed);
-        for (const [k, v] of baseParams.entries()) {
-          if (!u.searchParams.has(k)) u.searchParams.set(k, v);
-        }
-        return u.toString();
-      } catch (_) {}
     }
 
     return fixed;
@@ -555,6 +561,13 @@
     const lower = cleanTitle.toLowerCase();
     if ((lower === 'vs' || lower === 'v' || lower.startsWith('vs ') || lower.endsWith(' vs')) && cleanTitle.length <= 4) {
       return false;
+    }
+    // Filter out past finished events (older than 4 hours) unless 24/7 or live
+    if (item.date && !item.is247 && !item.isLive) {
+      const matchTimestamp = Number(item.date);
+      if (!isNaN(matchTimestamp) && matchTimestamp > 0 && matchTimestamp < (Date.now() - 4 * 60 * 60 * 1000)) {
+        return false;
+      }
     }
     return true;
   }
@@ -1391,12 +1404,32 @@
 
   // ─── 0ms Cold Start Local Cache & Seed ──────────────────────────────────────
   function loadCachedCatalog() {
+    const now = Date.now();
+    const CACHE_TTL_MS = 15 * 60 * 1000; // 15-minute TTL to ensure fresh live data
+
     try {
       const raw = localStorage.getItem(STORAGE_CACHE_KEY);
       if (raw) {
-        const cached = JSON.parse(raw);
-        if (Array.isArray(cached) && cached.length > 0) {
-          allMatches = cached.filter(isValidMatchItem).map(m => ({
+        const cachedObj = JSON.parse(raw);
+        let items = Array.isArray(cachedObj) ? cachedObj : (cachedObj.items || []);
+        const cachedAt = cachedObj.timestamp || 0;
+
+        // Discard expired cache (> 15 min old)
+        if (cachedAt && (now - cachedAt > CACHE_TTL_MS)) {
+          console.log('[StreamEngine] Cached catalog expired (> 15 min). Refreshing live data...');
+          items = [];
+        }
+
+        // Filter out past matches older than 4 hours
+        const freshItems = items.filter(m => {
+          if (!isValidMatchItem(m)) return false;
+          if (m.is247 || !m.date) return true;
+          const matchDate = Number(m.date);
+          return matchDate >= (now - 4 * 60 * 60 * 1000);
+        });
+
+        if (freshItems.length > 0) {
+          allMatches = freshItems.map(m => ({
             ...m,
             category: normalizeSportCategory(m)
           }));
@@ -1422,13 +1455,21 @@
   }
 
   async function loadInitialSeedIfNeeded() {
-    if (allMatches.length >= 50) return;
+    if (allMatches.length >= 20) return;
     try {
       const res = await fetch('/seed-catalog.json', { cache: 'no-cache' });
       if (res.ok) {
         const rawItems = await res.json();
-        if (Array.isArray(rawItems) && rawItems.length > allMatches.length) {
-          processCatalogItems(rawItems, 'Seed');
+        const now = Date.now();
+        const freshSeedItems = (Array.isArray(rawItems) ? rawItems : []).filter(item => {
+          if (!isValidMatchItem(item)) return false;
+          if (item.is247 || !item.date) return true;
+          const d = Number(item.date);
+          return !isNaN(d) && d >= (now - 4 * 60 * 60 * 1000);
+        });
+
+        if (freshSeedItems.length > allMatches.length) {
+          processCatalogItems(freshSeedItems, 'Seed');
         }
       }
     } catch (_) {}
@@ -1436,7 +1477,13 @@
 
   function saveCatalogToCache(matches) {
     try {
-      localStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(matches));
+      const cachePayload = {
+        timestamp: Date.now(),
+        items: matches
+      };
+      localStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(cachePayload));
+      localStorage.removeItem('streamzone_cached_matches_v2');
+      localStorage.removeItem('streamnaro_cached_matches_v2');
     } catch (_) {}
   }
 
@@ -1479,6 +1526,7 @@
         isLive: isLive,
         is247: is247,
         popular: item.popular === true || item.popular === '1',
+        sources: item.sources || [],
         sourcesCount: item.sourcesCount || (item.sources && item.sources.length) || 1,
         poster: poster
       };
@@ -1502,7 +1550,7 @@
     for (const url of urls) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
         const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
@@ -1517,17 +1565,134 @@
     return [];
   }
 
+  // Direct Tier-2 Live Upstream Synchronization (Zero-Failure Guarantee)
+  async function fetchLiveUpstreamCatalog() {
+    try {
+      const [pkAll, pkLive, sfData] = await Promise.all([
+        fetch('https://streamed.pk/api/matches/all', { cache: 'no-cache', signal: AbortSignal.timeout(8000) })
+          .then(r => r.ok ? r.json() : [])
+          .catch(() => []),
+        fetch('https://streamed.pk/api/matches/live', { cache: 'no-cache', signal: AbortSignal.timeout(6000) })
+          .then(r => r.ok ? r.json() : [])
+          .catch(() => []),
+        fetch('https://streamfree.top/streams', { cache: 'no-cache', signal: AbortSignal.timeout(8000) })
+          .then(r => r.ok ? r.json() : { streams: {} })
+          .catch(() => ({ streams: {} }))
+      ]);
+
+      const livePkIds = new Set((Array.isArray(pkLive) ? pkLive : []).map(m => m.id));
+      const now = Date.now();
+      const aggregated = [];
+      const seenTitles = new Set();
+
+      // 1. Ingest Streamed.pk live & upcoming events
+      if (Array.isArray(pkAll)) {
+        for (const m of pkAll) {
+          if (!m.id || !m.title) continue;
+          const is247 = !m.date || Number(m.date) <= 0;
+          const matchDate = m.date ? Number(m.date) : null;
+          const isVerifiedLive = livePkIds.has(m.id);
+          const isTimeLive = matchDate && matchDate <= (now + 15 * 60 * 1000) && matchDate >= (now - 3.5 * 60 * 60 * 1000);
+          const isLive = is247 ? false : (isVerifiedLive || isTimeLive);
+
+          // Discard finished matches older than 4 hours
+          if (matchDate && matchDate < (now - 4 * 60 * 60 * 1000) && !isLive) {
+            continue;
+          }
+
+          const rawTitle = String(m.title).trim();
+          seenTitles.add(rawTitle.toLowerCase());
+
+          let poster = m.poster || '';
+          if (poster.startsWith('/api/images/')) {
+            poster = `https://streamed.pk${poster}`;
+          }
+
+          aggregated.push({
+            id: `spk_${m.id}`,
+            cleanId: `spk_${m.id}`,
+            name: rawTitle,
+            title: rawTitle,
+            category: m.category || 'other',
+            league: m.league || '',
+            date: matchDate,
+            isLive: isLive,
+            is247: is247,
+            popular: !!m.popular,
+            sources: m.sources || [{ source: 'admin', id: m.id }],
+            sourcesCount: (m.sources && m.sources.length) || 1,
+            poster: poster
+          });
+        }
+      }
+
+      // 2. Ingest StreamFree live & upcoming events
+      const sfStreams = (sfData && sfData.streams) || {};
+      for (const cat of Object.keys(sfStreams)) {
+        const list = sfStreams[cat];
+        if (!Array.isArray(list)) continue;
+
+        for (const s of list) {
+          if (!s.name) continue;
+          const title = String(s.name).trim();
+          if (seenTitles.has(title.toLowerCase())) continue;
+
+          const matchTime = s.match_timestamp ? Number(s.match_timestamp) * 1000 : null;
+          if (matchTime && matchTime < (now - 4 * 60 * 60 * 1000)) continue;
+
+          const isLive = matchTime && matchTime <= (now + 15 * 60 * 1000) && matchTime >= (now - 3 * 60 * 60 * 1000);
+
+          aggregated.push({
+            id: `sf_${s.id || s.stream_key}`,
+            cleanId: `sf_${s.id || s.stream_key}`,
+            name: title,
+            title: title,
+            category: cat,
+            league: s.league || '',
+            date: matchTime,
+            isLive: !!isLive,
+            is247: false,
+            popular: false,
+            sources: [{ source: 'streamfree', id: s.id, stream_key: s.stream_key }],
+            sourcesCount: 1,
+            poster: s.team1?.logo || s.team2?.logo || ''
+          });
+        }
+      }
+
+      return aggregated;
+    } catch (e) {
+      console.warn('[StreamEngine] Direct upstream sync warning:', e);
+      return [];
+    }
+  }
+
   async function syncCatalogInBackground(isUserTriggered = false) {
     if (liveSyncPill) liveSyncPill.classList.add('syncing');
     if (syncText) syncText.textContent = 'Syncing...';
 
     try {
-      const primaryUrl = buildApiUrl('/catalog/sports/all.json');
-      const directUrl = `${INTERNAL_BACKEND_FALLBACK.replace(/\/?\?/, '/catalog/sports/all.json?')}`;
-      const matchesUrl = buildApiUrl('/api/matches');
-      const directMatchesUrl = `${INTERNAL_BACKEND_FALLBACK.replace(/\/?\?/, '/api/matches?')}`;
+      let rawItems = [];
 
-      const rawItems = await fetchFromEndpoints([primaryUrl, matchesUrl, directUrl, directMatchesUrl]);
+      // Tier 1: Try local or reverse-proxy backend endpoints
+      const primaryUrl = buildApiUrl('/catalog/sports/all.json');
+      const matchesUrl = buildApiUrl('/api/matches');
+      const backendItems = await fetchFromEndpoints([primaryUrl, matchesUrl]);
+
+      const now = Date.now();
+      const freshBackendItems = backendItems.filter(item => {
+        if (!isValidMatchItem(item)) return false;
+        if (item.is247 || !item.date) return true;
+        const d = Number(item.date);
+        return !isNaN(d) && d >= (now - 4 * 60 * 60 * 1000);
+      });
+
+      if (freshBackendItems.length >= 10) {
+        rawItems = freshBackendItems;
+      } else {
+        // Tier 2: Real-time public upstream catalog aggregation
+        rawItems = await fetchLiveUpstreamCatalog();
+      }
 
       if (rawItems.length > 0) {
         _syncRetryCount = 0;
@@ -1542,11 +1707,9 @@
         return;
       }
 
-      // If backend returned empty (e.g. cold container warming up):
       if (_syncRetryCount < MAX_SYNC_RETRIES) {
         _syncRetryCount++;
         const delay = Math.min(1000 + (_syncRetryCount * 800), 4000);
-        console.log(`[StreamEngine] Backend warming up. Auto-retrying catalog sync in ${delay}ms (attempt ${_syncRetryCount}/${MAX_SYNC_RETRIES})...`);
         if (syncText) syncText.textContent = `Connecting (${_syncRetryCount})...`;
         
         if (_syncRetryTimer) clearTimeout(_syncRetryTimer);
@@ -1998,22 +2161,112 @@
 
   // ─── Stream Pre-Caching (Instant 0ms start on click) ────────────────────────
   async function prefetchStreamSources(cleanId) {
-    if (!cleanId) return;
+    if (!cleanId) return [];
     const existing = streamSourcesCache.get(cleanId);
     if (existing && Date.now() - existing.timestamp < STREAM_CACHE_TTL) {
       return existing.streams;
     }
 
+    let streams = [];
+
+    // 1. Try local/proxy backend first
     try {
       const res = await fetch(buildApiUrl(`/stream/sports/${cleanId}.json`), { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
-        const streams = json.streams || [];
-        streamSourcesCache.set(cleanId, { streams, timestamp: Date.now() });
-        return streams;
+        if (Array.isArray(json.streams) && json.streams.length > 0) {
+          streams = json.streams;
+        }
       }
     } catch (_) {}
-    return [];
+
+    // 2. Direct upstream resolution if backend is offline or returned no streams
+    if (!streams.length) {
+      const match = allMatches.find(m => m.cleanId === cleanId || m.id === cleanId);
+      const matchSources = (match && match.sources) || [];
+
+      // Query streamed.pk or streamfree sources
+      for (const src of matchSources) {
+        if (src.source === 'streamfree') {
+          streams.push({
+            name: `Server ${streams.length + 1}`,
+            title: 'StreamFree HD',
+            url: `https://streamfree.top/embed/${src.id || src.stream_key || cleanId.replace(/^sf_/, '')}`,
+            externalUrl: `https://streamfree.top/embed/${src.id || src.stream_key || cleanId.replace(/^sf_/, '')}`,
+            embedUrl: `https://streamfree.top/embed/${src.id || src.stream_key || cleanId.replace(/^sf_/, '')}`,
+            _source: 'streamfree'
+          });
+          continue;
+        }
+
+        try {
+          const streamUrl = `https://streamed.pk/api/stream/${encodeURIComponent(src.source)}/${encodeURIComponent(src.id)}`;
+          const sRes = await fetch(streamUrl);
+          if (sRes.ok) {
+            const list = await sRes.json();
+            if (Array.isArray(list)) {
+              for (const item of list) {
+                if (!item.embedUrl) continue;
+                streams.push({
+                  name: `Server ${streams.length + 1}`,
+                  title: `${item.language || 'English'}${item.hd ? ' HD' : ''}`,
+                  url: item.embedUrl,
+                  externalUrl: item.embedUrl,
+                  embedUrl: item.embedUrl,
+                  _source: item.source || src.source,
+                  viewers: item.viewers || 0
+                });
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      // If cleanId starts with spk_ but no sources were attached
+      if (!streams.length && cleanId.startsWith('spk_')) {
+        const rawId = cleanId.replace(/^spk_/, '');
+        for (const providerName of ['admin', 'delta', 'golf', 'echo']) {
+          try {
+            const sRes = await fetch(`https://streamed.pk/api/stream/${providerName}/${encodeURIComponent(rawId)}`);
+            if (sRes.ok) {
+              const list = await sRes.json();
+              if (Array.isArray(list)) {
+                for (const item of list) {
+                  if (!item.embedUrl) continue;
+                  streams.push({
+                    name: `Server ${streams.length + 1}`,
+                    title: `${item.language || 'English'}${item.hd ? ' HD' : ''}`,
+                    url: item.embedUrl,
+                    externalUrl: item.embedUrl,
+                    embedUrl: item.embedUrl,
+                    _source: providerName
+                  });
+                }
+              }
+            }
+          } catch (_) {}
+          if (streams.length > 0) break;
+        }
+      }
+
+      // If cleanId starts with sf_
+      if (!streams.length && cleanId.startsWith('sf_')) {
+        const sfKey = cleanId.replace(/^sf_/, '');
+        streams.push({
+          name: 'Server 1',
+          title: 'StreamFree HD',
+          url: `https://streamfree.top/embed/${sfKey}`,
+          externalUrl: `https://streamfree.top/embed/${sfKey}`,
+          embedUrl: `https://streamfree.top/embed/${sfKey}`,
+          _source: 'streamfree'
+        });
+      }
+    }
+
+    if (streams.length > 0) {
+      streamSourcesCache.set(cleanId, { streams, timestamp: Date.now() });
+    }
+    return streams;
   }
 
   // ─── Dedicated Watch Stream Page View (Zero Sliders, Pure Server 1, 2) ───────
@@ -2236,10 +2489,10 @@
     const candidateName = `Server ${serverNum}`;
     const provider = (s._source || detectRealSourceName(s) || 'stream').slice(0, 16);
 
-    let raw = s.url || '';
+    let raw = s.url || s.embedUrl || s.stream_url || '';
     raw = resolveMediaUrl(raw);
 
-    let ext = s.externalUrl || '';
+    let ext = s.externalUrl || s.embedUrl || '';
     if (ext) ext = resolveMediaUrl(ext);
 
     // 1. Direct HLS streams (either raw .m3u8 or proxied through /api/manifest)
@@ -2267,17 +2520,20 @@
       };
     }
 
-    // 2. Clean Player Proxy or Internal Embed (/api/clean-player or /watch)
+    // 2. Clean Player Proxy or Direct Embed
     const candidateUrl = ext || raw;
-    let isCleanPlayer = false;
+    let isDirectEmbed = false;
     try {
       const parsed = new URL(candidateUrl, window.location.origin);
       if (parsed.pathname === '/api/clean-player' || parsed.pathname === '/watch' || candidateUrl.includes('/api/clean-player')) {
-        isCleanPlayer = true;
+        isDirectEmbed = true;
+      }
+      if (candidateUrl.includes('embed.st') || candidateUrl.includes('/embed/') || candidateUrl.includes('streamfree.top/embed')) {
+        isDirectEmbed = true;
       }
     } catch (_) {}
 
-    if (isCleanPlayer) {
+    if (isDirectEmbed) {
       return {
         id: index,
         name: candidateName,
@@ -2289,7 +2545,7 @@
       };
     }
 
-    // 3. Fallback Embed (if third-party URL was not pre-wrapped, route through /api/clean-player)
+    // 3. Fallback Embed
     const cleanProxied = candidateUrl.startsWith('http')
       ? buildApiUrl('/api/clean-player', { url: candidateUrl })
       : candidateUrl;
