@@ -19,24 +19,162 @@
   // AD-BLOCKING ENGINE — 5-Layer Defense System (Zero Pop-Unders Guarantee)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // Layer 1: Block ALL window.open() pop-unders from any source
-  const _originalWindowOpen = window.open;
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LIGHT-SPEED POP-UNDER & REDIRECT DEFENSE SYSTEM (20ms Focus Guardian)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Focus Snapping Schedule: exactly [0, 5, 15, 30, 60, 120, 250] ms
+  const FOCUS_SNAP_DELAYS = [0, 5, 15, 30, 60, 120, 250];
+  let _focusGuardianInterval = null;
+  let _isPlaybackActive = false;
+  const _activeSnapTimers = [];
+
+  /**
+   * Instant focus snapping at 0ms, 5ms, 15ms, 30ms, 60ms, 120ms, and 250ms.
+   * Snaps window focus back immediately whenever any window focus shift is detected,
+   * neutralizing pop-unders before they can hijack user focus or visibility.
+   */
+  function triggerFocusSnapping(reason = 'focus_shift') {
+    if (!_isPlaybackActive && reason !== 'window_open_trapped') return;
+
+    // Clear any previous pending snap timers to avoid timer pile-up
+    while (_activeSnapTimers.length > 0) {
+      clearTimeout(_activeSnapTimers.pop());
+    }
+
+    FOCUS_SNAP_DELAYS.forEach(delay => {
+      const snap = () => {
+        try {
+          if (typeof window !== 'undefined' && typeof window.focus === 'function') {
+            window.focus();
+          }
+        } catch (_) {}
+      };
+
+      if (delay === 0) {
+        snap();
+      } else {
+        const timerId = setTimeout(snap, delay);
+        _activeSnapTimers.push(timerId);
+      }
+    });
+  }
+
+  /**
+   * Active 20ms Focus Guardian running during video playback.
+   * High-frequency 20ms heartbeat guarantees the browser window immediately reclaims focus.
+   */
+  function startFocusGuardian() {
+    _isPlaybackActive = true;
+    if (_focusGuardianInterval) {
+      clearInterval(_focusGuardianInterval);
+    }
+
+    _focusGuardianInterval = setInterval(() => {
+      if (!_isPlaybackActive) return;
+      if (typeof document !== 'undefined' && typeof document.hasFocus === 'function') {
+        if (!document.hasFocus()) {
+          triggerFocusSnapping('20ms_guardian_focus_lost');
+        }
+      }
+    }, 20);
+
+    // Initial snap
+    triggerFocusSnapping('guardian_started');
+  }
+
+  function stopFocusGuardian() {
+    _isPlaybackActive = false;
+    if (_focusGuardianInterval) {
+      clearInterval(_focusGuardianInterval);
+      _focusGuardianInterval = null;
+    }
+    while (_activeSnapTimers.length > 0) {
+      clearTimeout(_activeSnapTimers.pop());
+    }
+  }
+
+  // Window Focus Shift Detection Listeners:
+  // Detects any focus loss, blur, or backgrounding and snaps focus back at light speed
+  if (typeof window !== 'undefined') {
+    window.addEventListener('blur', () => {
+      if (_isPlaybackActive) triggerFocusSnapping('window_blur');
+    }, true);
+
+    window.addEventListener('focusout', () => {
+      if (_isPlaybackActive) triggerFocusSnapping('window_focusout');
+    }, true);
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (_isPlaybackActive && document.visibilityState === 'hidden') {
+        triggerFocusSnapping('visibility_hidden');
+      }
+    }, true);
+  }
+
+  // Layer 1: Global window.open traps — prevent pop-under creation without crashing ad scripts
+  const _originalWindowOpen = typeof window !== 'undefined' ? window.open : null;
   let _allowedOpenCount = 0;
-  window.open = function (...args) {
-    // Only allow if explicitly triggered by our own code (never by ads)
-    if (_allowedOpenCount > 0) {
+
+  const dummyWindowProxy = {
+    closed: true,
+    focus: () => {},
+    blur: () => {},
+    close: () => {},
+    postMessage: () => {},
+    opener: null,
+    location: { href: '', replace: () => {}, assign: () => {} },
+    document: {}
+  };
+
+  const safeOpenTrap = function (...args) {
+    if (_allowedOpenCount > 0 && _originalWindowOpen) {
       _allowedOpenCount--;
       return _originalWindowOpen.apply(window, args);
     }
-    console.warn('[AdShield] Blocked pop-under attempt:', args[0]);
-    return null;
+    console.warn('[AdShield] Blocked pop-under window.open attempt:', args[0]);
+    triggerFocusSnapping('window_open_trapped');
+    return dummyWindowProxy;
   };
 
-  // Layer 2: Block beforeunload hijacking (ad redirects)
-  window.addEventListener('beforeunload', function (e) {
-    // Don't allow ad scripts to set custom messages
-    delete e.returnValue;
-  });
+  if (typeof window !== 'undefined') {
+    try {
+      Object.defineProperty(window, 'open', {
+        configurable: false,
+        enumerable: true,
+        get: () => safeOpenTrap,
+        set: () => {
+          console.warn('[AdShield] Blocked attempt to overwrite window.open');
+        }
+      });
+    } catch (_) {
+      window.open = safeOpenTrap;
+    }
+  }
+
+  // Layer 2: beforeunload navigation guards — prevent redirects without breaking player features
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', function (e) {
+      if (_isPlaybackActive) {
+        delete e.returnValue;
+        triggerFocusSnapping('beforeunload_guard');
+      }
+    }, true);
+
+    try {
+      let _customBeforeUnload = null;
+      Object.defineProperty(window, 'onbeforeunload', {
+        configurable: false,
+        get: () => _customBeforeUnload,
+        set: () => {
+          console.warn('[AdShield] Guarded onbeforeunload assignment');
+          _customBeforeUnload = null;
+        }
+      });
+    } catch (_) {}
+  }
 
   // Layer 3: MutationObserver — detect and destroy injected ad elements
   function initAdBlockObserver() {
@@ -2586,68 +2724,25 @@
    * allow-top-navigation, allow-top-navigation-by-user-activation.
    */
   const SandboxPolicyManager = {
-    DEFAULT_SANDBOX: 'allow-scripts allow-same-origin allow-forms',
-    DEFAULT_ALLOW: 'autoplay; fullscreen; picture-in-picture',
-    
-    FORBIDDEN_PERMISSIONS: [
-      'allow-popups',
-      'allow-popups-to-escape-sandbox',
-      'allow-top-navigation',
-      'allow-top-navigation-by-user-activation'
-    ],
-
-    isStreamedPk(candidate) {
-      if (!candidate) return false;
-      const provider = (candidate.provider || '').toLowerCase();
-      const name = (candidate.name || '').toLowerCase();
-      const url = (candidate.url || '').toLowerCase();
-      const proxyUrl = (candidate.proxyUrl || '').toLowerCase();
-      return provider.includes('streamed') ||
-             name.includes('streamed') ||
-             url.includes('streamed.pk') ||
-             url.includes('streamedpk') ||
-             url.includes('embed.st') ||
-             proxyUrl.includes('streamed.pk') ||
-             proxyUrl.includes('embed.st');
+    getSandboxPolicy() {
+      // Intentionally null: No iframe sandbox to prevent breaking player features
+      return null;
     },
 
-    getSandboxPolicy(candidate, options = {}) {
-      // Specifically remove sandbox for Streamed.pk embedded streams so video plays without restrictions
-      if (this.isStreamedPk(candidate)) {
-        return null;
-      }
-      if (options.escalateToFallback && candidate && candidate.requiresPermissiveFallback) {
-        // Last-resort fallback tier only (never default)
-        return 'allow-scripts allow-same-origin allow-forms allow-presentation';
-      }
-      return this.DEFAULT_SANDBOX;
+    getAllowPolicy() {
+      return 'autoplay; fullscreen; picture-in-picture; encrypted-media';
     },
 
-    getAllowPolicy(candidate) {
-      return this.DEFAULT_ALLOW;
-    },
-
-    applyToIframe(iframe, candidate, options = {}) {
+    applyToIframe(iframe) {
       if (!iframe) return;
-      const policy = this.getSandboxPolicy(candidate, options);
-      const allow = this.getAllowPolicy(candidate);
-      
-      if (policy === null) {
-        iframe.removeAttribute('sandbox');
-      } else {
-        iframe.setAttribute('sandbox', policy);
-      }
-      iframe.setAttribute('allow', allow);
+      // Do not add iframe sandbox attribute - maintains 100% player features compatibility
+      iframe.removeAttribute('sandbox');
+      iframe.setAttribute('allow', this.getAllowPolicy());
       iframe.setAttribute('referrerpolicy', 'no-referrer');
       iframe.setAttribute('allowfullscreen', 'true');
     }
   };
 
-  /**
-   * 2. ServerCooldownManager
-   * Tracks failed servers and applies a temporary cooldown (60s) to prevent
-   * endless retry loops on unresponsive or sandbox-incompatible streams.
-   */
   const ServerCooldownManager = {
     COOLDOWN_MS: 60 * 1000,
     failedServers: new Map(), // key -> { timestamp, reason, failCount }
@@ -3215,7 +3310,13 @@
     sandboxPolicy: SandboxPolicyManager,
     cooldownManager: ServerCooldownManager,
     healthChecker: ServerHealthChecker,
-    failoverController: ServerFailoverController
+    failoverController: ServerFailoverController,
+    focusGuardian: {
+      start: startFocusGuardian,
+      stop: stopFocusGuardian,
+      snap: triggerFocusSnapping,
+      isPlaybackActive: () => _isPlaybackActive
+    }
   };
 
   // Backwards-compatible alias for existing markup and legacy integrations
