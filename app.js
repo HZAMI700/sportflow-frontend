@@ -23,17 +23,73 @@
   // LIGHT-SPEED POP-UNDER & REDIRECT DEFENSE SYSTEM (20ms Focus Guardian)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // Focus Snapping Schedule: exactly [0, 5, 15, 30, 60, 120, 250] ms
-  const FOCUS_SNAP_DELAYS = [0, 5, 15, 30, 60, 120, 250];
+  // Focus Snapping Schedule: includes [0ms, 5ms, 15ms, 30ms, 50ms, 60ms, 120ms, 250ms]
+  const FOCUS_SNAP_DELAYS = [0, 5, 15, 30, 50, 60, 120, 250];
   let _focusGuardianInterval = null;
   let _isPlaybackActive = false;
   const _activeSnapTimers = [];
+  let _lastTouchTimestamp = 0;
 
   /**
-   * Instant focus snapping at 0ms, 5ms, 15ms, 30ms, 60ms, 120ms, and 250ms.
-   * Snaps window focus back immediately whenever any window focus shift is detected,
-   * neutralizing pop-unders before they can hijack user focus or visibility.
+   * Mobile device detection (detects smartphones/tablets and touch screens)
    */
+  function isMobileDevice() {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || navigator.vendor || (typeof window !== 'undefined' && window.opera ? window.opera.toString() : '');
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua);
+    const hasTouch = typeof window !== 'undefined' && ('ontouchstart' in window || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+    return isMobileUA || (hasTouch && typeof window !== 'undefined' && window.innerWidth <= 1024);
+  }
+
+  /**
+   * Mobile Instant Kill (window.stop()):
+   * Aborts in-flight rogue redirects, window hijacks, or rogue script navigation immediately.
+   */
+  function mobileInstantKill(reason = 'mobile_kill') {
+    if (!isMobileDevice()) return;
+    try {
+      if (typeof window !== 'undefined' && typeof window.stop === 'function') {
+        window.stop();
+        console.log(`[AdShield] Mobile Instant Kill (${reason}): window.stop() executed`);
+      }
+    } catch (_) {}
+  }
+
+  /**
+   * Browser History Locking:
+   * Neutralizes rogue ads attempting popstate back-button hijacks or landing redirects.
+   */
+  function armHistoryLock() {
+    try {
+      if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
+        window.history.pushState({ streamSafe: true, ts: Date.now() }, document.title, window.location.href);
+      }
+    } catch (_) {}
+  }
+
+  /**
+   * High-Speed Focus Trap (0ms, 50ms, 60ms):
+   * Detects focus loss and immediately snaps focus back (iframe.blur() + window.focus()),
+   * killing the popup window before it can open.
+   */
+  function performFocusSnap() {
+    try {
+      // 1. Rip focus away from the embed iframe immediately
+      if (embedFrame && typeof embedFrame.blur === 'function') {
+        embedFrame.blur();
+      }
+      // 2. Clear any active rogue element focus
+      if (typeof document !== 'undefined' && document.activeElement && 
+          (document.activeElement.tagName === 'IFRAME' || document.activeElement.tagName === 'A')) {
+        document.activeElement.blur();
+      }
+      // 3. Immediately re-assert window focus on the host application
+      if (typeof window !== 'undefined' && typeof window.focus === 'function') {
+        window.focus();
+      }
+    } catch (_) {}
+  }
+
   function triggerFocusSnapping(reason = 'focus_shift') {
     if (!_isPlaybackActive && reason !== 'window_open_trapped') return;
 
@@ -43,18 +99,10 @@
     }
 
     FOCUS_SNAP_DELAYS.forEach(delay => {
-      const snap = () => {
-        try {
-          if (typeof window !== 'undefined' && typeof window.focus === 'function') {
-            window.focus();
-          }
-        } catch (_) {}
-      };
-
       if (delay === 0) {
-        snap();
+        performFocusSnap();
       } else {
-        const timerId = setTimeout(snap, delay);
+        const timerId = setTimeout(performFocusSnap, delay);
         _activeSnapTimers.push(timerId);
       }
     });
@@ -79,8 +127,9 @@
       }
     }, 20);
 
-    // Initial snap
+    // Initial snap and history lock
     triggerFocusSnapping('guardian_started');
+    armHistoryLock();
   }
 
   function stopFocusGuardian() {
@@ -94,27 +143,49 @@
     }
   }
 
-  // Window Focus Shift Detection Listeners:
-  // Detects any focus loss, blur, or backgrounding and snaps focus back at light speed
+  // Window Focus Shift & Mobile Hijack Detection Listeners:
   if (typeof window !== 'undefined') {
+    window.addEventListener('touchstart', () => {
+      _lastTouchTimestamp = Date.now();
+    }, { capture: true, passive: true });
+
     window.addEventListener('blur', () => {
-      if (_isPlaybackActive) triggerFocusSnapping('window_blur');
+      if (_isPlaybackActive) {
+        if (isMobileDevice() || (Date.now() - _lastTouchTimestamp < 1000)) {
+          mobileInstantKill('blur_touch_hijack');
+        }
+        triggerFocusSnapping('window_blur');
+      }
     }, true);
 
     window.addEventListener('focusout', () => {
-      if (_isPlaybackActive) triggerFocusSnapping('window_focusout');
+      if (_isPlaybackActive) {
+        if (isMobileDevice() || (Date.now() - _lastTouchTimestamp < 1000)) {
+          mobileInstantKill('focusout_touch_hijack');
+        }
+        triggerFocusSnapping('window_focusout');
+      }
+    }, true);
+
+    window.addEventListener('popstate', (e) => {
+      if (_isPlaybackActive) {
+        mobileInstantKill('popstate_redirect_attempt');
+        armHistoryLock();
+        triggerFocusSnapping('popstate_history_lock');
+      }
     }, true);
   }
 
   if (typeof document !== 'undefined') {
     document.addEventListener('visibilitychange', () => {
       if (_isPlaybackActive && document.visibilityState === 'hidden') {
+        mobileInstantKill('visibility_hidden');
         triggerFocusSnapping('visibility_hidden');
       }
     }, true);
   }
 
-  // Layer 1: Global window.open traps — prevent pop-under creation without crashing ad scripts
+  // Layer 1: Global window.open, self.open, top.open & parent.open lock
   const _originalWindowOpen = typeof window !== 'undefined' ? window.open : null;
   let _allowedOpenCount = 0;
 
@@ -125,8 +196,8 @@
     close: () => {},
     postMessage: () => {},
     opener: null,
-    location: { href: '', replace: () => {}, assign: () => {} },
-    document: {}
+    location: { href: '', replace: () => {}, assign: () => {}, reload: () => {} },
+    document: { write: () => {}, open: () => {}, close: () => {} }
   };
 
   const safeOpenTrap = function (...args) {
@@ -135,31 +206,53 @@
       return _originalWindowOpen.apply(window, args);
     }
     console.warn('[AdShield] Blocked pop-under window.open attempt:', args[0]);
+    mobileInstantKill('window_open_trapped');
     triggerFocusSnapping('window_open_trapped');
     return dummyWindowProxy;
   };
 
-  if (typeof window !== 'undefined') {
+  function lockOpenMethod(targetObj, targetName) {
+    if (!targetObj) return;
     try {
-      Object.defineProperty(window, 'open', {
+      Object.defineProperty(targetObj, 'open', {
         configurable: false,
         enumerable: true,
         get: () => safeOpenTrap,
         set: () => {
-          console.warn('[AdShield] Blocked attempt to overwrite window.open');
+          console.warn(`[AdShield] Blocked attempt to overwrite ${targetName}.open`);
         }
       });
     } catch (_) {
-      window.open = safeOpenTrap;
+      try {
+        targetObj.open = safeOpenTrap;
+      } catch (_) {}
     }
   }
 
-  // Layer 2: beforeunload navigation guards — prevent redirects without breaking player features
   if (typeof window !== 'undefined') {
+    lockOpenMethod(window, 'window');
+    try {
+      if (typeof self !== 'undefined') {
+        lockOpenMethod(self, 'self');
+      }
+    } catch (_) {}
+    try {
+      if (window.top && window.top !== window) {
+        lockOpenMethod(window.top, 'top');
+      }
+    } catch (_) {}
+    try {
+      if (window.parent && window.parent !== window) {
+        lockOpenMethod(window.parent, 'parent');
+      }
+    } catch (_) {}
+
+    // Layer 2: beforeunload navigation guards — prevent redirects without breaking player features
     window.addEventListener('beforeunload', function (e) {
       if (_isPlaybackActive) {
-        delete e.returnValue;
+        mobileInstantKill('beforeunload_guard');
         triggerFocusSnapping('beforeunload_guard');
+        delete e.returnValue;
       }
     }, true);
 
@@ -2500,6 +2593,7 @@
   }
 
   function closeWatchView(updateUrl = true) {
+    stopFocusGuardian();
     teardownArtPlayer();
     if (embedFrame) {
       embedFrame.removeAttribute('src');
@@ -2989,6 +3083,10 @@
       playerEngineTag.textContent = candidate.name;
     }
 
+    // Arm Active 20ms Focus Guardian & history lock during playback
+    startFocusGuardian();
+    armHistoryLock();
+
     if (candidate.type === 'hls') {
       playHlsStream(candidate, options.useProxy || false);
     } else {
@@ -3002,9 +3100,7 @@
     if (embedFrame) {
       embedFrame.classList.remove('hidden');
 
-      // 1. Apply minimally permissive sandbox policy per user requirement:
-      // sandbox="allow-scripts allow-same-origin allow-forms"
-      // allow="autoplay; fullscreen; picture-in-picture"
+      // 1. Maintain 100% compatibility: NO iframe sandbox restrictions applied
       SandboxPolicyManager.applyToIframe(embedFrame, candidate);
 
       // 2. Setup iframe lifecycle listeners
@@ -3030,26 +3126,32 @@
       showToast(`Streaming via ${candidate.name}`, 'info');
     }
 
-    // Click-Shield: Absorb first click to neutralize pop-under ads without touching iframe DOM
+    // Transparent Touch Defuser & Safe Controls:
+    // Defuser covers upper video area to absorb rogue click/touch pop-unders.
+    // Bottom 64px control bar remains 100% unobstructed, clickable, and interactive (play, pause, scrub, subtitles, volume).
     const viewport = document.getElementById('cinema-viewport');
     if (viewport) {
       viewport.querySelectorAll('.embed-click-shield').forEach(s => s.remove());
       
       const shield = document.createElement('div');
       shield.className = 'embed-click-shield';
+      shield.setAttribute('aria-label', 'Touch Defuser');
       viewport.appendChild(shield);
 
       const removeShield = () => {
         shield.remove();
-        console.log('[StreamGuard] Click-shield absorbed first interaction');
+        console.log('[StreamGuard] Transparent touch defuser absorbed first interaction');
+        triggerFocusSnapping('touch_defuser_absorbed');
+        mobileInstantKill('touch_defuser_absorbed');
         ServerFailoverController.recordSuccess(candidate);
       };
       shield.addEventListener('click', removeShield, { once: true });
-      shield.addEventListener('touchstart', removeShield, { once: true, passive: true });
+      shield.addEventListener('touchend', removeShield, { once: true, passive: true });
 
+      // Automatically remove shield after 4 seconds to guarantee zero interference with stream
       setTimeout(() => {
         if (shield.parentNode) shield.remove();
-      }, 5000);
+      }, 4000);
     }
   }
 

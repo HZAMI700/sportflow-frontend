@@ -891,6 +891,8 @@ body {
   overflow: hidden;
   box-shadow: var(--shadow-card);
   transition: var(--transition-smooth);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .cinema-player-card.theater-mode {
@@ -912,6 +914,8 @@ body {
   max-height: 640px;
   background: #000000;
   overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .artplayer-app, .embed-frame {
@@ -1650,8 +1654,13 @@ body {
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 280px;
   border-radius: var(--radius-md);
   outline: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .stream-card:hover {
@@ -1668,6 +1677,8 @@ body {
   border: 1px solid var(--border-subtle);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow-card);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .stream-card:hover .stream-card-media {
@@ -2305,40 +2316,28 @@ body {
   }
 }
 
-/* ─── 16. Click-Shield for Ad Protection ──────────────────────────────────── */
+/* ─── 16. Click-Shield for Ad Protection & Safe Controls ──────────────────── */
 .embed-click-shield {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 64px; /* Unobstructed safe controls zone: play, pause, scrub, subtitles, volume remain 100% clickable */
   z-index: 15;
   cursor: pointer;
   background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.embed-click-shield::after {
-  content: 'Click to start stream';
+.safe-controls-zone {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 240, 255, 0.15);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: var(--accent-cyan);
-  font-size: 0.85rem;
-  font-weight: 700;
-  font-family: inherit;
-  padding: 0.65rem 1.5rem;
-  border-radius: var(--radius-capsule);
-  backdrop-filter: blur(4px);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.embed-click-shield:hover::after {
-  opacity: 1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  pointer-events: auto !important;
+  z-index: 16;
 }
 
 /* ─── 17. Stream Loading Skeletons ────────────────────────────────────────── */
