@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>تحميل تطبيق Pulsar TV v1.0.2 للأندرويد — بث تلفزيوني مباشر بسرعة الضوء</title>
+  
+  <!-- SEO & Social Meta Tags -->
+  <meta name="description" content="حمّل تطبيق Pulsar TV v1.0.2 الرسمي للأندرويد برابط مباشر مجاناً. بث مباشر لقنوات beIN SPORTS وقنوات عربية وعالمية بدقة عالية وبدون تقطيع وبدون إعلانات مزعجة.">
+  <meta name="keywords" content="Pulsar TV, بولسار تيفي, تحميل pulsar tv, bein sports live, apk download, بث مباشر مباريات, قنوات رياضية مجانا">
+  <meta name="theme-color" content="#08090c">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Pulsar TV — أقوى تطبيق لبث القنوات الرياضية والمباشرة">
+  <meta property="og:description" content="شاهد قنوات بي إن سبورتس والقنوات العربية والعالمية مجاناً وبدون إعلانات مزعجة. تحميل مباشر بصيغة APK.">
+  <meta property="og:image" content="/app_icon.png">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="app_icon.png">
+  <link rel="apple-touch-icon" href="app_icon.png">
+
+  <!-- Modern Arabic & Latin Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── Modern CSS Variables & Resets ─── */
+    :root {
+      --bg-canvas: #07080b;
+      --bg-card: rgba(16, 18, 24, 0.85);
+      --bg-card-hover: rgba(23, 26, 35, 0.95);
+      --bg-elevated: #151822;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-cyan: rgba(0, 240, 255, 0.35);
+      --border-red: rgba(239, 68, 68, 0.35);
+      
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.28);
+      --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.28);
+      --accent-emerald: #10b981;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-capsule: 9999px;
+      
+      --font-arabic: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-latin: 'Plus Jakarta Sans', sans-serif;
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      background-image: 
+        radial-gradient(ellipse 65% 55% at 50% -15%, rgba(0, 240, 255, 0.12), transparent 70%),
+        radial-gradient(ellipse 50% 45% at 85% 60%, rgba(239, 68, 68, 0.06), transparent 60%),
+        radial-gradient(circle 800px at 15% 90%, rgba(0, 240, 255, 0.04), transparent 70%);
+      color: var(--text-main);
+      font-family: var(--font-arabic);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      direction: rtl;
+      text-align: right;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ─── Navigation Header ─── */
+    .top-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 8, 11, 0.85);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .nav-brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .nav-brand-title span {
+      color: var(--accent-red);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-site-return {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: var(--radius-capsule);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-site-return:hover {
+      background: rgba(0, 240, 255, 0.1);
+      border-color: var(--border-cyan);
+      color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-nav-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-capsule);
+      background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+      color: #07080b;
+      font-size: 0.85rem;
+      font-weight: 800;
+      box-shadow: 0 0 18px var(--accent-cyan-glow);
+      transition: var(--transition);
+    }
+
+    .btn-nav-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    }
+
+    /* ─── Hero Section ─── */
+    .hero-section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .app-icon-wrapper {
+      position: relative;
+      margin-bottom: 1.75rem;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .app-main-icon {
+      width: 124px;
+      height: 124px;
+      border-radius: 28px;
+      box-shadow: 
+        0 16px 40px rgba(0, 0, 0, 0.65),
+        0 0 35px rgba(239, 68, 68, 0.35),
+        0 0 70px rgba(0, 240, 255, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      object-fit: cover;
+      display: block;
+    }
+
+    .icon-badge-official {
+      position: absolute;
+      bottom: -8px;
+      right: 50%;
+      transform: translateX(50%);
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-capsule);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .app-hero-title {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .app-hero-title .red-accent {
+      color: var(--accent-red);
+      text-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .app-hero-slogan {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 1.25rem;
+      text-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-capsule);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .pill-badge.cyan {
+      border-color: rgba(0, 240, 255, 0.3);
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+    }
+
+    .pill-badge.green {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .pill-badge.red {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .short-description-card {
+      max-width: 760px;
+      margin: 0 auto 2.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-right: 4px solid var(--accent-cyan);
+      padding: 1.25rem 1.75rem;
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      color: var(--text-main);
+      line-height: 1.75;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ─── Call-to-Action Buttons ─── */
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 3.5rem;
+    }
+
+    .btn-main-download {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      padding: 1.15rem 2rem;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+      color: #07080b;
+      font-size: 1.2rem;
+      font-weight: 900;
+      box-shadow: 
+        0 10px 30px var(--accent-cyan-glow),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-main-download::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent,
+        rgba(255, 255, 255, 0.35),
+        transparent
+      );
+      transform: rotate(30deg);
+      animation: shine 3.5s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translate(-100%, -100%) rotate(30deg); }
+      30%, 100% { transform: translate(100%, 100%) rotate(30deg); }
+    }
+
+    .btn-main-download:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0, 240, 255, 0.45);
+    }
+
+    .btn-main-download:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .btn-backup-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-capsule);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .btn-backup-download:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .download-meta-hint {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* ─── App Specs Card ─── */
+    .section-wrap {
+      max-width: 1040px;
+      margin: 0 auto 3.5rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-icon {
+      font-size: 1.4rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .specs-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
+
+    .spec-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-cyan);
+      transform: translateY(-2px);
+    }
+
+    .spec-label {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .spec-value {
+      font-size: 1.05rem;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .spec-value.cyan {
+      color: var(--accent-cyan);
+    }
+
+    .spec-value.green {
+      color: var(--accent-emerald);
+    }
+
+    .spec-value.mono {
+      font-family: var(--font-latin);
+      font-size: 0.95rem;
+      direction: ltr;
+      display: inline-block;
+      text-align: right;
+    }
+
+    /* ─── Key Features Grid ─── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-cyan);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 240, 255, 0.12);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .feature-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .feature-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── Installation Guide ─── */
+    .install-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .install-step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: var(--transition);
+    }
+
+    .install-step-card:hover {
+      border-color: var(--border-cyan);
+      transform: translateY(-3px);
+      background: var(--bg-card-hover);
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00f0ff, #0284c7);
+      color: #07080b;
+      font-weight: 900;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-latin);
+    }
+
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .step-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .step-text strong {
+      color: var(--accent-cyan);
+    }
+
+    /* ─── Bottom CTA Strip ─── */
+    .bottom-cta-banner {
+      background: linear-gradient(135deg, rgba(16, 18, 24, 0.95), rgba(7, 8, 11, 0.95));
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 3rem 1.5rem;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .bottom-cta-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .bottom-cta-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .bottom-cta-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── Footer ─── */
+    .app-footer {
+      padding: 2.5rem 1.5rem 5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: auto;
+    }
+
+    .app-footer a {
+      color: var(--accent-cyan);
+      text-decoration: underline;
+    }
+
+    /* ─── Responsive Media Queries ─── */
+    @media (max-width: 768px) {
+      .app-hero-title {
+        font-size: 2rem;
+      }
+      .app-hero-slogan {
+        font-size: 1.05rem;
+      }
+      .short-description-card {
+        font-size: 0.95rem;
+        padding: 1rem 1.25rem;
+      }
+      .btn-main-download {
+        font-size: 1.05rem;
+        padding: 1rem 1.5rem;
+      }
+      .specs-card {
+        padding: 1.25rem;
+      }
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .install-timeline {
+        grid-template-columns: 1fr;
+      }
+      .top-navbar {
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* ─── Download Toast / Notification ─── */
+    .dl-toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0f172a;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 10px 30px rgba(0, 240, 255, 0.25);
+      color: #fff;
+      padding: 0.85rem 1.5rem;
+      border-radius: var(--radius-capsule);
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .dl-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="top-navbar">
+    <a href="/download.html" class="nav-brand">
+      <img src="app_icon.png" alt="Pulsar TV Icon" width="38" height="38">
+      <span class="nav-brand-title">Pulsar <span>TV</span></span>
+    </a>
+
+    <div class="nav-actions">
+      <a href="/" class="btn-site-return">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>العودة للبث المباشر</span>
+      </a>
+
+      <a href="pulsar-tv-v1.0.2.apk" download="pulsar-tv-v1.0.2.apk" class="btn-nav-download" onclick="notifyDownload()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>تحميل APK</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="app-icon-wrapper">
+        <img src="app_icon.png" alt="شعار تطبيق Pulsar TV" class="app-main-icon" width="124" height="124">
+        <span class="icon-badge-official">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          إصدار رسمي
+        </span>
+      </div>
+
+      <h1 class="app-hero-title">Pulsar <span class="red-accent">TV</span> — بولسار تيفي</h1>
+      <p class="app-hero-slogan">⚡ بث تلفزيوني مباشر بسرعة الضوء</p>
+
+      <div class="badges-row">
+        <span class="pill-badge cyan">
+          <span>🏷️ الإصدار: v1.0.2</span>
+        </span>
+        <span class="pill-badge green">
+          <span>🛡️ فحص أمني: سليم 100%</span>
+        </span>
+        <span class="pill-badge red">
+          <span>🚫 بدون إعلانات مزعجة</span>
+        </span>
+        <span class="pill-badge">
+          <span>📦 الحجم: 24.0 MB</span>
+        </span>
+      </div>
+
+      <!-- Short Marketing Description -->
+      <div class="short-description-card">
+        تطبيق <strong>Pulsar TV</strong>: أقوى وأسرع تطبيق لمشاهدة القنوات الرياضية العالمية والمحلية والبث التلفزيوني المباشر بدقة عالية وبدون تقطيع، مع دعم كامل للغة العربية ومشغل ذكي بدون إعلانات مزعجة.
+      </div>
+
+      <!-- Call to Action Buttons -->
+      <div class="cta-container">
+        <a href="pulsar-tv-v1.0.2.apk" download="pulsar-tv-v1.0.2.apk" class="btn-main-download" id="main-dl-btn" onclick="notifyDownload()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>⬇️ تحميل Pulsar TV v1.0.2 (APK مجاني)</span>
+        </a>
+
+        <a href="pulsar-tv-v1.0.2.apk" download="pulsar-tv-v1.0.2.apk" class="btn-backup-download" onclick="notifyDownload('backup')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>🔄 تحميل عبر رابط بديل (Dropbox / Drive)</span>
+        </a>
+
+        <div class="download-meta-hint">
+          <span>حجم الملف: <strong>24.0 MB</strong></span>
+          <span>•</span>
+          <span>نظام التشغيل: <strong>Android 7.0+</strong></span>
+          <span>•</span>
+          <span>مجاني 100%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. بطاقة البيانات التقنية (App Specs Card) -->
+    <section class="section-wrap">
+      <div class="section-header">
+        <span class="section-icon">📊</span>
+        <h2 class="section-title">بطاقة البيانات التقنية (App Specs Card)</h2>
+      </div>
+
+      <div class="specs-card">
+        <div class="specs-grid">
+          
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              اسم التطبيق:
+            </span>
+            <span class="spec-value">Pulsar TV — بولسار تيفي</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              الشعار:
+            </span>
+            <span class="spec-value cyan">بث تلفزيوني مباشر بسرعة الضوء</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              السعر:
+            </span>
+            <span class="spec-value green">مجاني 100% (Free)</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              رقم الإصدار:
+            </span>
+            <span class="spec-value mono">v1.0.2 (أحدث إصدار رسمي)</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              حجم الملف:
+            </span>
+            <span class="spec-value">24.0 ميجابايت (24.0 MB)</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+              نظام التشغيل المدعوم:
+            </span>
+            <span class="spec-value">Android 7.0 وما فوق (يدعم Android 10, 11, 12, 13, 14)</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              اسم الحزمة (Package Name):
+            </span>
+            <span class="spec-value mono">com.pulsartv.app</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              اللغات المدعومة:
+            </span>
+            <span class="spec-value">العربية (افتراضياً)، الإنجليزية، الفرنسية، الإسبانية، الألمانية</span>
+          </div>
+
+          <div class="spec-item">
+            <span class="spec-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              تاريخ آخر تحديث:
+            </span>
+            <span class="spec-value cyan">اليوم (أحدث بناء مستقر)</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. أبرز مميزات التطبيق (Key Features) -->
+    <section class="section-wrap">
+      <div class="section-header">
+        <span class="section-icon">🌟</span>
+        <h2 class="section-title">أبرز مميزات التطبيق لصفحة التحميل (Key Features)</h2>
+      </div>
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🏆</div>
+            <h3 class="feature-title">بث مباشر لقنوات beIN SPORTS</h3>
+          </div>
+          <p class="feature-desc">باقة قنوات بي إن سبورتس كاملة لمتابعة أقوى الدوريات والبطولات العالمية في صدارة التطبيق وبجودات متعددة.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🇹🇳</div>
+            <h3 class="feature-title">قنوات تونسية وعربية شاملة</h3>
+          </div>
+          <p class="feature-desc">قسم خاص للقنوات التونسية والمغاربية والمصرية والخليجية بتنظيم دقيق لكل دولة لتجربة تصفح محلية ممتازة.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🌍</div>
+            <h3 class="feature-title">استكشاف القنوات العالمية (Multi-Region)</h3>
+          </div>
+          <p class="feature-desc">قنوات مباشرة مقسمة حسب الدول (فرنسا، إسبانيا، المملكة المتحدة، كندا، تركيا، الولايات المتحدة، وغيرها).</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🛡️</div>
+            <h3 class="feature-title">نظام حماية وحظر الإعلانات (Ad-Shield)</h3>
+          </div>
+          <p class="feature-desc">تشغيل البث المباشر فوراً دون إعلانات منبثقة أو نوافذ احتيالية مزعجة، لتجربة مشاهدة نقية ومستقرة.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">📱</div>
+            <h3 class="feature-title">مشغل ذكي بملء الشاشة التلقائي</h3>
+          </div>
+          <p class="feature-desc">بمجرد اختيار أي قناة يتحول الهاتف تلقائياً لوضع الشاشة الكاملة (Landscape) مع تشغيل الصوت فوراً دون الحاجة لضبط يدوي.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🔄</div>
+            <h3 class="feature-title">تحديثات تلقائية من السيرفر (In-App)</h3>
+          </div>
+          <p class="feature-desc">يحصل المستخدم على أحدث الروابط والقنوات الجديدة تلقائياً من السيرفر مباشرة دون الحاجة للبحث عنها أو إعادة التثبيت.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">⭐</div>
+            <h3 class="feature-title">قائمتي والمفضلة (Favorites)</h3>
+          </div>
+          <p class="feature-desc">إمكانية حفظ ومزامنة قنواتك المفضلة للوصول إليها وإدارتها بلمسة زر واحدة في أي وقت.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-badge">🚀</div>
+            <h3 class="feature-title">خفيف وسريع جداً</h3>
+          </div>
+          <p class="feature-desc">حجم صغير جداً (24 ميغابايت فقط) واستهلاك منخفض للبطارية والإنترنت ليعمل بسلاسة حتى على الأجهزة المتوسطة والضعيفة.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. طريقة التثبيت خطوة بخطوة للمستخدمين (How to Install) -->
+    <section class="section-wrap">
+      <div class="section-header">
+        <span class="section-icon">📲</span>
+        <h2 class="section-title">طريقة التثبيت خطوة بخطوة للمستخدمين (How to Install)</h2>
+      </div>
+
+      <div class="install-timeline">
+
+        <div class="install-step-card">
+          <div class="step-number">1</div>
+          <h3 class="step-title">تحميل الملف</h3>
+          <p class="step-text">اضغط على زر <strong>"تحميل التطبيق (Download APK)"</strong> بالأسفل لبدء تنزيل ملف التثبيت مباشرة إلى هاتفك.</p>
+        </div>
+
+        <div class="install-step-card">
+          <div class="step-number">2</div>
+          <h3 class="step-title">فتح الملف</h3>
+          <p class="step-text">بعد اكتمال التنزيل، اضغط على إشعار التحميل أو افتح الملف المُنزل <strong>pulsar-tv-v1.0.2.apk</strong> لفتحه.</p>
+        </div>
+
+        <div class="install-step-card">
+          <div class="step-number">3</div>
+          <h3 class="step-title">السماح بالتثبيت</h3>
+          <p class="step-text">إذا ظهرت لك رسالة أمان النظام: فعّل خيار <strong>"السماح بتثبيت التطبيقات من هذا المصدر" (Allow from this source)</strong>.</p>
+        </div>
+
+        <div class="install-step-card">
+          <div class="step-number">4</div>
+          <h3 class="step-title">التثبيت والاستمتاع</h3>
+          <p class="step-text">اضغط على <strong>تثبيت (Install)</strong> ثم <strong>فتح (Open)</strong> واستمتع بالبث التلفزيوني والرياضي المباشر فوراً!</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Bottom CTA Banner -->
+    <section class="bottom-cta-banner">
+      <div class="bottom-cta-wrap">
+        <h2 class="bottom-cta-title">جاهز لمشاهدة أقوى المباريات؟</h2>
+        <p class="bottom-cta-sub">حمّل الآن الإصدار v1.0.2 واستمتع بالبث المباشر بدون إعلانات وبسرعة خيالية.</p>
+        
+        <a href="pulsar-tv-v1.0.2.apk" download="pulsar-tv-v1.0.2.apk" class="btn-main-download" onclick="notifyDownload()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>⬇️ تحميل Pulsar TV v1.0.2 (APK مجاني)</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Download Toast -->
+  <div id="dl-toast" class="dl-toast">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.5">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    <span>بدأ تنزيل Pulsar TV v1.0.2 (24.0 MB)... تحقق من الإشعارات!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>© 2026 Pulsar TV — جميع الحقوق محفوظة. تطبيق مجاني 100% لبث القنوات الرياضية والعالمية.</p>
+    <p style="margin-top: 0.5rem; color: var(--text-dim); font-size: 0.8rem;">
+      <a href="/">العودة للبث المباشر في المتصفح</a> • متوافق مع كافة أجهزة الأندرويد والشاشات الذكية (Android TV).
+    </p>
+  </footer>
+
+  <script>
+    function notifyDownload(type) {
+      const toast = document.getElementById('dl-toast');
+      if (toast) {
+        if (type === 'backup') {
+          toast.querySelector('span').textContent = 'جاري التحميل عبر الرابط البديل...';
+        } else {
+          toast.querySelector('span').textContent = 'بدأ تنزيل Pulsar TV v1.0.2 (24.0 MB)... تحقق من إشعارات هاتفك!';
+        }
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>

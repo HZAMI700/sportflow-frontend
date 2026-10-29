@@ -1089,6 +1089,12 @@
     const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
     const idFromQuery = url.searchParams.get('id') || url.searchParams.get('watch');
 
+    // 0. Download page redirect if accessed via SPA routing
+    if (path === 'download' || path === 'pulsar-tv' || path === 'app' || hash === 'download') {
+      window.location.href = '/download.html';
+      return;
+    }
+
     // 1. Check if direct /watch route
     let watchId = idFromQuery;
     if (!watchId && path.startsWith('watch')) {

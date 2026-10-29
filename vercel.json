@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/download",
+      "destination": "/download.html"
+    },
+    {
+      "source": "/pulsar-tv",
+      "destination": "/download.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/download.html"
+    },
+    {
       "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
