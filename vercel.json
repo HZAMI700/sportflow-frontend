@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/apk",
+      "destination": "/app-debug.apk"
+    },
+    {
       "source": "/download",
       "destination": "/download.html"
     },
